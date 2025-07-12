@@ -1,0 +1,42 @@
+title: Django Revolution
+description: Zone-based API architecture for Django. Install and go.
+url: 'https://markolofsen.github.io'
+baseurl: '/django-revolution'
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+# Theme settings
+theme: jekyll-theme-cayman
+
+# GitHub settings
+show_downloads: false
+github_repo: markolofsen/django-revolution
+github_banner: true
+
+# Custom settings
+logo: /assets/logo.svg
+
+# Modern design settings
+modern_design: true
+dark_mode: false
+gradient_header: true
+
+# Navigation
+nav:
+  - title: Home
+    url: /
+  - title: Installation
+    url: /installation/
+  - title: Usage
+    url: /usage/
+  - title: CLI
+    url: /cli/
+  - title: API Reference
+    url: /api-reference/
+  - title: Architecture
+    url: /architecture/
+  - title: Troubleshooting
+    url: /troubleshooting/
