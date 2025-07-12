@@ -1,0 +1,113 @@
+@import 'jekyll-theme-cayman';
+
+// Custom styles for Django Revolution
+.sidebar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.sidebar-about h1 {
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-about p {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sidebar-nav {
+  margin-top: 2rem;
+}
+
+.sidebar-nav-item {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  padding: 0.5rem 0;
+  transition: all 0.3s ease;
+}
+
+.sidebar-nav-item:hover {
+  color: white;
+  text-decoration: none;
+  transform: translateX(5px);
+}
+
+.sidebar-nav-item.active {
+  color: white;
+  font-weight: 600;
+}
+
+// Content area
+.content {
+  padding: 2rem;
+}
+
+// Modern buttons
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  color: white;
+  text-decoration: none;
+}
+
+// Code blocks
+.highlight {
+  background: #1a202c;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+// Tables
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+th,
+td {
+  border: 1px solid #e2e8f0;
+  padding: 1rem;
+  text-align: left;
+}
+
+th {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-weight: 600;
+}
+
+tr:nth-child(even) {
+  background: #f7fafc;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+}
