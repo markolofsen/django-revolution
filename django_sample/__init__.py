@@ -1,1 +1,0 @@
-# Django sample test project 
