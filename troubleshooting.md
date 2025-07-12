@@ -324,7 +324,7 @@ python manage.py revolution --list-zones
 
 ### Resources
 
-- 📖 [Documentation](https://django-revolution.readthedocs.io/)
+- 📖 [Documentation](https://markolofsen.github.io/django-revolution/)
 - 🐛 [GitHub Issues](https://github.com/markolofsen/django-revolution/issues)
 - 💬 [Discussions](https://github.com/markolofsen/django-revolution/discussions)
 - 📧 [Email Support](mailto:developers@unrealos.com)
