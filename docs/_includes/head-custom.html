@@ -1,0 +1,91 @@
+<!-- Custom styles for navigation and layout -->
+<style>
+  .navigation {
+    background: #f6f8fa;
+    border-bottom: 1px solid #e1e4e8;
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+  }
+
+  .navigation ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .navigation li {
+    margin: 0;
+  }
+
+  .navigation a {
+    color: #586069;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .navigation a:hover {
+    background: #e1e4e8;
+    color: #24292e;
+  }
+
+  .navigation a.active {
+    background: #0366d6;
+    color: white;
+  }
+
+  /* GitHub banner styles */
+  .github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out;
+  }
+
+  @keyframes octocat-wave {
+    0%,
+    100% {
+      transform: rotate(0);
+    }
+    20%,
+    60% {
+      transform: rotate(-25deg);
+    }
+    40%,
+    80% {
+      transform: rotate(10deg);
+    }
+  }
+
+  /* Custom header styles */
+  .page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+
+  .page-header h1 {
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .page-header p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2rem;
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .navigation ul {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .navigation a {
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
