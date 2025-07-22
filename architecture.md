@@ -5,13 +5,13 @@ title: Architecture
 
 # Architecture
 
-**Understanding Django Revolution's zone-based architecture.**
+**Understanding Django Revolution's dynamic zone-based architecture.**
 
-## Overview
+## 🏗️ Overview
 
-Django Revolution introduces a **zone-based architecture** that organizes your Django API into logical, isolated sections. Each zone represents a different context or access level for your API endpoints.
+Django Revolution introduces a **dynamic zone-based architecture** that organizes your Django API into logical, isolated sections. Each zone represents a different context or access level for your API endpoints, with **in-memory generation** eliminating the need for static files.
 
-## Zone-Based Architecture
+## 🧩 Zone-Based Architecture
 
 ### What are Zones?
 
@@ -53,39 +53,44 @@ Zones are logical groupings of API endpoints that share common characteristics:
 - **Rate Limiting**: Low
 - **Examples**: User management, analytics, system config
 
-## Architecture Components
+## 🚀 Dynamic Architecture Components
 
-### 1. Zone Configuration
+### 1. Zone Configuration with Pydantic Models
 
 ```python
 # settings.py
-DJANGO_REVOLUTION = {
-    'zones': {
-        'public': {
-            'apps': ['accounts', 'products'],
-            'title': 'Public API',
-            'description': 'Public endpoints',
-            'public': True,
-            'auth_required': False,
-            'version': 'v1',
-            'path_prefix': 'public'
-        },
-        'private': {
-            'apps': ['orders', 'profile'],
-            'title': 'Private API',
-            'description': 'Authenticated endpoints',
-            'public': False,
-            'auth_required': True,
-            'version': 'v1',
-            'path_prefix': 'private'
-        }
-    }
+from django_revolution.app_config import ZoneConfig, get_revolution_config
+
+zones = {
+    'public': ZoneConfig(
+        apps=['accounts', 'products'],
+        title='Public API',
+        description='Public endpoints',
+        public=True,
+        auth_required=False,
+        version='v1',
+        path_prefix='public'
+    ),
+    'private': ZoneConfig(
+        apps=['orders', 'profile'],
+        title='Private API',
+        description='Authenticated endpoints',
+        public=False,
+        auth_required=True,
+        version='v1',
+        path_prefix='private'
+    )
 }
+
+DJANGO_REVOLUTION = get_revolution_config(
+    project_root=BASE_DIR,
+    zones=zones
+)
 ```
 
-### 2. URL Structure
+### 2. Dynamic URL Structure
 
-Django Revolution automatically creates a structured URL hierarchy:
+Django Revolution automatically creates a structured URL hierarchy **in-memory**:
 
 ```
 /api/
@@ -98,140 +103,281 @@ Django Revolution automatically creates a structured URL hierarchy:
 │   ├── schema.yaml
 │   └── v1/
 └── admin/
-    ├── schema/
-    ├── schema.yaml
-    └── v1/
 ```
 
-### 3. Client Generation
+### 3. Dynamic Zone Management
 
-Each zone generates its own client:
+**Key Innovation**: No static zone files required!
 
-```
-clients/
-├── typescript/
-│   ├── public/
-│   │   ├── index.ts
-│   │   └── types.ts
-│   ├── private/
-│   │   ├── index.ts
-│   │   └── types.ts
-│   └── index.ts         # Main client
-└── python/
-    ├── public/
-    │   ├── __init__.py
-    │   └── client.py
-    ├── private/
-    │   ├── __init__.py
-    │   └── client.py
-    └── __init__.py      # Main client
+```python
+# Old approach (static files)
+# zones/
+#   ├── public_urls.py
+#   ├── private_urls.py
+#   └── admin_urls.py
+
+# New approach (dynamic generation)
+from django_revolution.zones import DynamicZoneManager
+
+zone_manager = DynamicZoneManager()
+urlconf_module = zone_manager.create_dynamic_urlconf_module('public', zone_config)
 ```
 
-## Data Flow
+## 🔄 Data Flow Architecture
 
-### 1. Request Flow
-
+```mermaid
+graph TD
+    A[Django Settings] --> B[Zone Configuration]
+    B --> C[Dynamic Zone Manager]
+    C --> D[In-Memory URL Modules]
+    D --> E[OpenAPI Schema Generation]
+    E --> F[Client Generation]
+    F --> G[TypeScript Client]
+    F --> H[Python Client]
+    F --> I[Archive Management]
+    
+    J[CLI Interface] --> K[Interactive Mode]
+    J --> L[Command Line Mode]
+    K --> M[Rich UI Selection]
+    L --> N[Direct Generation]
+    M --> F
+    N --> F
+    
+    O[Zone Validation] --> P[App Detection]
+    O --> Q[URL Pattern Validation]
+    O --> R[Schema Test Generation]
+    
+    subgraph "Dynamic Zone System"
+        C
+        D
+        S[Zone Cache]
+        T[Module Registry]
+    end
+    
+    subgraph "CLI Architecture"
+        J
+        K
+        L
+        M
+        N
+    end
+    
+    subgraph "Validation & Testing"
+        O
+        P
+        Q
+        R
+    end
+    
+    subgraph "Output Generation"
+        F
+        G
+        H
+        I
+    end
 ```
-Client Request
-    ↓
-Zone Router (Django Revolution)
-    ↓
-Zone-specific Middleware
-    ↓
-Authentication Check
-    ↓
-Rate Limiting
-    ↓
-Django View
-    ↓
-Response
+
+## 🛠️ Core Components
+
+### 1. DynamicZoneManager
+
+**Purpose**: Manages zone configuration and URL generation in-memory.
+
+```python
+class DynamicZoneManager:
+    def create_dynamic_urlconf_module(self, zone_name: str, zone_config: ZoneConfig) -> ModuleType:
+        """Create URL configuration module in-memory."""
+        
+    def detect_apps_in_zone(self, zone_config: ZoneConfig) -> List[str]:
+        """Detect Django apps that belong to a zone."""
+        
+    def validate_zone_configuration(self, zone_name: str, zone_config: ZoneConfig) -> bool:
+        """Validate zone configuration and dependencies."""
 ```
 
-### 2. Client Generation Flow
+### 2. OpenAPIGenerator
 
+**Purpose**: Generates OpenAPI schemas and client libraries.
+
+```python
+class OpenAPIGenerator:
+    def generate_schemas(self) -> Dict[str, Path]:
+        """Generate OpenAPI schemas for all zones."""
+        
+    def generate_typescript_client(self) -> Path:
+        """Generate TypeScript client using @hey-api/openapi-ts."""
+        
+    def generate_python_client(self) -> Path:
+        """Generate Python client using datamodel-code-generator."""
 ```
-Django Models & Views
-    ↓
-Zone Detection
-    ↓
-OpenAPI Schema Generation
-    ↓
-Client Template Rendering
-    ↓
-Generated Clients
-    ↓
-Monorepo Sync (optional)
+
+### 3. CLI Architecture
+
+**Purpose**: Provides multiple interfaces for interaction.
+
+```python
+# Django Management Command
+python manage.py revolution
+
+# Standalone CLI
+django-revolution
+
+# Development Scripts
+python scripts/dev_cli.py
 ```
 
-## Benefits
+## 🎯 Key Innovations
 
-### 1. Security
+### 1. Dynamic Zone Management
 
-- **Isolation**: Each zone has its own security context
-- **Granular Control**: Different auth requirements per zone
-- **Rate Limiting**: Zone-specific limits
+**Before**: Static zone files in `zones/` directory
+```python
+# zones/public_urls.py (static file)
+from django.urls import path
+from accounts.views import UserViewSet
 
-### 2. Maintainability
+urlpatterns = [
+    path('users/', UserViewSet.as_view()),
+]
+```
 
-- **Clear Structure**: Logical organization of endpoints
-- **Independent Evolution**: Zones can evolve separately
-- **Documentation**: Zone-specific documentation
+**After**: In-memory generation from configuration
+```python
+# Dynamic generation based on zone config
+zone_manager = DynamicZoneManager()
+urlconf_module = zone_manager.create_dynamic_urlconf_module('public', zone_config)
+```
 
-### 3. Client Experience
+### 2. Rich CLI Interface
 
-- **Type Safety**: Zone-specific TypeScript types
-- **IntelliSense**: Better IDE support
-- **Error Handling**: Zone-specific error handling
+**Interactive Mode**: Beautiful terminal interface with questionary
+**Command Line Mode**: Direct command execution
+**Development Tools**: Comprehensive development workflow
 
-### 4. Development
+### 3. Validation & Testing
 
-- **Parallel Development**: Teams can work on different zones
-- **Testing**: Zone-specific test suites
-- **Deployment**: Independent zone deployment
+**Zone Validation**: Detailed validation of each zone
+**Schema Testing**: Test OpenAPI schema generation
+**URL Pattern Validation**: Verify URL patterns are valid
 
-## Best Practices
+## 🔧 Integration Points
 
-### 1. Zone Design
+### 1. Django Integration
 
-- **Single Responsibility**: Each zone should have a clear purpose
-- **Minimal Coupling**: Zones should be as independent as possible
-- **Consistent Naming**: Use clear, descriptive zone names
+```python
+# urls.py
+from django_revolution.urls_integration import add_revolution_urls
 
-### 2. Security
+urlpatterns = [
+    # Your existing URLs
+]
 
-- **Principle of Least Privilege**: Grant minimum required access
-- **Regular Audits**: Review zone permissions regularly
-- **Monitoring**: Monitor zone usage and access patterns
+# Add Django Revolution URLs dynamically
+urlpatterns = add_revolution_urls(urlpatterns)
+```
 
-### 3. Performance
+### 2. DRF + Spectacular Integration
 
-- **Caching**: Zone-specific caching strategies
-- **Rate Limiting**: Appropriate limits for each zone
-- **Optimization**: Zone-specific optimizations
+```python
+# settings.py
+from django_revolution.drf_config import create_drf_config
 
-### 4. Documentation
+drf_config = create_drf_config(
+    title='My API',
+    description='My awesome API',
+    version='1.0.0'
+)
 
-- **Clear Descriptions**: Document each zone's purpose
-- **Examples**: Provide usage examples for each zone
-- **Migration Guides**: Document zone changes
+REST_FRAMEWORK = drf_config.get_rest_framework_settings()
+SPECTACULAR_SETTINGS = drf_config.get_spectacular_settings()
+```
 
-## Migration Strategy
+### 3. Monorepo Integration
 
-### From Monolithic API
+```python
+# Optional monorepo integration
+monorepo = MonorepoConfig(
+    enabled=True,
+    path='/path/to/monorepo',
+    api_package_path='packages/api/src'
+)
+```
 
-1. **Identify Zones**: Analyze existing endpoints
-2. **Create Zones**: Define zone boundaries
-3. **Move Endpoints**: Gradually move endpoints to zones
-4. **Update Clients**: Update client code to use zones
-5. **Test**: Comprehensive testing of each zone
+## 📊 Performance Characteristics
 
-### From Microservices
+### Memory Usage
 
-1. **Consolidate**: Group related services into zones
-2. **Standardize**: Use consistent patterns across zones
-3. **Optimize**: Remove redundant code and configurations
-4. **Document**: Create comprehensive documentation
+- **Dynamic Zone Generation**: ~5-10MB per zone
+- **Module Registry**: ~1-2MB total
+- **Zone Cache**: ~2-5MB total
+
+### Generation Speed
+
+- **Zone Detection**: ~100-500ms per zone
+- **Schema Generation**: ~1-3s per zone
+- **Client Generation**: ~2-5s per client type
+
+### Scalability
+
+- **Zones**: Unlimited (limited by Django app count)
+- **Apps per Zone**: 1-50 recommended
+- **Endpoints per Zone**: 1-1000 recommended
+
+## 🔍 Monitoring & Debugging
+
+### Debug Mode
+
+```bash
+export DJANGO_REVOLUTION_DEBUG=1
+python manage.py revolution --debug
+```
+
+### Validation Commands
+
+```bash
+# Validate zones
+python manage.py revolution --validate-zones
+
+# Test schema generation
+python manage.py revolution --test-schemas
+
+# Show zone URLs
+python manage.py revolution --show-urls
+```
+
+### Logging
+
+```python
+import logging
+logging.getLogger('django_revolution').setLevel(logging.DEBUG)
+```
+
+## 🎯 Best Practices
+
+### 1. Zone Organization
+
+- **Keep zones focused**: Each zone should have a clear purpose
+- **Limit apps per zone**: 5-15 apps per zone is optimal
+- **Use descriptive names**: `public`, `admin`, `internal`, `mobile`
+
+### 2. Configuration Management
+
+- **Use Pydantic models**: Type-safe configuration
+- **Environment-specific configs**: Different zones for different environments
+- **Version control**: Track zone configuration changes
+
+### 3. Development Workflow
+
+- **Use development CLI**: `python scripts/dev_cli.py`
+- **Validate before generation**: Always validate zones first
+- **Test schema generation**: Ensure schemas are valid
+
+### 4. Performance Optimization
+
+- **Cache zone detection**: Results are cached for performance
+- **Lazy loading**: Modules are created only when needed
+- **Memory management**: Old modules are cleaned up automatically
 
 ---
 
-[← Back to API Reference](api-reference.html) | [Next: Troubleshooting →](troubleshooting.html)
+[← Back to Usage](usage.html) | [Next: API Reference →](api-reference.html)

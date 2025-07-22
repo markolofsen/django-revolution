@@ -7,12 +7,18 @@ title: Installation
 
 **Get Django Revolution running in 2 minutes.**
 
-## Quick Install
+## 🚀 Quick Install
 
 ```bash
+# Using pip
 pip install django-revolution
-# or
+
+# Using poetry
 poetry add django-revolution
+
+# Using requirements.txt
+echo "django-revolution>=1.0.11" >> requirements.txt
+pip install -r requirements.txt
 ```
 
 ### Add to Django
@@ -28,29 +34,51 @@ INSTALLED_APPS = [
 ### Test Installation
 
 ```bash
+# Check status
 python manage.py revolution --status
+
+# Or use standalone CLI
+django-revolution --status
 ```
 
 **Done!** Django Revolution auto-installs dependencies when first used.
 
-## Verify Installation
+## ✅ Verify Installation
 
 ### Check Version & Status
 
 ```bash
+# Django management command
 python manage.py revolution --status
+
+# Standalone CLI
+django-revolution --status
+
+# Development CLI
+python scripts/dev_cli.py
 ```
 
 ### List Available Commands
 
 ```bash
+# Django management command
 python manage.py revolution --help
+
+# Standalone CLI
+django-revolution --help
+
+# Development tools
+python scripts/dev_cli.py
 ```
 
 ### Install Dependencies
 
 ```bash
+# Auto-install dependencies
 python manage.py revolution --install-deps
+
+# Or manually
+pip install -r requirements-dev.txt
 ```
 
 ### List Zones
@@ -59,49 +87,108 @@ python manage.py revolution --install-deps
 python manage.py revolution --list-zones
 ```
 
-## Auto-Installed Dependencies
+## 📦 Auto-Installed Dependencies
 
 **Automatically installed when needed:**
 
 - `@hey-api/openapi-ts` - TypeScript client generation
-- `openapi-python-client` - Python client generation
-- `drf-spectacular` - OpenAPI schema generation (via pip)
+- `datamodel-code-generator` - Python client generation
+- `drf-spectacular` - OpenAPI schema generation
 
 **Pre-installed with package:**
 
 - `Django>=3.2` - Web framework
 - `djangorestframework>=3.12.0` - API framework
+- `drf-spectacular>=0.24.0` - OpenAPI schema generation
 - `Jinja2>=3.0.0` - Template engine
 - `PyYAML>=6.0` - YAML processing
+- `pydantic>=2.0.0` - Data validation
+- `pydantic-settings>=2.0.0` - Settings management
+- `questionary>=2.0.0` - Interactive CLI
+- `rich>=13.0.0` - Rich terminal output
+- `datamodel-code-generator>=0.31.0` - Python client generation
 - `django-filter>=22.0.0` - Filtering support
 - `djangorestframework-simplejwt>=5.0.0` - JWT authentication
 
-## Advanced Installation
+## 🛠️ Development Installation
 
 ### From Source
 
 ```bash
+# Clone repository
 git clone https://github.com/markolofsen/django-revolution.git
 cd django-revolution
+
+# Install in development mode
 pip install -e .
+
+# Install development dependencies
+pip install -r requirements-dev.txt
+
+# Test installation
+python scripts/dev_cli.py
 ```
 
 ### With Poetry
 
 ```bash
+# Add to project
 poetry add django-revolution
+
+# Add development dependencies
+poetry add --group dev django-revolution[dev]
 ```
 
-### With Requirements File
+### With Requirements Files
 
 ```bash
-# requirements.txt
-django-revolution>=1.0.6
-
+# Main dependencies
 pip install -r requirements.txt
+
+# Development dependencies
+pip install -r requirements-dev.txt
+
+# Minimal dependencies (core only)
+pip install -r requirements-minimal.txt
 ```
 
-## Troubleshooting
+## 🔧 Development Tools
+
+After installation, you have access to:
+
+```bash
+# Interactive development CLI
+python scripts/dev_cli.py
+
+# Version management
+python scripts/version_manager.py get
+python scripts/version_manager.py bump --bump-type patch
+
+# Generate requirements files
+python scripts/generate_requirements.py
+
+# Interactive publishing
+python scripts/publisher.py
+
+# Test generation
+./scripts/test_generation.sh
+```
+
+### Package Commands (after installation)
+
+```bash
+# Install in development mode
+pip install -e .
+
+# Use package commands
+django-revolution --help
+version-manager --help
+publisher --help
+dev-cli --help
+generate-requirements
+```
+
+## 🚨 Troubleshooting
 
 ### Node.js Not Found
 
@@ -124,6 +211,9 @@ choco install nodejs
 ```bash
 # Fix npm permissions (Linux/macOS)
 sudo chown -R $(whoami) ~/.npm
+
+# Make scripts executable
+chmod +x scripts/*.py scripts/*.sh
 ```
 
 ### Import Errors
@@ -132,9 +222,22 @@ sudo chown -R $(whoami) ~/.npm
 # Check installation
 python -c "import django_revolution; print('✅ Django Revolution installed')"
 
+# Check scripts
+python -c "from scripts.version_manager import VersionManager; print('✅ Scripts available')"
+
 # Reinstall if needed
 pip uninstall django-revolution
 pip install django-revolution
+```
+
+### TOML Parsing Issues
+
+```bash
+# Install toml package
+pip install toml
+
+# Or install development dependencies
+pip install -r requirements-dev.txt
 ```
 
 ### Generation Fails
@@ -142,6 +245,12 @@ pip install django-revolution
 ```bash
 # Check detailed status
 python manage.py revolution --status
+
+# Validate zones
+python manage.py revolution --validate-zones
+
+# Test schema generation
+python manage.py revolution --test-schemas
 
 # Install dependencies manually
 python manage.py revolution --install-deps
@@ -151,9 +260,45 @@ python manage.py revolution --clean
 python manage.py revolution
 ```
 
-## Configuration
+## ⚙️ Configuration
 
-### Optional Django Settings
+### Basic Django Settings
+
+```python
+# settings.py
+from django_revolution.app_config import ZoneConfig, get_revolution_config
+
+# Define zones
+zones = {
+    'public': ZoneConfig(
+        apps=['accounts', 'billing', 'payments'],
+        title='Public API',
+        description='API for public client applications',
+        public=True,
+        auth_required=False,
+        version='v1',
+        path_prefix='public'
+    ),
+    'admin': ZoneConfig(
+        apps=['admin_panel', 'services'],
+        title='Admin API',
+        description='Administrative API endpoints',
+        public=False,
+        auth_required=True,
+        version='v1',
+        path_prefix='admin'
+    )
+}
+
+# Configure Django Revolution
+DJANGO_REVOLUTION = get_revolution_config(
+    project_root=BASE_DIR,
+    zones=zones,
+    debug=DEBUG
+)
+```
+
+### Optional Settings
 
 ```python
 # settings.py (optional customization)
@@ -163,6 +308,11 @@ DJANGO_REVOLUTION = {
     'typescript_enabled': True,        # Default: True
     'python_enabled': True,            # Default: True
     'archive_clients': True,           # Default: True
+    'monorepo': {                      # Optional monorepo config
+        'enabled': False,
+        'path': '/path/to/monorepo',
+        'api_package_path': 'packages/api/src'
+    }
 }
 ```
 
@@ -174,13 +324,16 @@ export DJANGO_REVOLUTION_NO_AUTO_INSTALL=1
 
 # Custom output directory
 export DJANGO_REVOLUTION_OUTPUT_DIR=/custom/path
+
+# Debug mode
+export DJANGO_REVOLUTION_DEBUG=1
 ```
 
-## System Requirements
+## 📋 System Requirements
 
 ### Minimum Requirements
 
-- Python 3.8+
+- Python 3.9+
 - Django 3.2+
 - 100MB free disk space
 - Internet connection (for dependency installation)
@@ -190,6 +343,13 @@ export DJANGO_REVOLUTION_OUTPUT_DIR=/custom/path
 - Python 3.11+
 - Django 4.2+
 - Node.js 18+ (for TypeScript generation)
+- Poetry (for dependency management)
+
+### Development Requirements
+
+- Git
+- Make (optional, for development scripts)
+- Virtual environment (recommended)
 
 ---
 

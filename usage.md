@@ -7,12 +7,12 @@ title: Usage
 
 **How to use Django Revolution in your projects.**
 
-## Basic Usage
+## 🚀 Basic Usage
 
 ### Generate Clients
 
 ```bash
-# Generate all clients
+# Interactive generation (recommended)
 python manage.py revolution
 
 # Generate specific zones
@@ -20,6 +20,12 @@ python manage.py revolution --zones public admin
 
 # TypeScript only
 python manage.py revolution --typescript
+
+# Python only
+python manage.py revolution --python
+
+# Skip archive creation
+python manage.py revolution --no-archive
 ```
 
 ### Use TypeScript Clients
@@ -40,6 +46,11 @@ const products = await api.public.listProducts();
 if (api.isAuthenticated()) {
   console.log('User is logged in');
 }
+
+// Automatic token refresh
+api.onTokenRefresh((newToken) => {
+  console.log('Token refreshed:', newToken);
+});
 ```
 
 ### Use Python Clients
@@ -53,36 +64,57 @@ api.set_token("your-token-here")
 # Call endpoints
 profile = api.accounts.get_current_user()
 products = api.products.list()
+
+# Handle authentication
+if api.is_authenticated():
+    print("User is logged in")
 ```
 
-## Zone Configuration
+## 🧩 Zone Configuration
 
-### Define Zones
+### Define Zones with Pydantic Models
 
 ```python
 # settings.py
-DJANGO_REVOLUTION = {
-    'zones': {
-        'public': {
-            'apps': ['accounts', 'billing', 'payments'],
-            'title': 'Public API',
-            'description': 'API for public client applications',
-            'public': True,
-            'auth_required': False,
-            'version': 'v1',
-            'path_prefix': 'public'
-        },
-        'admin': {
-            'apps': ['admin_panel', 'analytics'],
-            'title': 'Admin API',
-            'description': 'Administrative API endpoints',
-            'public': False,
-            'auth_required': True,
-            'version': 'v1',
-            'path_prefix': 'admin'
-        }
-    }
+from django_revolution.app_config import ZoneConfig, get_revolution_config
+
+# Define zones with typed Pydantic models
+zones = {
+    'public': ZoneConfig(
+        apps=['accounts', 'billing', 'payments'],
+        title='Public API',
+        description='API for public client applications',
+        public=True,
+        auth_required=False,
+        version='v1',
+        path_prefix='public'
+    ),
+    'admin': ZoneConfig(
+        apps=['admin_panel', 'analytics'],
+        title='Admin API',
+        description='Administrative API endpoints',
+        public=False,
+        auth_required=True,
+        version='v1',
+        path_prefix='admin'
+    ),
+    'internal': ZoneConfig(
+        apps=['system', 'mailer'],
+        title='Internal API',
+        description='Internal API for backend services',
+        public=False,
+        auth_required=True,
+        version='v1',
+        path_prefix='internal'
+    )
 }
+
+# Configure Django Revolution
+DJANGO_REVOLUTION = get_revolution_config(
+    project_root=BASE_DIR,
+    zones=zones,
+    debug=DEBUG
+)
 ```
 
 ### Zone Properties
@@ -97,156 +129,242 @@ DJANGO_REVOLUTION = {
 | `version`       | str  | ❌       | API version (default: 'v1') |
 | `path_prefix`   | str  | ❌       | URL path prefix             |
 
-## DRF + Spectacular Configuration
+## 🔧 DRF + Spectacular Configuration
 
-### Quick Setup
+### Easy Configuration with Ready-to-Use Configs
 
-```python
-# settings.py
-REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ],
-}
+Django Revolution provides **pre-built Pydantic configurations** that you can import and use directly:
 
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'My API',
-    'DESCRIPTION': 'My awesome API',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-}
-```
-
-## URL Configuration
-
-### Add Revolution URLs
+#### **DRF + Spectacular Configuration** (services.py)
 
 ```python
-# urls.py
-from django_revolution.urls_integration import add_revolution_urls
+# api/settings/config/services.py
+from django_revolution.drf_config import create_drf_config
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    # Your existing URLs...
-]
+class SpectacularConfig(BaseModel):
+    """API documentation configuration using django_revolution DRF config."""
 
-# Add Django Revolution URLs
-urlpatterns = add_revolution_urls(urlpatterns)
+    title: str = Field(default='API')
+    description: str = Field(default='RESTful API')
+    version: str = Field(default='1.0.0')
+    schema_path_prefix: str = Field(default='/apix/')
+    enable_browsable_api: bool = Field(default=False)
+    enable_throttling: bool = Field(default=False)
+
+    def get_django_settings(self) -> Dict[str, Any]:
+        """Get drf-spectacular settings using django_revolution config."""
+        # Use django_revolution DRF config - zero boilerplate!
+        drf_config = create_drf_config(
+            title=self.title,
+            description=self.description,
+            version=self.version,
+            schema_path_prefix=self.schema_path_prefix,
+            enable_browsable_api=self.enable_browsable_api,
+            enable_throttling=self.enable_throttling,
+        )
+
+        return drf_config.get_django_settings()
 ```
 
-### Generated URLs
+## 🛠️ Development Workflow
 
-Django Revolution automatically creates:
-
-- `/api/{zone}/schema/` - Interactive Swagger UI
-- `/api/{zone}/schema.yaml` - OpenAPI specification
-- `/openapi/archive/` - Download generated clients
-
-## Monorepo Integration
-
-### Enable Monorepo Support
-
-```python
-# settings.py
-DJANGO_REVOLUTION = {
-    'zones': {
-        # ... your zones
-    },
-    'monorepo': {
-        'enabled': True,
-        'project_root': BASE_DIR.parent,  # Path to monorepo root
-        'packages_dir': 'packages',        # Where to sync clients
-    }
-}
-```
-
-### Generated Structure
-
-```
-monorepo/
-├── packages/
-│   ├── api-client/          # Generated TypeScript client
-│   │   ├── package.json
-│   │   └── src/
-│   └── python-client/       # Generated Python client
-│       ├── setup.py
-│       └── src/
-└── pnpm-workspace.yaml      # Auto-updated
-```
-
-## Advanced Usage
-
-### Custom Templates
-
-```python
-# settings.py
-DJANGO_REVOLUTION = {
-    'templates': {
-        'typescript': {
-            'package_name': '@myorg/api-client',
-            'package_version': '1.0.0',
-        },
-        'python': {
-            'package_name': 'myorg-api-client',
-            'package_version': '1.0.0',
-        }
-    }
-}
-```
-
-### Archive Management
+### Interactive Development
 
 ```bash
-# Generate with archive
-python manage.py revolution --archive
+# Start development CLI
+python scripts/dev_cli.py
 
-# List archives
-python manage.py revolution --list-archives
+# Choose from:
+# - 📦 Version Management
+# - 🚀 Package Publishing
+# - 🧪 Test Generation
+# - 📋 Requirements Generation
+# - 🔧 Package Building
+```
 
-# Download specific archive
-python manage.py revolution --download-archive 2024-01-15_10-30-00
+### Version Management
+
+```bash
+# Get current version
+python scripts/version_manager.py get
+
+# Bump version
+python scripts/version_manager.py bump --bump-type patch
+python scripts/version_manager.py bump --bump-type minor
+python scripts/version_manager.py bump --bump-type major
+
+# Validate versions
+python scripts/version_manager.py validate
+
+# Regenerate requirements
+python scripts/version_manager.py requirements
+```
+
+### Testing and Validation
+
+```bash
+# Validate zones
+python manage.py revolution --validate-zones
+
+# Show zone URLs
+python manage.py revolution --show-urls
+
+# Test schema generation
+python manage.py revolution --test-schemas
+
+# Check status
+python manage.py revolution --status
+```
+
+### Publishing
+
+```bash
+# Interactive publishing
+python scripts/publisher.py
+
+# Choose repository (PyPI/TestPyPI)
+# Automatic version bumping
+# Build artifact cleanup
+```
+
+## 📦 Monorepo Integration (Optional)
+
+### With Monorepo
+
+```python
+# settings.py - With monorepo integration
+from django_revolution.app_config import MonorepoConfig
+
+monorepo = MonorepoConfig(
+    enabled=True,
+    path=str(BASE_DIR.parent.parent / 'monorepo'),
+    api_package_path='packages/api/src'
+)
+
+DJANGO_REVOLUTION = get_revolution_config(
+    project_root=BASE_DIR,
+    zones=zones,
+    monorepo=monorepo
+)
+```
+
+**Auto-generated monorepo structure:**
+
+```yaml
+monorepo/
+├── packages/
+│   └── api/
+│       ├── src/
+│       │   ├── index.ts          # Main client export
+│       │   ├── public.ts         # Public zone client
+│       │   ├── admin.ts          # Admin zone client
+│       │   └── types.ts          # Shared types
+│       ├── package.json          # NPM package
+│       └── README.md             # Auto-generated docs
+└── package.json                  # Workspace config
+```
+
+### Without Monorepo
+
+```python
+# settings.py - Simple setup
+DJANGO_REVOLUTION = get_revolution_config(
+    project_root=BASE_DIR,
+    zones=zones
+)
+```
+
+## 🎯 Advanced Usage
+
+### Custom Output Configuration
+
+```python
+# settings.py
+DJANGO_REVOLUTION = get_revolution_config(
+    project_root=BASE_DIR,
+    zones=zones,
+    output_config={
+        'base_directory': 'custom_openapi',
+        'typescript': {
+            'enabled': True,
+            'output_dir': 'custom_ts_clients',
+            'package_name': '@myorg/custom-api'
+        },
+        'python': {
+            'enabled': True,
+            'output_dir': 'custom_py_clients',
+            'package_name': 'myorg_custom_api'
+        },
+        'archive': {
+            'enabled': True,
+            'format': 'zip',
+            'include_schemas': True
+        }
+    }
+)
 ```
 
 ### Environment-Specific Configuration
 
 ```python
 # settings.py
-if DEBUG:
-    DJANGO_REVOLUTION = {
-        'zones': {
-            'public': {
-                'apps': ['accounts', 'billing'],
-                'public': True,
-            }
-        }
+import os
+
+# Different zones for different environments
+if os.environ.get('DJANGO_ENV') == 'production':
+    zones = {
+        'public': ZoneConfig(
+            apps=['accounts', 'billing'],
+            title='Production Public API',
+            public=True,
+            auth_required=False
+        )
     }
 else:
-    DJANGO_REVOLUTION = {
-        'zones': {
-            'public': {
-                'apps': ['accounts', 'billing', 'payments'],
-                'public': True,
-            },
-            'admin': {
-                'apps': ['admin_panel'],
-                'public': False,
-                'auth_required': True,
-            }
-        }
+    zones = {
+        'public': ZoneConfig(
+            apps=['accounts', 'billing', 'payments', 'support'],
+            title='Development Public API',
+            public=True,
+            auth_required=False
+        ),
+        'dev': ZoneConfig(
+            apps=['dev_tools', 'testing'],
+            title='Development Tools API',
+            public=False,
+            auth_required=True
+        )
     }
 ```
 
-## Best Practices
+## 🔍 Troubleshooting
 
-1. **Run after changes**: Always run `python manage.py revolution` after modifying Django models or views
-2. **Use zones**: Organize your API into logical zones for better structure
-3. **Version control**: Commit generated clients to your repository
-4. **CI/CD**: Add client generation to your deployment pipeline
-5. **Testing**: Use generated clients in your tests for consistency
+### Common Issues
+
+```bash
+# Check zone configuration
+python manage.py revolution --validate-zones
+
+# Test schema generation
+python manage.py revolution --test-schemas
+
+# Show detailed status
+python manage.py revolution --status
+
+# Clean and regenerate
+python manage.py revolution --clean
+python manage.py revolution
+```
+
+### Debug Mode
+
+```bash
+# Enable debug mode
+export DJANGO_REVOLUTION_DEBUG=1
+
+# Run with debug output
+python manage.py revolution --debug
+```
 
 ---
 
