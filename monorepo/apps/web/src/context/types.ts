@@ -6,8 +6,8 @@
 import { AccountsTypes } from '@repo/api';
 
 // Simple aliases for cleaner code
-export type UserProfile = AccountsTypes.UserProfileReadable;
-export type UserRegistration = AccountsTypes.UserCreateWritable;
+export type UserProfile = AccountsTypes.UserProfile;
+export type UserRegistration = AccountsTypes.UserCreate;
 export type TokenRefresh = AccountsTypes.TokenRefreshWritable;
 
 // Basic auth types

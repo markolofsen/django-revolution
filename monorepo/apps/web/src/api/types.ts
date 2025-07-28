@@ -14,29 +14,23 @@ export {
 };
 
 // Common type aliases for convenience
-export type Post = PublicTypes.PostReadable;
+export type Post = PublicTypes.Post;
 export type PostWritable = PublicTypes.PostWritable;
-export type User = PublicTypes.UserReadable;
-export type UserWritable = PublicTypes.UserWritable;
-export type PaginatedPostList = PublicTypes.PaginatedPostListReadable;
+export type User = PublicTypes.User;
+export type PaginatedPostList = PublicTypes.PaginatedPostList;
 
 // Private API types
-export type Category = PrivateTypes.CategoryReadable;
-export type CategoryWritable = PrivateTypes.CategoryWritable;
-export type Product = PrivateTypes.ProductReadable;
-export type ProductWritable = PrivateTypes.ProductWritable;
-export type Order = PrivateTypes.OrderReadable;
-export type OrderWritable = PrivateTypes.OrderWritable;
-export type OrderItem = PrivateTypes.OrderItemReadable;
-export type OrderItemWritable = PrivateTypes.OrderItemWritable;
+export type Category = PrivateTypes.Category;
+export type Product = PrivateTypes.Product;
+export type Order = PrivateTypes.Order;
+export type OrderItem = PrivateTypes.OrderItem;
 export type StatusEnum = PrivateTypes.StatusEnum;
 
 // Accounts types
-export type UserProfile = AccountsTypes.UserProfileReadable;
-export type UserProfileWritable = AccountsTypes.UserProfileWritable;
-export type UserCreate = AccountsTypes.UserCreateReadable;
-export type UserCreateWritable = AccountsTypes.UserCreateWritable;
-export type TokenRefresh = AccountsTypes.TokenRefreshReadable;
+export type UserProfile = AccountsTypes.UserProfile;
+export type PatchedUserProfile = AccountsTypes.PatchedUserProfile;
+export type UserCreate = AccountsTypes.UserCreate;
+export type TokenRefresh = AccountsTypes.TokenRefresh;
 export type TokenRefreshWritable = AccountsTypes.TokenRefreshWritable;
 
 // API Response types

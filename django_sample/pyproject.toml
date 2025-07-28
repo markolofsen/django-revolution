@@ -21,6 +21,7 @@ drf-nested-routers = "^0.93.4"
 # Django Revolution
 django-revolution = "*"
 django-unfold = "^0.63.0"
+datamodel-code-generator = "^0.32.0"
 
 [tool.poetry.group.dev.dependencies]
 django-revolution = { path = "../django_revolution", develop = true }
