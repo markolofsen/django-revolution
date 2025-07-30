@@ -82,6 +82,43 @@ DJANGO_REVOLUTION = get_revolution_config(
 )
 ```
 
+### Multi-Monorepo Configuration Error
+
+**Problem**: Invalid monorepo configuration in settings.
+
+**Solution**:
+
+```python
+# settings.py - Correct multi-monorepo configuration
+from django_revolution.app_config import MonorepoConfig, MonorepoSettings, get_revolution_config
+
+# Configure multiple monorepos
+monorepo_settings = MonorepoSettings(
+    enabled=True,
+    configurations=[
+        MonorepoConfig(
+            name="frontend",
+            enabled=True,
+            path=str(BASE_DIR.parent / 'monorepo'),
+            api_package_path='packages/api'
+        ),
+        MonorepoConfig(
+            name="mobile",
+            enabled=True,
+            path=str(BASE_DIR.parent / 'mobile-monorepo'),
+            api_package_path='packages/api-client'
+        ),
+    ]
+)
+
+DJANGO_REVOLUTION = get_revolution_config(
+    project_root=BASE_DIR,
+    zones=zones,
+    monorepo=monorepo_settings,
+    debug=DEBUG
+)
+```
+
 ### URL Integration Error
 
 **Problem**: URLs not properly integrated.

@@ -56,6 +56,48 @@ settings = get_settings()
 print(settings.zones)
 ```
 
+### Multi-Monorepo Configuration
+
+```python
+from django_revolution.app_config import MonorepoConfig, MonorepoSettings, get_revolution_config
+
+# Configure multiple monorepos
+monorepo_settings = MonorepoSettings(
+    enabled=True,
+    configurations=[
+        # Main frontend monorepo
+        MonorepoConfig(
+            name="frontend",
+            enabled=True,
+            path=str(BASE_DIR.parent / 'monorepo'),
+            api_package_path='packages/api'
+        ),
+        # Mobile app monorepo
+        MonorepoConfig(
+            name="mobile",
+            enabled=True,
+            path=str(BASE_DIR.parent / 'mobile-monorepo'),
+            api_package_path='packages/api-client'
+        ),
+        # Admin panel monorepo
+        MonorepoConfig(
+            name="admin",
+            enabled=False,  # Disabled for now
+            path=str(BASE_DIR.parent / 'admin-monorepo'),
+            api_package_path='packages/admin-api'
+        ),
+    ]
+)
+
+# Create Django Revolution configuration with monorepo
+DJANGO_REVOLUTION = get_revolution_config(
+    project_root=BASE_DIR,
+    zones=zones,
+    monorepo=monorepo_settings,
+    debug=DEBUG
+)
+```
+
 ### Dynamic Zone Management
 
 ```python

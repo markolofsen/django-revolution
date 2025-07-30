@@ -2,54 +2,43 @@
 
 ## Latest Release
 
-### Version 1.0.13 - Configuration Simplification Update
+### Version 1.0.13 - Multi-Monorepo Support
 
 **Release Date**: January 2024  
 **Python Support**: 3.9+  
 **Django Support**: 3.2+
 
-#### Download Options
+### What's New
 
-| Format | Size | Description |
-|--------|------|-------------|
-| **PyPI Package** | ~2.1MB | Official PyPI distribution |
-| **Source Code** | ~1.8MB | GitHub repository |
-| **Documentation** | ~500KB | Complete documentation |
+- 🆕 **Multi-Monorepo Support** - Configure multiple monorepo structures
+- 🔧 **pnpm-only Integration** - Simplified package manager support
+- ⚡ **Performance Improvements** - Faster generation and sync
+- 🧪 **Enhanced Testing** - Comprehensive test suite
+- 📚 **Updated Documentation** - Complete multi-monorepo guides
 
-#### Quick Install
+### Download Options
 
+#### PyPI (Recommended)
 ```bash
-# Using pip (recommended)
-pip install django-revolution
-
-# Using poetry
-poetry add django-revolution
-
-# Using requirements.txt
-echo "django-revolution>=1.0.13" >> requirements.txt
-pip install -r requirements.txt
+pip install django-revolution==1.0.13
 ```
 
-#### Development Installation
-
+#### Poetry
 ```bash
-# Clone repository
-git clone https://github.com/markolofsen/django-revolution.git
-cd django-revolution
+poetry add django-revolution@^1.0.13
+```
 
-# Install in development mode
-pip install -e .
-
-# Install development dependencies
-pip install -r requirements-dev.txt
+#### Requirements.txt
+```
+django-revolution>=1.0.13
 ```
 
 ## Previous Releases
 
-### Version 1.0.12 - Multithreading & Testing Update
+### Version 1.0.12 - Multithreading Update
 
 **Release Date**: December 2023  
-**Key Features**: Multithreaded generation, comprehensive testing suite
+**Key Features**: Multithreaded generation, comprehensive testing
 
 ```bash
 pip install django-revolution==1.0.12
@@ -64,135 +53,168 @@ pip install django-revolution==1.0.12
 pip install django-revolution==1.0.11
 ```
 
+## Development Versions
+
+### Latest Development Build
+
+```bash
+# Install from GitHub
+pip install git+https://github.com/markolofsen/django-revolution.git
+
+# Or clone and install
+git clone https://github.com/markolofsen/django-revolution.git
+cd django-revolution
+pip install -e .
+```
+
+### Nightly Builds
+
+```bash
+# Install latest development version
+pip install --pre django-revolution
+```
+
 ## System Requirements
 
 ### Minimum Requirements
+- **Python**: 3.9+
+- **Django**: 3.2+
+- **Node.js**: 18+ (for TypeScript generation)
+- **pnpm**: 8+ (for monorepo integration)
 
-| Component | Version | Notes |
-|-----------|---------|-------|
-| **Python** | 3.9+ | Core runtime |
-| **Django** | 3.2+ | Web framework |
-| **Disk Space** | 100MB | For installation and generation |
-| **Memory** | 512MB | Minimum RAM for generation |
-
-### Recommended Requirements
-
-| Component | Version | Notes |
-|-----------|---------|-------|
-| **Python** | 3.11+ | Better performance |
-| **Django** | 4.2+ | Latest features |
-| **Node.js** | 18+ | For TypeScript generation |
-| **Memory** | 2GB+ | For large projects |
-
-## Package Information
-
-### PyPI Statistics
-
-| Metric | Value |
-|--------|-------|
-| **Downloads (30 days)** | 1,200+ |
-| **Downloads (total)** | 15,000+ |
-| **GitHub Stars** | 150+ |
-| **License** | MIT |
-| **Python Versions** | 3.9, 3.10, 3.11, 3.12 |
-
-### Dependencies
-
-#### Core Dependencies
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| **Django** | >=3.2 | Web framework |
-| **djangorestframework** | >=3.12.0 | API framework |
-| **drf-spectacular** | >=0.24.0 | OpenAPI schema generation |
-| **pydantic** | >=2.0.0 | Data validation |
-| **pydantic-settings** | >=2.0.0 | Settings management |
-| **questionary** | >=2.0.0 | Interactive CLI |
-| **rich** | >=13.0.0 | Rich terminal output |
-
-#### Optional Dependencies
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| **@hey-api/openapi-ts** | Latest | TypeScript client generation |
-| **datamodel-code-generator** | >=0.31.0 | Python client generation |
-| **django-filter** | >=22.0.0 | Filtering support |
-| **djangorestframework-simplejwt** | >=5.0.0 | JWT authentication |
+### Recommended
+- **Python**: 3.11+
+- **Django**: 4.2+
+- **Node.js**: 20+
+- **pnpm**: 9+
 
 ## Installation Methods
 
-### PyPI Installation
-
+### Quick Install
 ```bash
-# Latest version
+# Using pip
 pip install django-revolution
 
-# Specific version
-pip install django-revolution==1.0.13
-
-# With extras
-pip install django-revolution[dev]
-```
-
-### Poetry Installation
-
-```bash
-# Add to project
+# Using poetry
 poetry add django-revolution
 
-# Add development dependencies
-poetry add --group dev django-revolution[dev]
-```
-
-### Conda Installation
-
-```bash
-# Using conda-forge
+# Using conda
 conda install -c conda-forge django-revolution
-
-# Or using pip in conda environment
-conda install pip
-pip install django-revolution
 ```
 
-### Docker Installation
+### Development Install
+```bash
+# Clone repository
+git clone https://github.com/markolofsen/django-revolution.git
+cd django-revolution
 
+# Install in development mode
+pip install -e .
+
+# Install development dependencies
+pip install -r requirements-dev.txt
+```
+
+### Docker Install
 ```dockerfile
 # Dockerfile
 FROM python:3.11-slim
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install pnpm
+RUN npm install -g pnpm
+
 # Install Django Revolution
 RUN pip install django-revolution
 
-# Set up your Django project
+# Set working directory
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+```
 
-# Your Django project files
-COPY . .
+## Configuration Examples
+
+### Basic Setup
+```python
+# settings.py
+INSTALLED_APPS = [
+    'drf_spectacular',
+    'django_revolution',
+]
+
+from django_revolution.app_config import ZoneConfig, get_revolution_config
+
+zones = {
+    'public': ZoneConfig(
+        apps=['accounts', 'billing'],
+        title='Public API',
+        description='Public endpoints',
+        public=True,
+        auth_required=False,
+        version='v1'
+    )
+}
+
+DJANGO_REVOLUTION = get_revolution_config(
+    project_root=BASE_DIR,
+    zones=zones,
+    debug=DEBUG
+)
+```
+
+### Multi-Monorepo Setup
+```python
+# settings.py
+from django_revolution.app_config import MonorepoConfig, MonorepoSettings
+
+monorepo_settings = MonorepoSettings(
+    enabled=True,
+    configurations=[
+        MonorepoConfig(
+            name="frontend",
+            enabled=True,
+            path=str(BASE_DIR.parent / 'monorepo'),
+            api_package_path='packages/api'
+        ),
+        MonorepoConfig(
+            name="mobile",
+            enabled=True,
+            path=str(BASE_DIR.parent / 'mobile-monorepo'),
+            api_package_path='packages/api-client'
+        ),
+    ]
+)
+
+DJANGO_REVOLUTION = get_revolution_config(
+    project_root=BASE_DIR,
+    zones=zones,
+    monorepo=monorepo_settings,
+    debug=DEBUG
+)
 ```
 
 ## Verification
 
 ### Check Installation
-
 ```bash
 # Verify installation
-python -c "import django_revolution; print('✅ Django Revolution installed')"
+python -c "import django_revolution; print('✅ Installed')"
 
 # Check version
-python -c "import django_revolution; print(f'Version: {django_revolution.__version__}')"
+python -c "import django_revolution; print(django_revolution.__version__)"
 
-# Test CLI
-python manage.py revolution --version
+# Test Django integration
+python manage.py revolution --status
 ```
 
 ### Test Generation
-
 ```bash
-# Quick test
-python manage.py revolution --status
+# Generate clients
+python manage.py revolution --generate
 
 # Validate zones
 python manage.py revolution --validate-zones
@@ -201,28 +223,76 @@ python manage.py revolution --validate-zones
 python manage.py revolution --test-schemas
 ```
 
-## Support & Resources
+## Migration Guide
 
-### Documentation
+### From Version 1.0.12
 
-- 📖 [Installation Guide](/docs/installation)
-- 📚 [Usage Guide](/docs/usage)
-- 🔧 [API Reference](/docs/api-reference)
-- 🏗️ [Architecture Guide](/docs/architecture)
-- 🚨 [Troubleshooting](/docs/troubleshooting)
+**Breaking Changes**:
+- Monorepo configuration now uses `MonorepoSettings` instead of single `MonorepoConfig`
+- Package manager support limited to pnpm only
 
-### Community
+**Migration Steps**:
+```python
+# Old configuration
+monorepo = MonorepoConfig(
+    enabled=True,
+    path='/path/to/monorepo',
+    api_package_path='packages/api/src'
+)
 
-- 🐛 [GitHub Issues](https://github.com/markolofsen/django-revolution/issues)
-- 💬 [GitHub Discussions](https://github.com/markolofsen/django-revolution/discussions)
-- 📧 [Email Support](mailto:info@unrealos.com)
+# New configuration
+monorepo_settings = MonorepoSettings(
+    enabled=True,
+    configurations=[
+        MonorepoConfig(
+            name="frontend",
+            enabled=True,
+            path='/path/to/monorepo',
+            api_package_path='packages/api/src'
+        ),
+    ]
+)
+```
 
-### Examples
+### From Version 1.0.11
 
-- 🚀 [Sample Project](https://github.com/markolofsen/django-revolution/tree/main/django_sample)
-- 📝 [Configuration Examples](/docs/usage)
-- 🔧 [CLI Examples](/docs/cli-reference)
+**No breaking changes** - Direct upgrade supported.
+
+## Release Notes
+
+### Version 1.0.13
+
+#### New Features
+- **Multi-Monorepo Support** - Configure multiple monorepo structures
+- **Individual Enable/Disable** - Each monorepo can be enabled/disabled independently
+- **pnpm-only Integration** - Simplified package manager support
+- **Temporary Storage** - Intermediate storage during sync process
+- **Parallel Sync** - Multiple monorepos synced in parallel
+
+#### Improvements
+- **Performance** - Faster generation and sync processes
+- **Documentation** - Complete multi-monorepo guides
+- **Testing** - Enhanced test coverage
+- **Error Handling** - Better error messages and recovery
+
+#### Bug Fixes
+- **Configuration Validation** - Fixed validation errors
+- **Import Issues** - Resolved module import problems
+- **CLI Commands** - Fixed management command issues
+
+## Support
+
+### Getting Help
+- 📖 [Documentation](https://revolution.unrealos.com/) - Complete guides
+- 🐛 [GitHub Issues](https://github.com/markolofsen/django-revolution/issues) - Bug reports
+- 💬 [Discussions](https://github.com/markolofsen/django-revolution/discussions) - Community help
+- 📧 [Email Support](mailto:support@unrealos.com) - Direct support
+
+### Troubleshooting
+- 🚨 [Troubleshooting Guide](/docs/troubleshooting) - Common issues
+- 🔧 [Installation Guide](/docs/installation) - Setup instructions
+- 📋 [API Reference](/docs/api-reference) - Complete API docs
 
 ---
 
-[Installation Guide](/docs/installation) · [Get Started](/docs/usage) · [GitHub](https://github.com/markolofsen/django-revolution) 
+[Installation Guide](/docs/installation) · [Usage Guide](/docs/usage) · [GitHub](https://github.com/markolofsen/django-revolution) 

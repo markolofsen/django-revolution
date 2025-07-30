@@ -2,206 +2,114 @@
 
 ## Getting Help
 
+### Documentation
+- 📖 [Installation Guide](/docs/installation) - Step-by-step setup instructions
+- 📚 [Usage Guide](/docs/usage) - How to use Django Revolution
+- 🔧 [CLI Reference](/docs/cli-reference) - Complete command reference
+- 🏗️ [Architecture](/docs/architecture) - System architecture and design
+- 📋 [API Reference](/docs/api-reference) - Complete API documentation
+- 🐛 [Troubleshooting](/docs/troubleshooting) - Common issues and solutions
+
 ### Community Support
 
-| Resource | Description | Response Time |
-|----------|-------------|---------------|
-| **GitHub Issues** | Bug reports and feature requests | 1-3 days |
-| **GitHub Discussions** | Questions and community help | 1-2 days |
-| **Email Support** | Direct support for complex issues | 24-48 hours |
-| **Documentation** | Self-service help and guides | Immediate |
+#### GitHub
+- 🐛 [Report Issues](https://github.com/markolofsen/django-revolution/issues) - Bug reports and feature requests
+- 💬 [Discussions](https://github.com/markolofsen/django-revolution/discussions) - Community Q&A and help
+- 📝 [Pull Requests](https://github.com/markolofsen/django-revolution/pulls) - Contribute to the project
 
-### Quick Links
+#### Documentation
+- 📖 [Complete Documentation](https://revolution.unrealos.com/) - Full documentation site
+- 🎯 [Quick Start](https://revolution.unrealos.com/docs/installation) - Get started in 5 minutes
+- 🧪 [Examples](https://revolution.unrealos.com/docs/usage) - Usage examples and patterns
 
-- 🐛 [Report a Bug](https://github.com/markolofsen/django-revolution/issues/new)
-- 💬 [Ask a Question](https://github.com/markolofsen/django-revolution/discussions)
-- 📧 [Email Support](mailto:info@unrealos.com)
-- 📖 [Documentation](/docs/installation)
+## Common Questions
 
-## Common Issues
+### Configuration
 
-### Installation Problems
+**Q: How do I configure multiple monorepos?**
+```python
+from django_revolution.app_config import MonorepoConfig, MonorepoSettings
 
-**Problem**: `ImportError: No module named 'django_revolution'`
-
-**Solution**:
-```bash
-# Install Django Revolution
-pip install django-revolution
-
-# Verify installation
-python -c "import django_revolution; print('✅ Installed')"
+monorepo_settings = MonorepoSettings(
+    enabled=True,
+    configurations=[
+        MonorepoConfig(
+            name="frontend",
+            enabled=True,
+            path=str(BASE_DIR.parent / 'monorepo'),
+            api_package_path='packages/api'
+        ),
+        MonorepoConfig(
+            name="mobile",
+            enabled=True,
+            path=str(BASE_DIR.parent / 'mobile-monorepo'),
+            api_package_path='packages/api-client'
+        ),
+    ]
+)
 ```
 
-**Problem**: Missing dependencies
-
-**Solution**:
-```bash
-# Install missing dependencies
-pip install django-filter djangorestframework-simplejwt
-
-# Or let Django Revolution install them
-python manage.py revolution --install-deps
+**Q: How do I disable a specific monorepo?**
+```python
+MonorepoConfig(
+    name="admin",
+    enabled=False,  # This monorepo will be skipped
+    path=str(BASE_DIR.parent / 'admin-monorepo'),
+    api_package_path='packages/admin-api'
+)
 ```
 
-### Configuration Issues
-
-**Problem**: Zone validation failures
-
-**Solution**:
-```bash
-# Validate zones with detailed output
-python manage.py revolution --validate-zones
-
-# Check specific zone
-python manage.py revolution --show-urls
-```
-
-**Problem**: Schema generation errors
-
-**Solution**:
-```bash
-# Test schema generation
-python manage.py revolution --test-schemas
-
-# Check drf-spectacular installation
-pip install drf-spectacular
-```
-
-### Performance Issues
-
-**Problem**: Slow generation
-
-**Solution**:
-```bash
-# Use multithreading
-python manage.py revolution --generate --max-workers 16
-
-# Generate specific zones only
-python manage.py revolution --zones public
-```
-
-**Problem**: High memory usage
-
-**Solution**:
-```bash
-# Clean before generation
-python manage.py revolution --clean --generate
-
-# Reduce worker count
-python manage.py revolution --generate --max-workers 4
-```
-
-## Self-Diagnosis
-
-### Run Diagnostics
-
-```bash
-# Comprehensive system check
-python manage.py revolution --status
-
-# Validate environment
-python manage.py revolution --validate
-
-# Check zone configuration
-python manage.py revolution --validate-zones
-
-# Test schema generation
-python manage.py revolution --test-schemas
-```
-
-### Debug Mode
-
-```bash
-# Enable debug logging
-export DJANGO_REVOLUTION_DEBUG=1
-python manage.py revolution --debug
-
-# Maximum verbosity
-python manage.py revolution --verbosity 3
-```
-
-### System Information
-
-When reporting issues, include:
-
-```bash
-# System information
-python --version
-django-admin --version
-node --version
-npm --version
-
-# Django Revolution version
-python -c "import django_revolution; print(django_revolution.__version__)"
-
-# Configuration
-python manage.py revolution --status
-```
-
-## Documentation Resources
-
-### Getting Started
-
-- 📖 [Installation Guide](/docs/installation) - Complete setup instructions
-- 🚀 [Quick Start](/docs/usage) - Basic usage examples
-- 🔧 [Configuration](/docs/usage) - Zone configuration guide
-
-### Advanced Topics
-
-- 🏗️ [Architecture](/docs/architecture) - Understanding zone-based architecture
-- 🔧 [API Reference](/docs/api-reference) - Complete API documentation
-- 🎯 [CLI Reference](/docs/cli-reference) - Command-line interface guide
+**Q: Why only pnpm support?**
+We focus on pnpm for its superior monorepo support, faster installation, and better workspace management. This simplifies the codebase and provides a consistent experience.
 
 ### Troubleshooting
 
-- 🚨 [Troubleshooting Guide](/docs/troubleshooting) - Common problems and solutions
-- 📋 [Changelog](/docs/changelog) - Version history and updates
+**Q: My monorepo sync is failing**
+1. Check that pnpm is installed: `pnpm --version`
+2. Verify monorepo path exists and is accessible
+3. Check package.json has `"packageManager": "pnpm@x.x.x"`
+4. Run with debug: `python manage.py revolution --debug`
 
-## Community Resources
+**Q: How do I validate my monorepo configuration?**
+```bash
+# List all monorepo configurations
+python manage.py revolution --list-monorepos
 
-### GitHub
+# Validate monorepo configurations
+python manage.py revolution --validate-monorepos
 
-- 🐛 [Issues](https://github.com/markolofsen/django-revolution/issues) - Bug reports and feature requests
-- 💬 [Discussions](https://github.com/markolofsen/django-revolution/discussions) - Questions and community help
-- 📚 [Wiki](https://github.com/markolofsen/django-revolution/wiki) - Community documentation
-- ⭐ [Star the Project](https://github.com/markolofsen/django-revolution) - Show your support
+# Check status
+python manage.py revolution --status
+```
 
-### Examples & Tutorials
-
-- 🚀 [Sample Project](https://github.com/markolofsen/django-revolution/tree/main/django_sample) - Complete working example
-- 📝 [Configuration Examples](/docs/usage) - Real-world configuration examples
-- 🔧 [CLI Examples](/docs/cli-reference) - Command-line usage examples
-
-## Professional Support
+## Contact Information
 
 ### Email Support
+- 📧 **General Inquiries**: info@unrealos.com
+- 🐛 **Technical Support**: support@unrealos.com
+- 💼 **Commercial Licensing**: licensing@unrealos.com
 
-For complex issues or enterprise support:
+### Social Media
+- 🐦 [Twitter](https://twitter.com/unrealos)
+- 💼 [LinkedIn](https://linkedin.com/company/unrealos)
+- 📺 [YouTube](https://youtube.com/@unrealos)
 
-- 📧 **Email**: info@unrealos.com
-- ⏰ **Response Time**: 24-48 hours
-- 🎯 **Best For**: Complex configurations, enterprise deployments, custom integrations
+## Commercial Support
 
-### Priority Support
+### Enterprise Features
+- 🏢 **Custom Development** - Tailored solutions for enterprise needs
+- 🔒 **Priority Support** - Dedicated support channels
+- 📊 **Performance Optimization** - Custom performance tuning
+- 🧪 **Testing & Validation** - Comprehensive testing services
 
-For urgent issues or enterprise customers:
-
-- 🚀 **Priority Response**: 4-8 hours
-- 🔧 **Custom Solutions**: Tailored configurations
-- 📞 **Direct Contact**: Phone support available
+### Licensing
+- 📄 **Non-Commercial License** - Free for non-commercial use
+- 💼 **Commercial License** - Contact for commercial licensing
+- 🏢 **Enterprise License** - Custom enterprise agreements
 
 ## Contributing
 
-### How to Contribute
-
-1. **Fork the repository** on GitHub
-2. **Create a feature branch** for your changes
-3. **Make your changes** with proper tests
-4. **Submit a pull request** with detailed description
-
 ### Development Setup
-
 ```bash
 # Clone repository
 git clone https://github.com/markolofsen/django-revolution.git
@@ -210,48 +118,34 @@ cd django-revolution
 # Install in development mode
 pip install -e .
 
-# Install development dependencies
-pip install -r requirements-dev.txt
-
 # Run tests
 pytest
+
+# Format code
+black django_revolution/
+isort django_revolution/
 ```
 
-### Code of Conduct
+### Contribution Guidelines
+1. 🐛 **Report Issues** - Use GitHub issues for bug reports
+2. 💡 **Feature Requests** - Submit feature requests via GitHub discussions
+3. 🔧 **Pull Requests** - Follow the contribution guidelines
+4. 📚 **Documentation** - Help improve documentation
+5. 🧪 **Testing** - Add tests for new features
 
-We maintain a welcoming and inclusive community. Please:
+## Resources
 
-- Be respectful and constructive
-- Help others learn and grow
-- Report inappropriate behavior
-- Follow the [Contributor Covenant](https://www.contributor-covenant.org/)
+### Learning Materials
+- 📖 [Documentation](https://revolution.unrealos.com/) - Complete documentation
+- 🎯 [Tutorials](https://revolution.unrealos.com/docs/usage) - Step-by-step guides
+- 🏗️ [Architecture](https://revolution.unrealos.com/docs/architecture) - System design
+- 📋 [API Reference](https://revolution.unrealos.com/docs/api-reference) - Complete API docs
 
-## Feedback & Suggestions
-
-### Feature Requests
-
-Have an idea for a new feature?
-
-- 💡 [Submit Feature Request](https://github.com/markolofsen/django-revolution/issues/new)
-- 📝 Include detailed description and use cases
-- 🔧 Consider contributing the implementation
-
-### Documentation Improvements
-
-Found an error or unclear section?
-
-- 📖 [Report Documentation Issue](https://github.com/markolofsen/django-revolution/issues/new)
-- ✏️ [Submit Documentation PR](https://github.com/markolofsen/django-revolution/pulls)
-- 📝 Include specific page and section
-
-### General Feedback
-
-We value your feedback:
-
-- 📧 [Email Feedback](mailto:info@unrealos.com)
-- 💬 [GitHub Discussions](https://github.com/markolofsen/django-revolution/discussions)
-- ⭐ [Rate on GitHub](https://github.com/markolofsen/django-revolution)
+### Development Tools
+- 🧪 [Test Suite](https://github.com/markolofsen/django-revolution/tree/main/tests) - Comprehensive tests
+- 🔧 [Development CLI](https://revolution.unrealos.com/docs/cli-reference) - Development tools
+- 📊 [Performance Monitoring](https://revolution.unrealos.com/docs/usage#performance-monitoring) - Performance tools
 
 ---
 
-[Troubleshooting Guide](/docs/troubleshooting) · [Installation](/docs/installation) · [GitHub](https://github.com/markolofsen/django-revolution) 
+**Need help?** [GitHub Issues](https://github.com/markolofsen/django-revolution/issues) · [Discussions](https://github.com/markolofsen/django-revolution/discussions) · [Email Support](mailto:support@unrealos.com) 

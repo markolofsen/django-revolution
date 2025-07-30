@@ -118,19 +118,18 @@ python manage.py revolution --python
 python manage.py revolution --typescript --python
 ```
 
-## Configuration Examples
-
-### Basic Zone Configuration
+### Advanced Configuration
 
 ```python
 # settings.py
-from django_revolution.app_config import ZoneConfig, get_revolution_config
+from django_revolution.app_config import ZoneConfig, MonorepoConfig, MonorepoSettings, get_revolution_config
+from pathlib import Path
 
 zones = {
     'public': ZoneConfig(
-        apps=['accounts', 'billing'],
+        apps=['accounts', 'billing', 'payments'],
         title='Public API',
-        description='Public API endpoints',
+        description='Public endpoints',
         public=True,
         auth_required=False,
         version='v1'
@@ -145,37 +144,26 @@ zones = {
     )
 }
 
-DJANGO_REVOLUTION = get_revolution_config(
-    project_root=BASE_DIR,
-    zones=zones,
-    debug=DEBUG
+# Configure multiple monorepos
+monorepo_settings = MonorepoSettings(
+    enabled=True,
+    configurations=[
+        MonorepoConfig(
+            name="frontend",
+            enabled=True,
+            path=str(Path.cwd().parent / 'monorepo'),
+            api_package_path='packages/api'
+        ),
+        MonorepoConfig(
+            name="mobile",
+            enabled=True,
+            path=str(Path.cwd().parent / 'mobile-monorepo'),
+            api_package_path='packages/api-client'
+        ),
+    ]
 )
-```
 
-### Multithreading Configuration
-
-```python
-# settings.py - Performance optimized
-DJANGO_REVOLUTION = {
-    'enable_multithreading': True,
-    'max_workers': 20,  # Adjust based on your system
-    'zones': zones,
-    'output': {
-        'base_directory': BASE_DIR / 'openapi',
-        'schemas_directory': 'schemas',
-        'clients_directory': 'clients',
-    },
-    'generators': {
-        'typescript': {
-            'enabled': True,
-            'output_format': 'prettier',
-        },
-        'python': {
-            'enabled': True,
-            'overwrite': True,
-        }
-    }
-}
+config = get_revolution_config(project_root=Path.cwd(), zones=zones, monorepo=monorepo_settings)
 ```
 
 ### Environment-Specific Configuration

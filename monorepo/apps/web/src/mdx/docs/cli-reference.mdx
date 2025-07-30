@@ -20,8 +20,23 @@ python manage.py revolution --python
 # Without archiving
 python manage.py revolution --no-archive
 
-# Without monorepo sync
+### Monorepo options
 python manage.py revolution --no-monorepo
+
+# Utility commands
+python manage.py revolution --status
+python manage.py revolution --list-zones
+python manage.py revolution --validate
+python manage.py revolution --clean
+
+# New validation commands
+python manage.py revolution --validate-zones
+python manage.py revolution --show-urls
+python manage.py revolution --test-schemas
+
+# Multi-monorepo commands
+python manage.py revolution --list-monorepos
+python manage.py revolution --validate-monorepos
 ```
 
 ### Multithreading Options

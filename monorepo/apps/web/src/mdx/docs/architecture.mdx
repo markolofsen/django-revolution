@@ -345,11 +345,23 @@ SPECTACULAR_SETTINGS = drf_config.get_spectacular_settings()
 ### 3. Monorepo Integration
 
 ```python
-# Optional monorepo integration
-monorepo = MonorepoConfig(
+# Optional multi-monorepo integration
+monorepo_settings = MonorepoSettings(
     enabled=True,
-    path='/path/to/monorepo',
-    api_package_path='packages/api/src'
+    configurations=[
+        MonorepoConfig(
+            name="frontend",
+            enabled=True,
+            path='/path/to/monorepo',
+            api_package_path='packages/api/src'
+        ),
+        MonorepoConfig(
+            name="mobile",
+            enabled=True,
+            path='/path/to/mobile-monorepo',
+            api_package_path='packages/api-client'
+        ),
+    ]
 )
 ```
 
