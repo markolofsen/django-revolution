@@ -16,7 +16,11 @@ except ImportError:
 from .config import get_settings
 from .zones import ZoneManager
 from .utils import Logger
-from . import __version__
+
+# Get version from __init__.py safely
+def get_version():
+    from . import __version__
+    return __version__
 
 
 def get_revolution_urlpatterns() -> List[Any]:
@@ -136,7 +140,7 @@ def get_revolution_urls_info() -> dict:
         all_apps = list(set(all_apps))
 
         return {
-            "version": __version__,  # Django Revolution version
+            "version": get_version(),  # Django Revolution version
             "api_prefix": revolution_settings.api_prefix,
             "total_zones": len(zone_manager.zones),
             "total_apps": len(all_apps),
