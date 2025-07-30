@@ -32,7 +32,7 @@ class ZoneModel(BaseModel):
     auth_required: bool = Field(False, description="Whether authentication is required")
     rate_limit: Optional[str] = Field(None, description="Rate limit configuration")
     permissions: Optional[List[str]] = Field(None, description="Required permissions")
-    version: str = Field("1.0.17", description="API version")
+    version: str = Field("1.0.18", description="API version")
     prefix: Optional[str] = Field(None, description="URL prefix override")
     cors_enabled: bool = Field(False, description="Enable CORS for this zone")
     middleware: Optional[List[str]] = Field(None, description="Custom middleware")
@@ -159,12 +159,13 @@ class GeneratorsSettings(BaseModel):
     python: PythonGeneratorSettings = Field(default_factory=PythonGeneratorSettings)
 
 
-class MonorepoSettings(BaseModel):
-    """Monorepo integration configuration."""
+class MonorepoConfig(BaseModel):
+    """Single monorepo configuration."""
 
     model_config = ConfigDict(validate_assignment=True)
 
-    enabled: bool = Field(True, description="Enable monorepo integration")
+    name: str = Field(..., description="Monorepo configuration name")
+    enabled: bool = Field(True, description="Enable this monorepo integration")
     path: str = Field(
         default_factory=lambda: str(Path.cwd().parent / "monorepo"),
         description="Path to monorepo",
@@ -180,6 +181,46 @@ class MonorepoSettings(BaseModel):
         if not path.is_absolute():
             path = Path.cwd() / path
         return str(path)
+
+
+class MonorepoSettings(BaseModel):
+    """Multiple monorepo configurations."""
+
+    model_config = ConfigDict(validate_assignment=True)
+
+    enabled: bool = Field(True, description="Enable multi-monorepo integration")
+    configurations: List[MonorepoConfig] = Field(
+        default_factory=list, description="List of monorepo configurations"
+    )
+    temp_directory: str = Field(
+        "temp/monorepo_sync", description="Temporary directory for monorepo sync"
+    )
+
+    def add_configuration(self, config: MonorepoConfig):
+        """Add a monorepo configuration."""
+        self.configurations.append(config)
+
+    def get_configuration(self, name: str) -> Optional[MonorepoConfig]:
+        """Get a specific monorepo configuration."""
+        for config in self.configurations:
+            if config.name == name:
+                return config
+        return None
+
+    def list_configurations(self) -> List[str]:
+        """List all configuration names."""
+        return [config.name for config in self.configurations]
+
+    def get_enabled_configurations(self) -> List[MonorepoConfig]:
+        """Get all enabled configurations."""
+        return [config for config in self.configurations if config.enabled]
+
+    def validate_configurations(self) -> bool:
+        """Validate all configurations."""
+        for config in self.configurations:
+            if config.enabled and not Path(config.path).exists():
+                return False
+        return True
 
 
 class GenerationResult(BaseModel):
@@ -228,7 +269,7 @@ class DjangoRevolutionSettings(BaseSettings):
     api_prefix: str = Field("apix", description="API prefix for all routes")
     debug: bool = Field(False, description="Enable debug mode")
     auto_install_deps: bool = Field(True, description="Auto-install dependencies")
-    version: str = Field("1.0.17", description="Package version for generated clients")
+    version: str = Field("1.0.18", description="Package version for generated clients")
     
     # Multithreading settings
     max_workers: int = Field(20, description="Maximum number of worker threads for schema generation")

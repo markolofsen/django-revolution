@@ -46,140 +46,6 @@ Manually update OpenAPI spec → Run generator → Fix broken types → Sync cli
 
 One command. Done.
 
-## 🔄 Data Flow Architecture
-
-```mermaid
-graph TD
-    A[Django Settings] --> B[Zone Configuration]
-    B --> C[Dynamic Zone Manager]
-    C --> D[In-Memory URL Modules]
-    D --> E[OpenAPI Schema Generation]
-    E --> F[Client Generation]
-    F --> G[TypeScript Client]
-    F --> H[Python Client]
-    F --> I[Archive Management]
-    
-    J[CLI Interface] --> K[Interactive Mode]
-    J --> L[Command Line Mode]
-    K --> M[Rich UI Selection]
-    L --> N[Direct Generation]
-    M --> F
-    N --> F
-    
-    O[Zone Validation] --> P[App Detection]
-    O --> Q[URL Pattern Validation]
-    O --> R[Schema Test Generation]
-    
-    subgraph "Dynamic Zone System"
-        C
-        D
-        S[Zone Cache]
-        T[Module Registry]
-    end
-    
-    subgraph "CLI Architecture"
-        J
-        K
-        L
-        M
-        N
-    end
-    
-    subgraph "Validation & Testing"
-        O
-        P
-        Q
-        R
-    end
-    
-    subgraph "Output Generation"
-        F
-        G
-        H
-        I
-    end
-```
-
-## 🎯 **Ready-to-Use Pydantic Configs**
-
-**No more manual configuration!** Django Revolution provides **pre-built, typed configurations**:
-
-### **DRF + Spectacular Config**
-
-```python
-from django_revolution.drf_config import create_drf_config
-
-# One function call - everything configured!
-drf_config = create_drf_config(
-    title="My API",
-    description="My awesome API",
-    version="1.0.0",
-    schema_path_prefix="/apix/",
-    enable_browsable_api=False,
-    enable_throttling=True,
-)
-
-# Get Django settings
-settings = drf_config.get_django_settings()
-REST_FRAMEWORK = settings['REST_FRAMEWORK']
-SPECTACULAR_SETTINGS = settings['SPECTACULAR_SETTINGS']
-```
-
-### **Zone Configuration**
-
-```python
-from django_revolution.app_config import ZoneConfig, get_revolution_config
-
-# Typed zone definitions
-zones = {
-    'public': ZoneConfig(
-        apps=['accounts', 'billing', 'payments', 'support', 'public'],
-        title='Public API',
-        description='API for public client applications',
-        public=True,
-        auth_required=False,
-        version='v1'
-    ),
-    'internal': ZoneConfig(
-        apps=['system', 'mailer'],
-        title='Internal API',
-        description='Internal API for backend services',
-        public=False,
-        auth_required=True,
-        version='v1'
-    ),
-    'admin': ZoneConfig(
-        apps=['admin_panel', 'services'],
-        title='Admin API',
-        description='Administrative API endpoints',
-        public=False,
-        auth_required=True,
-        version='v1'
-    )
-}
-
-# Option 1: With monorepo (uncomment to enable)
-# from django_revolution.app_config import MonorepoConfig
-# monorepo = MonorepoConfig(
-#     enabled=True,
-#     path=str(BASE_DIR.parent.parent.parent / 'monorepo'),
-#     api_package_path='packages/api/src'
-# )
-# return get_revolution_config(project_root=BASE_DIR, zones=zones, debug=DEBUG, monorepo=monorepo)
-
-# Option 2: Without monorepo (current setup)
-return get_revolution_config(project_root=BASE_DIR, zones=zones, debug=DEBUG)
-```
-
-**Benefits:**
-
-- ✅ **Type-safe** - Full Pydantic validation
-- ✅ **Zero boilerplate** - Pre-configured defaults
-- ✅ **Environment-aware** - Auto-detects paths and settings
-- ✅ **IDE support** - Autocomplete and error checking
-- ✅ **Production-ready** - Optimized for client generation
-- ✅ **Flexible** - Works with or without monorepo
-
 ## 🚀 5-Minute Setup
 
 ### 1. Install
@@ -249,30 +115,30 @@ def create_revolution_config(env) -> Dict[str, Any]:
 
     # Define zones with typed Pydantic models
     zones = {
-            'public': ZoneConfig(
-        apps=['accounts', 'billing', 'payments', 'support', 'public'],
-        title='Public API',
-        description='API for public client applications',
-        public=True,
-        auth_required=False,
-        version='v1'
-    ),
-    'internal': ZoneConfig(
-        apps=['system', 'mailer'],
-        title='Internal API',
-        description='Internal API for backend services',
-        public=False,
-        auth_required=True,
-        version='v1'
-    ),
-    'admin': ZoneConfig(
-        apps=['admin_panel', 'services'],
-        title='Admin API',
-        description='Administrative API endpoints',
-        public=False,
-        auth_required=True,
-        version='v1'
-    )
+        'public': ZoneConfig(
+            apps=['accounts', 'billing', 'payments', 'support', 'public'],
+            title='Public API',
+            description='API for public client applications',
+            public=True,
+            auth_required=False,
+            version='v1'
+        ),
+        'internal': ZoneConfig(
+            apps=['system', 'mailer'],
+            title='Internal API',
+            description='Internal API for backend services',
+            public=False,
+            auth_required=True,
+            version='v1'
+        ),
+        'admin': ZoneConfig(
+            apps=['admin_panel', 'services'],
+            title='Admin API',
+            description='Administrative API endpoints',
+            public=False,
+            auth_required=True,
+            version='v1'
+        )
     }
 
     # Option 1: Without monorepo (simplest setup)
@@ -290,9 +156,7 @@ def create_revolution_config(env) -> Dict[str, Any]:
 
 ### 4. **Multithreaded Generation** ⚡
 
-Django Revolution supports **multithreaded generation** for faster processing of multiple zones:
-
-#### **Enable Multithreading** (Default: Enabled)
+Django Revolution supports **multithreaded generation** for faster processing:
 
 ```python
 # settings.py
@@ -303,72 +167,14 @@ DJANGO_REVOLUTION = {
 }
 ```
 
-#### **CLI Options**
-
+**CLI Options:**
 ```bash
 # Use 10 worker threads
 python manage.py revolution --generate --max-workers 10
 
 # Disable multithreading
 python manage.py revolution --generate --no-multithreading
-
-# Interactive mode with multithreading options
-python manage.py revolution --interactive
 ```
-
-#### **Performance Benefits**
-
-- **Parallel schema generation** - Multiple zones processed simultaneously
-- **Concurrent client generation** - TypeScript and Python clients generated in parallel
-- **Parallel monorepo sync** - Multiple zones synced to monorepo simultaneously
-- **Smart fallback** - Automatically uses sequential generation for single zones
-- **Configurable workers** - Adjust based on your system capabilities
-- **Optimized index.ts generation** - Created after all clients are ready
-
-#### **Example Performance**
-
-```bash
-# Sequential generation (3 zones)
-$ time python manage.py revolution --generate --no-multithreading
-✅ Generation completed in 45.2s
-
-# Multithreaded generation (3 zones, 4 workers)
-$ time python manage.py revolution --generate --max-workers 4
-✅ Generation completed in 18.7s (2.4x speedup)
-
-# Full pipeline with monorepo sync (3 zones, 8 workers)
-$ time python manage.py revolution --generate --max-workers 8
-✅ Generation completed in 12.3s (3.7x speedup)
-```
-
-#### **Multithreading Architecture**
-
-```mermaid
-graph TD
-    A[Generate Schemas] --> B[Parallel Client Generation]
-    B --> C[TypeScript Clients]
-    B --> D[Python Clients]
-    C --> E[Generate index.ts]
-    D --> E
-    E --> F[Archive Clients]
-    F --> G[Parallel Monorepo Sync]
-    G --> H[Zone 1 Sync]
-    G --> I[Zone 2 Sync]
-    G --> J[Zone 3 Sync]
-    H --> K[Generate Monorepo index.ts]
-    I --> K
-    J --> K
-    K --> L[Build Package]
-```
-
-#### **Worker Thread Guidelines**
-
-| System Type | Recommended Workers | Use Case |
-|-------------|-------------------|----------|
-| **Development** | 4-8 | Local development |
-| **CI/CD** | 8-16 | Automated builds |
-| **Production** | 16-32 | High-performance servers |
-| **Large Projects** | 32-64 | Enterprise applications |
 
 ### 5. Generate Clients
 
@@ -397,14 +203,7 @@ python manage.py revolution --no-monorepo
 
 ## ⚡️ TypeScript Client Auth & Usage
 
-Django Revolution automatically generates a smart TypeScript API client with built-in authentication and token management:
-
-- **Zone-based organization** - All endpoints grouped by zones (client, admin, internal, etc.)
-- **Authentication ready** - Bearer tokens, refresh tokens, custom headers out of the box
-- **Simple integration** - Works with React, Next.js, Vue, or any frontend framework
-- **Type-safe** - Full TypeScript support with autocomplete
-
-**Example Usage:**
+Django Revolution automatically generates a smart TypeScript API client with built-in authentication:
 
 ```typescript
 import API from '@myorg/api-client';
@@ -422,9 +221,6 @@ const products = await api.public.listProducts();
 if (api.isAuthenticated()) {
   // User is logged in
 }
-
-// Change API URL
-api.setApiUrl('https://api.newhost.com');
 ```
 
 **Features included:**
@@ -435,8 +231,6 @@ api.setApiUrl('https://api.newhost.com');
 - ✅ Zone-based endpoint organization
 - ✅ TypeScript types for all endpoints
 - ✅ Error handling and validation
-
-> **No need to write authentication logic - everything is handled automatically!**
 
 ## 🌐 Auto-Generated URLs
 
@@ -459,12 +253,6 @@ urlpatterns = [
 # - /openapi/archive/ (Generated clients)
 urlpatterns = add_revolution_urls(urlpatterns)
 ```
-
-**Generated URLs:**
-
-- `/api/{zone}/schema/` - Interactive Swagger UI
-- `/api/{zone}/schema.yaml` - OpenAPI specification
-- `/openapi/archive/` - Download generated clients
 
 ## 🧪 CLI Toolbox
 
@@ -507,111 +295,83 @@ django-revolution
 python -m django_revolution.cli
 ```
 
-The standalone CLI provides an interactive interface with:
+## 🪆 Multi-Monorepo Integration (Optional)
 
-- 🎯 Zone selection with checkboxes
-- 🔧 Client type selection (TypeScript/Python)
-- 📦 Archive creation options
-- 📊 Real-time progress tracking
-- ✅ Generation summary with results table
+Django Revolution supports **multiple monorepo configurations** with **pnpm**:
 
-### Development Scripts
-
-**Interactive Development CLI:**
-```bash
-# Main development interface
-python scripts/dev_cli.py
-
-# Or install and use as package command
-pip install -e .
-dev-cli
-```
-
-**Individual Scripts:**
-```bash
-# Version management
-python scripts/version_manager.py get
-python scripts/version_manager.py bump --bump-type patch
-
-# Generate requirements files
-python scripts/generate_requirements.py
-
-# Interactive publishing
-python scripts/publisher.py
-
-# Test generation
-./scripts/test_generation.sh
-```
-
-**Package Commands (after installation):**
-```bash
-# Version management
-version-manager get
-version-manager bump --bump-type minor
-
-# Publishing
-publisher
-
-# Requirements generation
-generate-requirements
-```
-
-### New CLI Features
-
-**Zone Validation & Testing:**
-```bash
-# Validate each zone with detailed logging
-python manage.py revolution --validate-zones
-
-# Show URL patterns for each zone
-python manage.py revolution --show-urls
-
-# Test schema generation for each zone
-python manage.py revolution --test-schemas
-```
-
-**Rich Output Examples:**
-```
-╭───────────────────────────────────────────── 🧪 Validation ──────────────────────────────────────────────╮
-│ Detailed Zone Validation                                                                                 │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-==================================================
-
-🔍 Validating zone: public
-------------------------------
-  ✅ Zone configuration: Public API
-  Apps (1):
-    ✅ apps.public_api
-  ✅ URL patterns: 1 patterns
-  ✅ Schema patterns: 2 patterns
-  ✅ Zone 'public' is valid
-
-📊 Validation Summary:
-  Valid zones: 2
-  Invalid zones: 0
-🎉 All zones are valid!
-```
-
-## 🪆 Monorepo Integration (Optional)
-
-Django Revolution **optionally integrates** with your monorepo:
-
-### With Monorepo
+### With Multiple Monorepos
 
 ```python
-# settings.py - With monorepo integration
-from django_revolution.app_config import MonorepoConfig
+# settings.py - With multiple monorepo configurations
+from django_revolution.app_config import MonorepoConfig, MonorepoSettings
 
-monorepo = MonorepoConfig(
+# Configure multiple monorepos
+monorepo_settings = MonorepoSettings(
     enabled=True,
-    path=str(BASE_DIR.parent.parent / 'monorepo'),
-    api_package_path='packages/api/src'
+    configurations=[
+        # Main frontend monorepo
+        MonorepoConfig(
+            name="frontend",
+            enabled=True,
+            path=str(BASE_DIR.parent / 'monorepo'),
+            api_package_path='packages/api'
+        ),
+        # Mobile app monorepo
+        MonorepoConfig(
+            name="mobile",
+            enabled=True,
+            path=str(BASE_DIR.parent / 'mobile-monorepo'),
+            api_package_path='packages/api-client'
+        ),
+        # Admin panel monorepo
+        MonorepoConfig(
+            name="admin",
+            enabled=False,  # Disabled for now
+            path=str(BASE_DIR.parent / 'admin-monorepo'),
+            api_package_path='packages/admin-api'
+        ),
+    ]
 )
 
 DJANGO_REVOLUTION = get_revolution_config(
     project_root=BASE_DIR,
     zones=zones,
-    monorepo=monorepo
+    monorepo=monorepo_settings
+)
+```
+
+### With Single Monorepo
+
+```python
+# settings.py - With single monorepo (simplest)
+from django_revolution.app_config import MonorepoConfig, MonorepoSettings
+
+monorepo_settings = MonorepoSettings(
+    enabled=True,
+    configurations=[
+        MonorepoConfig(
+            name="frontend",
+            enabled=True,
+            path=str(BASE_DIR.parent / 'monorepo'),
+            api_package_path='packages/api'
+        ),
+    ]
+)
+
+DJANGO_REVOLUTION = get_revolution_config(
+    project_root=BASE_DIR,
+    zones=zones,
+    monorepo=monorepo_settings
+)
+```
+
+### Without Monorepo
+
+```python
+# settings.py - Without monorepo (simplest)
+DJANGO_REVOLUTION = get_revolution_config(
+    project_root=BASE_DIR,
+    zones=zones
 )
 ```
 
@@ -633,16 +393,6 @@ packages:
     "@markolofsen/admin-api-client": "workspace:*"
   }
 }
-```
-
-### Without Monorepo
-
-```python
-# settings.py - Without monorepo (simplest)
-DJANGO_REVOLUTION = get_revolution_config(
-    project_root=BASE_DIR,
-    zones=zones
-)
 ```
 
 **Generated locally:**
@@ -708,43 +458,31 @@ zones = {
 # Option 1: Without monorepo (simplest)
 config = get_revolution_config(project_root=Path.cwd(), zones=zones)
 
-# Option 2: With monorepo integration
-from django_revolution.app_config import MonorepoConfig
-monorepo = MonorepoConfig(
+# Option 2: With single monorepo
+from django_revolution.app_config import MonorepoConfig, MonorepoSettings
+monorepo_settings = MonorepoSettings(
     enabled=True,
-    path=str(Path.cwd().parent / 'monorepo'),
-    api_package_path='packages/api/src'
+    configurations=[
+        MonorepoConfig(
+            name="frontend",
+            enabled=True,
+            path=str(Path.cwd().parent / 'monorepo'),
+            api_package_path='packages/api'
+        ),
+    ]
 )
-config = get_revolution_config(project_root=Path.cwd(), zones=zones, monorepo=monorepo)
-```
+config = get_revolution_config(project_root=Path.cwd(), zones=zones, monorepo=monorepo_settings)
 
-### **Legacy Configuration** (for backward compatibility)
-
-#### Environment Variables
-
-```bash
-export DJANGO_REVOLUTION_DEBUG=true
-export DJANGO_REVOLUTION_API_PREFIX=apix
-export DJANGO_REVOLUTION_AUTO_INSTALL_DEPS=true
-```
-
-#### Manual Zone Configuration
-
-```python
-'zones': {
-    'zone_name': {
-        'apps': ['app1', 'app2'],           # Required
-        'title': 'Human Readable Title',    # Optional
-        'description': 'Zone description',  # Optional
-        'public': True,                     # Optional
-        'auth_required': False,             # Optional
-        'rate_limit': '1000/hour',          # Optional
-        'permissions': ['perm1', 'perm2'],  # Optional
-        'version': 'v1',                    # Optional
-        'prefix': 'custom_prefix',          # Optional
-        'cors_enabled': False,              # Optional
-    }
-}
+# Option 3: With multiple monorepos
+monorepo_settings = MonorepoSettings(
+    enabled=True,
+    configurations=[
+        MonorepoConfig(name="frontend", enabled=True, path=str(Path.cwd().parent / 'monorepo'), api_package_path='packages/api'),
+        MonorepoConfig(name="mobile", enabled=True, path=str(Path.cwd().parent / 'mobile-monorepo'), api_package_path='packages/api-client'),
+        MonorepoConfig(name="admin", enabled=False, path=str(Path.cwd().parent / 'admin-monorepo'), api_package_path='packages/admin-api'),
+    ]
+)
+config = get_revolution_config(project_root=Path.cwd(), zones=zones, monorepo=monorepo_settings)
 ```
 
 ## ✅ When to Use
@@ -851,7 +589,10 @@ summary = generator.generate_all(zones=['public', 'admin'])
 Use `setHeaders()` or `setApiKey()` to inject custom logic.
 
 **Q: Can I use this in non-monorepo setups?**  
-Absolutely! Monorepo integration is completely optional. Just don't pass the `monorepo` parameter.
+Absolutely! Monorepo integration is completely optional. Just don't pass the `monorepo` parameter to `get_revolution_config()`.
+
+**Q: How do I configure multiple monorepos?**  
+Use `MonorepoSettings` with a list of `MonorepoConfig` objects. Each config can be enabled/disabled independently.
 
 **Q: What if I need only TypeScript clients?**  
 Use `--typescript` flag to generate only TS clients.
@@ -876,12 +617,20 @@ Either don't pass the `monorepo` parameter to `get_revolution_config()`, or use 
 - 📊 **Enhanced output** - Rich tables and progress indicators
 - ⚡ **Multithreaded generation** - Parallel processing for faster client generation
 - 🧪 **Comprehensive testing** - Full test suite with pytest and proper mocking
+- 📦 **Multi-monorepo support** - Support for multiple monorepo configurations
+- 🔧 **pnpm-only integration** - Simplified package manager support
 
 **Q: How does the dynamic zone system work?**  
 Django Revolution creates URL configuration modules in-memory using Python's `importlib` and `exec`. This eliminates the need for static `.py` files and provides better performance and flexibility.
 
 **Q: How does multithreading improve performance?**  
 Multithreading allows parallel processing of multiple zones, schema generation, and client generation. For 3 zones, you can see 2-3x speedup compared to sequential processing.
+
+**Q: Why only pnpm support?**  
+We focus on pnpm for its superior monorepo support, faster installation, and better workspace management. This simplifies the codebase and provides a consistent experience.
+
+**Q: How do I manage multiple monorepo configurations?**  
+Use `MonorepoSettings` with a list of `MonorepoConfig` objects. Each configuration can be enabled/disabled independently, and clients are synced to all enabled configurations.
 
 ## 🤝 Contributing
 

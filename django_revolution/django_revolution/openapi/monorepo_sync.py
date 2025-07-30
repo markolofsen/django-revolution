@@ -1,24 +1,25 @@
 """
-Monorepo Sync for Django Revolution
+Multi-Monorepo Sync for Django Revolution
 
-Synchronizes generated clients to monorepo structure.
+Synchronizes generated clients to multiple monorepo structures with temporary storage.
 """
 
 import shutil
 import json
+import tempfile
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
-from ..config import DjangoRevolutionSettings
+from ..config import DjangoRevolutionSettings, MonorepoConfig
 from ..utils import Logger, ensure_directories, run_command
 
 
-class MonorepoSync:
-    """Synchronizes generated clients to monorepo."""
+class MultiMonorepoSync:
+    """Synchronizes generated clients to multiple monorepos with temporary storage."""
 
     def __init__(self, config: DjangoRevolutionSettings, logger: Logger):
         """
-        Initialize monorepo sync.
+        Initialize multi-monorepo sync.
 
         Args:
             config: Django Revolution settings
@@ -26,295 +27,304 @@ class MonorepoSync:
         """
         self.config = config
         self.logger = logger
-        self.monorepo_path = Path(config.monorepo.path)
-        self.api_package_path = self.monorepo_path / config.monorepo.api_package_path
+        self.temp_dir = Path(config.output.base_directory) / config.monorepo.temp_directory
+        ensure_directories(self.temp_dir)
 
     def sync_typescript_client(
         self, zone_name: str, client_path: Path
     ) -> Dict[str, Any]:
         """
-        Sync TypeScript client to monorepo.
+        Sync TypeScript client to all configured monorepos.
 
         Args:
             zone_name: Name of the zone
             client_path: Path to the generated client
 
         Returns:
-            Sync operation result
+            Sync operation results for all monorepos
         """
         if not self.config.monorepo.enabled:
-            return {"success": False, "error": "Monorepo sync disabled"}
+            return {"success": False, "error": "Multi-monorepo sync disabled"}
 
-        target_path = self.api_package_path / "typescript" / zone_name
+        enabled_configs = self.config.monorepo.get_enabled_configurations()
+        if not enabled_configs:
+            return {"success": False, "error": "No enabled monorepo configurations"}
 
-        return self._sync_client(
-            zone_name=zone_name,
-            client_path=client_path,
-            target_path=target_path,
-            client_type="typescript",
-        )
+        results = {}
+        
+        # First, save to temporary directory
+        temp_client_path = self._save_to_temp(zone_name, client_path, "typescript")
+        if not temp_client_path:
+            return {"success": False, "error": "Failed to save client to temp directory"}
+
+        # Then sync to each monorepo
+        for config in enabled_configs:
+            result = self._sync_to_monorepo(zone_name, temp_client_path, config, "typescript")
+            results[config.name] = result
+
+        return {
+            "success": any(r.get("success", False) for r in results.values()),
+            "monorepo_results": results,
+            "temp_path": str(temp_client_path)
+        }
 
     def sync_python_client(self, zone_name: str, client_path: Path) -> Dict[str, Any]:
         """
-        Sync Python client to monorepo.
+        Sync Python client to all configured monorepos.
 
         Args:
             zone_name: Name of the zone
             client_path: Path to the generated client
 
         Returns:
-            Sync operation result
+            Sync operation results for all monorepos
         """
         if not self.config.monorepo.enabled:
-            return {"success": False, "error": "Monorepo sync disabled"}
+            return {"success": False, "error": "Multi-monorepo sync disabled"}
 
-        target_path = self.api_package_path / "python" / zone_name
+        enabled_configs = self.config.monorepo.get_enabled_configurations()
+        if not enabled_configs:
+            return {"success": False, "error": "No enabled monorepo configurations"}
 
-        return self._sync_client(
-            zone_name=zone_name,
-            client_path=client_path,
-            target_path=target_path,
-            client_type="python",
-        )
+        results = {}
+        
+        # First, save to temporary directory
+        temp_client_path = self._save_to_temp(zone_name, client_path, "python")
+        if not temp_client_path:
+            return {"success": False, "error": "Failed to save client to temp directory"}
 
-    def _sync_client(
-        self, zone_name: str, client_path: Path, target_path: Path, client_type: str
-    ) -> Dict[str, Any]:
+        # Then sync to each monorepo
+        for config in enabled_configs:
+            result = self._sync_to_monorepo(zone_name, temp_client_path, config, "python")
+            results[config.name] = result
+
+        return {
+            "success": any(r.get("success", False) for r in results.values()),
+            "monorepo_results": results,
+            "temp_path": str(temp_client_path)
+        }
+
+    def _save_to_temp(self, zone_name: str, client_path: Path, client_type: str) -> Optional[Path]:
         """
-        Sync a client to monorepo target path.
+        Save client to temporary directory.
 
         Args:
             zone_name: Name of the zone
-            client_path: Source client path
-            target_path: Target path in monorepo
+            client_path: Path to the generated client
+            client_type: Type of client (typescript/python)
+
+        Returns:
+            Path to temporary client directory
+        """
+        try:
+            temp_zone_dir = self.temp_dir / client_type / zone_name
+            
+            # Clean existing temp directory
+            if temp_zone_dir.exists():
+                shutil.rmtree(temp_zone_dir)
+            
+            temp_zone_dir.mkdir(parents=True, exist_ok=True)
+
+            # Copy client to temp directory
+            if client_path.is_file():
+                shutil.copy2(client_path, temp_zone_dir / client_path.name)
+            else:
+                shutil.copytree(client_path, temp_zone_dir, dirs_exist_ok=True)
+
+            self.logger.debug(f"Saved {client_type} client for {zone_name} to temp: {temp_zone_dir}")
+            return temp_zone_dir
+
+        except Exception as e:
+            self.logger.error(f"Failed to save {client_type} client for {zone_name} to temp: {e}")
+            return None
+
+    def _sync_to_monorepo(
+        self, zone_name: str, temp_client_path: Path, config: MonorepoConfig, client_type: str
+    ) -> Dict[str, Any]:
+        """
+        Sync client from temp directory to specific monorepo.
+
+        Args:
+            zone_name: Name of the zone
+            temp_client_path: Path to temporary client directory
+            config: Monorepo configuration
             client_type: Type of client (typescript/python)
 
         Returns:
             Sync operation result
         """
         try:
-            # Validate source path
-            if not client_path.exists():
-                error_msg = f"Source client path does not exist: {client_path}"
-                self.logger.error(error_msg)
+            monorepo_path = Path(config.path)
+            if not monorepo_path.exists():
                 return {
                     "success": False,
-                    "error": error_msg,
-                    "zone_name": zone_name,
-                    "client_type": client_type,
+                    "error": f"Monorepo path does not exist: {monorepo_path}",
+                    "monorepo": config.name
                 }
 
-            # Validate monorepo exists
-            if not self.monorepo_path.exists():
-                error_msg = f"Monorepo path does not exist: {self.monorepo_path}"
-                self.logger.warning(error_msg)
-                return {
-                    "success": False,
-                    "error": error_msg,
-                    "zone_name": zone_name,
-                    "client_type": client_type,
-                }
+            target_path = monorepo_path / config.api_package_path / client_type / zone_name
 
-            # Ensure target directory exists
-            ensure_directories(target_path.parent)
+            # Create target directory
+            ensure_directories(target_path)
 
-            # Remove existing target if it exists
-            if target_path.exists():
-                shutil.rmtree(target_path)
+            # Copy from temp to monorepo
+            if temp_client_path.is_file():
+                shutil.copy2(temp_client_path, target_path / temp_client_path.name)
+            else:
+                if target_path.exists():
+                    shutil.rmtree(target_path)
+                shutil.copytree(temp_client_path, target_path)
 
-            # Copy client to monorepo (excluding package.json and node_modules)
-            def ignore_files(dir, files):
-                ignored = []
-                if "package.json" in files:
-                    ignored.append("package.json")
-                if "node_modules" in files:
-                    ignored.append("node_modules")
-                return ignored
+            # Update monorepo files
+            self._update_monorepo_files(zone_name, target_path, client_type, config)
 
-            shutil.copytree(client_path, target_path, ignore=ignore_files)
-
-            # Update monorepo-specific files
-            self._update_monorepo_files(zone_name, target_path, client_type)
-
-            # Run monorepo-specific commands
-            sync_commands = self._run_monorepo_commands(target_path, client_type)
+            # Run monorepo commands
+            commands_run = self._run_monorepo_commands(target_path, client_type, config)
 
             self.logger.success(
-                f"Synced {client_type} client for {zone_name} to monorepo"
+                f"Synced {client_type} client for {zone_name} to monorepo {config.name}"
             )
 
             return {
                 "success": True,
-                "zone_name": zone_name,
-                "client_type": client_type,
+                "monorepo": config.name,
                 "target_path": str(target_path),
-                "commands_run": sync_commands,
+                "commands_run": commands_run
             }
 
         except Exception as e:
-            error_msg = f"Failed to sync {client_type} client for {zone_name}: {str(e)}"
+            error_msg = f"Failed to sync {client_type} client for {zone_name} to monorepo {config.name}: {e}"
             self.logger.error(error_msg)
-
             return {
                 "success": False,
                 "error": error_msg,
-                "zone_name": zone_name,
-                "client_type": client_type,
+                "monorepo": config.name
             }
 
     def _update_monorepo_files(
-        self, zone_name: str, target_path: Path, client_type: str
+        self, zone_name: str, target_path: Path, client_type: str, config: MonorepoConfig
     ):
-        """Update monorepo-specific configuration files."""
+        """Update monorepo-specific files."""
         if client_type == "typescript":
-            self._update_typescript_monorepo_files(zone_name, target_path)
+            self._update_typescript_monorepo_files(zone_name, target_path, config)
         elif client_type == "python":
-            self._update_python_monorepo_files(zone_name, target_path)
+            self._update_python_monorepo_files(zone_name, target_path, config)
 
-    def _update_typescript_monorepo_files(self, zone_name: str, target_path: Path):
+    def _update_typescript_monorepo_files(self, zone_name: str, target_path: Path, config: MonorepoConfig):
         """Update TypeScript monorepo files."""
-        # Update package.json for monorepo workspace
-        package_json_path = target_path / "package.json"
-
-        if package_json_path.exists():
-            try:
-                with open(package_json_path, "r", encoding="utf-8") as f:
-                    package_data = json.load(f)
-
-                # Update for monorepo workspace
-                package_data["name"] = f"@unrealos{zone_name}-api-client"
-                package_data["private"] = True  # Monorepo packages are usually private
-                package_data["version"] = "workspace:*"
-
-                # Add monorepo-specific scripts
-                if "scripts" not in package_data:
-                    package_data["scripts"] = {}
-
-                package_data["scripts"].update(
-                    {
-                        "build": "tsc --build",
-                        "clean": "rm -rf dist",
-                        "dev": "tsc --watch",
-                        "lint": "eslint . --ext .ts --fix",
-                        "type-check": "tsc --noEmit",
-                    }
-                )
-
-                # Add workspace dependencies
-                if "devDependencies" not in package_data:
-                    package_data["devDependencies"] = {}
-
-                # Write updated package.json
-                with open(package_json_path, "w", encoding="utf-8") as f:
-                    json.dump(package_data, f, indent=2, ensure_ascii=False)
-
-                self.logger.debug(f"Updated package.json for {zone_name}")
-
-            except Exception as e:
-                self.logger.warning(
-                    f"Failed to update package.json for {zone_name}: {e}"
-                )
-
-        # Create/update tsconfig.json for monorepo
-        tsconfig_path = target_path / "tsconfig.json"
-        tsconfig_data = {
-            "extends": "../../tsconfig.base.json",
-            "compilerOptions": {
-                "outDir": "./dist",
-                "rootDir": "./src",
-                "declarationDir": "./dist/types",
-            },
-            "include": ["src/**/*", "*.ts"],
-            "exclude": ["dist", "node_modules", "**/*.test.ts", "**/*.spec.ts"],
-            "references": [],
-        }
-
         try:
-            with open(tsconfig_path, "w", encoding="utf-8") as f:
-                json.dump(tsconfig_data, f, indent=2, ensure_ascii=False)
+            # Update package.json if exists
+            package_json = target_path / "package.json"
+            if package_json.exists():
+                with open(package_json, "r") as f:
+                    package_data = json.load(f)
+                
+                # Update package name to include monorepo context
+                package_data["name"] = f"@{config.name}/{zone_name}"
+                package_data["version"] = self.config.version
+                
+                with open(package_json, "w") as f:
+                    json.dump(package_data, f, indent=2)
+
+            # Create or update index.ts
+            index_ts = target_path / "index.ts"
+            if not index_ts.exists():
+                index_content = f"""/**
+ * {zone_name.title()} API Client
+ * Generated for monorepo: {config.name}
+ */
+
+export * from './sdk.gen';
+export * from './types.gen';
+export * from './client.gen';
+
+// Re-export main client for convenience
+export {{ client as default }} from './client.gen';
+"""
+                with open(index_ts, "w") as f:
+                    f.write(index_content)
+
         except Exception as e:
-            self.logger.warning(f"Failed to create tsconfig.json for {zone_name}: {e}")
+            self.logger.warning(f"Failed to update TypeScript monorepo files for {zone_name}: {e}")
 
-    def _update_python_monorepo_files(self, zone_name: str, target_path: Path):
+    def _update_python_monorepo_files(self, zone_name: str, target_path: Path, config: MonorepoConfig):
         """Update Python monorepo files."""
-        # Update setup.py or pyproject.toml for monorepo
-        setup_py_path = target_path / "setup.py"
+        try:
+            # Update __init__.py if exists
+            init_py = target_path / "__init__.py"
+            if init_py.exists():
+                init_content = f'''"""
+{zone_name.title()} API Client - Python Package
+Generated for monorepo: {config.name}
+"""
 
-        if setup_py_path.exists():
-            try:
-                with open(setup_py_path, "r", encoding="utf-8") as f:
-                    content = f.read()
+from .{zone_name}_client.client import (
+    {zone_name.title()}Client,
+    {zone_name.title()}Config,
+    {zone_name.title()}Response,
+    {zone_name}_client
+)
 
-                # Add monorepo-specific configuration
-                monorepo_config = '''
-# Monorepo configuration
-import os
-import sys
+__version__ = "{self.config.version}"
+__author__ = "Unrealos"
+__description__ = "{zone_name.title()} API Client for {config.name} monorepo"
 
-# Add shared modules path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
-
-# Monorepo version management
-def get_version():
-    """Get version from monorepo version file or environment."""
-    version_file = os.path.join(os.path.dirname(__file__), '..', '..', 'VERSION')
-    if os.path.exists(version_file):
-        with open(version_file, 'r') as f:
-            return f.read().strip()
-    return os.environ.get('MONOREPO_VERSION', '0.1.0')
-
-# Override version if not already set
-if 'version=' not in setup_kwargs:
-    setup_kwargs['version'] = get_version()
+__all__ = [
+    "{zone_name.title()}Client",
+    "{zone_name.title()}Config", 
+    "{zone_name.title()}Response",
+    "{zone_name}_client"
+]
 '''
+                with open(init_py, "w") as f:
+                    f.write(init_content)
 
-                if "Monorepo configuration" not in content:
-                    # Insert at the beginning
-                    content = monorepo_config + "\n" + content
+        except Exception as e:
+            self.logger.warning(f"Failed to update Python monorepo files for {zone_name}: {e}")
 
-                    with open(setup_py_path, "w", encoding="utf-8") as f:
-                        f.write(content)
-
-            except Exception as e:
-                self.logger.warning(f"Failed to update setup.py for {zone_name}: {e}")
-
-    def _run_monorepo_commands(self, target_path: Path, client_type: str) -> list:
-        """Run monorepo-specific commands after sync."""
+    def _run_monorepo_commands(self, target_path: Path, client_type: str, config: MonorepoConfig) -> List[str]:
+        """Run monorepo-specific commands."""
         commands_run = []
+        
+        try:
+            monorepo_path = Path(config.path)
+            
+            # Check package.json for packageManager field first
+            package_json = monorepo_path / "package.json"
+            if package_json.exists():
+                with open(package_json, "r") as f:
+                    package_data = json.load(f)
+                    package_manager = package_data.get("packageManager", "")
+                    
+                    # Only support pnpm
+                    if "pnpm" in package_manager:
+                        # Run pnpm install
+                        success, output = run_command("pnpm install", cwd=monorepo_path, timeout=300)
+                        if success:
+                            commands_run.append("pnpm install")
+                        else:
+                            self.logger.warning(f"Failed to run pnpm install in {config.name}: {output}")
+                        return commands_run
+            
+            # Fallback: Check for pnpm workspace
+            pnpm_workspace = monorepo_path / "pnpm-workspace.yaml"
+            if pnpm_workspace.exists():
+                # Run pnpm install
+                success, output = run_command("pnpm install", cwd=monorepo_path, timeout=300)
+                if success:
+                    commands_run.append("pnpm install")
+                else:
+                    self.logger.warning(f"Failed to run pnpm install in {config.name}: {output}")
+                return commands_run
 
-        if client_type == "typescript":
-            # Install dependencies using workspace
-            if (self.monorepo_path / "pnpm-workspace.yaml").exists():
-                cmd = "pnpm install"
-                success, output = run_command(cmd, cwd=self.monorepo_path, timeout=60)
-                commands_run.append(
-                    {
-                        "command": cmd,
-                        "success": success,
-                        "output": output[:200] if output else "",  # Truncate output
-                    }
-                )
-
-            # НЕ билдим отдельные пакеты - билдим только основной пакет монорепо
-
-        elif client_type == "python":
-            # Install in development mode
-            if (target_path / "setup.py").exists():
-                cmd = "pip install -e ."
-                success, output = run_command(cmd, cwd=target_path, timeout=120)
-                commands_run.append(
-                    {
-                        "command": cmd,
-                        "success": success,
-                        "output": output[:200] if output else "",
-                    }
-                )
+        except Exception as e:
+            self.logger.warning(f"Failed to run monorepo commands for {config.name}: {e}")
 
         return commands_run
 
     def sync_all_clients(self, clients_dir: Path) -> Dict[str, Any]:
         """
-        Sync all generated clients to monorepo.
+        Sync all generated clients to all monorepos.
 
         Args:
             clients_dir: Base clients directory
@@ -323,65 +333,46 @@ if 'version=' not in setup_kwargs:
             Overall sync operation results
         """
         if not self.config.monorepo.enabled:
-            self.logger.info("Monorepo sync disabled")
-            return {"success": False, "error": "Monorepo sync disabled"}
+            return {"success": False, "error": "Multi-monorepo sync disabled"}
+
+        self.logger.info("Starting multi-monorepo sync for all clients...")
+
+        # Get all zone directories
+        ts_clients_dir = clients_dir / "typescript"
+        py_clients_dir = clients_dir / "python"
 
         sync_results = {
             "typescript": {},
             "python": {},
-            "summary": {"total_synced": 0, "successful": 0, "failed": 0},
+            "summary": {"total_zones": 0, "successful": 0, "failed": 0}
         }
 
         # Sync TypeScript clients
-        typescript_dir = clients_dir / "typescript"
-        if typescript_dir.exists():
-            for zone_dir in typescript_dir.iterdir():
+        if ts_clients_dir.exists():
+            for zone_dir in ts_clients_dir.iterdir():
                 if zone_dir.is_dir():
                     zone_name = zone_dir.name
+                    sync_results["summary"]["total_zones"] += 1
+                    
                     result = self.sync_typescript_client(zone_name, zone_dir)
                     sync_results["typescript"][zone_name] = result
-
+                    
                     if result.get("success"):
                         sync_results["summary"]["successful"] += 1
                     else:
                         sync_results["summary"]["failed"] += 1
 
-                    sync_results["summary"]["total_synced"] += 1
-
-        # Копируем consolidated index.ts
-        consolidated_index = typescript_dir / "index.ts"
-        if consolidated_index.exists():
-            target_index = self.api_package_path / "typescript" / "index.ts"
-            try:
-                shutil.copy2(consolidated_index, target_index)
-                self.logger.success(
-                    f"Copied consolidated index.ts to monorepo: {target_index}"
-                )
-            except Exception as e:
-                self.logger.warning(f"Failed to copy consolidated index.ts: {e}")
-
-        # Запускаем build в основном пакете api, если есть package.json
-        build_dir = (
-            self.api_package_path.parent
-        )  # Переходим на уровень выше от src к api
-        if (build_dir / "package.json").exists():
-            cmd = "pnpm build"
-            success, output = run_command(cmd, cwd=build_dir, timeout=120)
-            self.logger.info(
-                f"Build for main api package: {'OK' if success else 'FAIL'}"
-            )
-            if not success:
-                self.logger.warning(
-                    f"Build output: {output[:500] if output else 'No output'}"
-                )
-        else:
-            self.logger.warning(f"package.json not found in {build_dir}")
-
-        # Update monorepo workspace configuration
-        self._update_workspace_config(sync_results)
+        # Sync Python clients
+        if py_clients_dir.exists():
+            for zone_dir in py_clients_dir.iterdir():
+                if zone_dir.is_dir():
+                    zone_name = zone_dir.name
+                    
+                    result = self.sync_python_client(zone_name, zone_dir)
+                    sync_results["python"][zone_name] = result
 
         self.logger.info(
-            f"Monorepo sync completed: {sync_results['summary']['successful']} successful, "
+            f"Multi-monorepo sync completed: {sync_results['summary']['successful']} successful, "
             f"{sync_results['summary']['failed']} failed"
         )
 
@@ -389,194 +380,158 @@ if 'version=' not in setup_kwargs:
 
     def sync_all(self) -> Dict[str, Any]:
         """
-        Sync all generated clients to monorepo.
+        Sync all clients to all monorepos.
 
         Returns:
-            Overall sync operation results
+            Dictionary with sync results
         """
         if not self.config.monorepo.enabled:
-            self.logger.info("Monorepo sync disabled")
-            return {"success": False, "error": "Monorepo sync disabled"}
+            return {"success": False, "error": "Multi-monorepo sync disabled"}
 
-        # Get clients directory from config
         clients_dir = Path(self.config.output.base_directory) / self.config.output.clients_directory
         return self.sync_all_clients(clients_dir)
 
     def sync_zone(self, zone_name: str) -> bool:
         """
-        Sync a specific zone to monorepo.
+        Sync a specific zone to all monorepos.
 
         Args:
             zone_name: Name of the zone to sync
 
         Returns:
-            True if sync was successful, False otherwise
+            bool: True if sync was successful for at least one monorepo
         """
         if not self.config.monorepo.enabled:
             return False
 
-        try:
-            # Get clients directory from config
-            clients_dir = Path(self.config.output.base_directory) / self.config.output.clients_directory
-            typescript_dir = clients_dir / "typescript"
-            
-            # Find zone directory
-            zone_dir = typescript_dir / zone_name
-            if not zone_dir.exists():
-                self.logger.warning(f"Zone directory not found: {zone_dir}")
-                return False
-
-            # Sync TypeScript client
-            result = self.sync_typescript_client(zone_name, zone_dir)
+        clients_dir = Path(self.config.output.base_directory) / self.config.output.clients_directory
+        
+        # Try TypeScript first
+        ts_client_path = clients_dir / "typescript" / zone_name
+        if ts_client_path.exists():
+            result = self.sync_typescript_client(zone_name, ts_client_path)
             return result.get("success", False)
 
-        except Exception as e:
-            self.logger.error(f"Failed to sync zone {zone_name}: {e}")
-            return False
+        # Try Python if TypeScript doesn't exist
+        py_client_path = clients_dir / "python" / zone_name
+        if py_client_path.exists():
+            result = self.sync_python_client(zone_name, py_client_path)
+            return result.get("success", False)
 
-    def generate_consolidated_index(self, zones: list[str]):
+        return False
+
+    def generate_consolidated_index(self, zones: List[str]):
         """
-        Generate consolidated index.ts in monorepo for specified zones.
+        Generate consolidated index.ts for all zones in all monorepos.
 
         Args:
-            zones: List of zone names to include in index.ts
+            zones: List of zone names
         """
         if not self.config.monorepo.enabled:
             return
 
-        try:
-            # Get clients directory from config
-            clients_dir = Path(self.config.output.base_directory) / self.config.output.clients_directory
-            typescript_dir = clients_dir / "typescript"
-            
-            # Check if consolidated index.ts exists
-            consolidated_index = typescript_dir / "index.ts"
-            if not consolidated_index.exists():
-                self.logger.warning("Consolidated index.ts not found, skipping monorepo index generation")
-                return
-
-            # Copy to monorepo
-            target_index = self.api_package_path / "typescript" / "index.ts"
-            ensure_directories(target_index.parent)
-            
-            shutil.copy2(consolidated_index, target_index)
-            self.logger.success(f"Copied consolidated index.ts to monorepo: {target_index}")
-
-            # Run build command if package.json exists
-            build_dir = self.api_package_path.parent  # Go up from src to api
-            if (build_dir / "package.json").exists():
-                cmd = "pnpm build"
-                success, output = run_command(cmd, cwd=build_dir, timeout=120)
-                self.logger.info(f"Build for main api package: {'OK' if success else 'FAIL'}")
-                if not success:
-                    self.logger.warning(f"Build output: {output[:500] if output else 'No output'}")
-            else:
-                self.logger.warning(f"package.json not found in {build_dir}")
-
-        except Exception as e:
-            self.logger.error(f"Failed to generate monorepo consolidated index: {e}")
-
-    def _find_python_client_path(self, zone_dir: Path) -> Optional[Path]:
-        """Find the actual Python client path (might be nested)."""
-        # Look for setup.py or pyproject.toml
-        for item in zone_dir.rglob("setup.py"):
-            return item.parent
-
-        for item in zone_dir.rglob("pyproject.toml"):
-            return item.parent
-
-        # Fallback to the zone directory itself
-        return zone_dir if zone_dir.exists() else None
-
-    def _update_workspace_config(self, sync_results: Dict[str, Any]):
-        """Update monorepo workspace configuration."""
-        # Update pnpm workspace if it exists
-        workspace_file = self.monorepo_path / "pnpm-workspace.yaml"
-
-        if workspace_file.exists():
+        enabled_configs = self.config.monorepo.get_enabled_configurations()
+        
+        for config in enabled_configs:
             try:
-                import yaml
+                monorepo_path = Path(config.path)
+                api_package_path = monorepo_path / config.api_package_path / "typescript"
+                
+                if not api_package_path.exists():
+                    continue
 
-                with open(workspace_file, "r", encoding="utf-8") as f:
-                    workspace_config = yaml.safe_load(f)
+                # Generate consolidated index for this monorepo
+                self._generate_monorepo_index(api_package_path, zones, config)
 
-                if "packages" not in workspace_config:
-                    workspace_config["packages"] = []
-
-                # Add API packages
-                api_packages_pattern = f"{self.config.monorepo.api_package_path}/**"
-                if api_packages_pattern not in workspace_config["packages"]:
-                    workspace_config["packages"].append(api_packages_pattern)
-
-                with open(workspace_file, "w", encoding="utf-8") as f:
-                    yaml.dump(workspace_config, f, default_flow_style=False)
-
-                self.logger.debug("Updated pnpm workspace configuration")
-
-            except ImportError:
-                self.logger.warning(
-                    "PyYAML not available, cannot update workspace config"
-                )
             except Exception as e:
-                self.logger.warning(f"Failed to update workspace config: {e}")
+                self.logger.error(f"Failed to generate consolidated index for {config.name}: {e}")
+
+    def _generate_monorepo_index(self, api_package_path: Path, zones: List[str], config: MonorepoConfig):
+        """Generate consolidated index.ts for a specific monorepo."""
+        try:
+            import jinja2
+            from datetime import datetime
+
+            def camelcase(name: str) -> str:
+                """Convert snake_case to camelCase."""
+                parts = name.split('_')
+                return parts[0] + ''.join(part.title() for part in parts[1:])
+
+            # Setup Jinja2 environment
+            templates_dir = Path(__file__).parent / "templates"
+            env = jinja2.Environment(
+                loader=jinja2.FileSystemLoader(str(templates_dir)),
+                trim_blocks=True,
+                lstrip_blocks=True,
+            )
+
+            # Prepare context
+            context = {
+                "zones": zones,
+                "generation_time": datetime.now().isoformat(),
+                "camelcase": camelcase,
+                "monorepo_name": config.name,
+            }
+
+            # Render template
+            template = env.get_template("index_consolidated.ts.j2")
+            index_content = template.render(**context)
+
+            # Write consolidated index.ts
+            with open(api_package_path / "index.ts", "w", encoding="utf-8") as f:
+                f.write(index_content)
+
+            self.logger.success(
+                f"Consolidated index.ts generated for monorepo {config.name} with zones: {zones}"
+            )
+
+        except ImportError:
+            self.logger.warning(
+                "Jinja2 not available, skipping consolidated index generation"
+            )
+        except Exception as e:
+            self.logger.error(f"Failed to generate consolidated index.ts for {config.name}: {e}")
 
     def get_status(self) -> Dict[str, Any]:
         """
-        Get monorepo sync status.
+        Get multi-monorepo sync status.
 
         Returns:
-            Status information dictionary
+            Dictionary with status information
         """
-        return {
+        enabled_configs = self.config.monorepo.get_enabled_configurations()
+        
+        status = {
             "enabled": self.config.monorepo.enabled,
-            "monorepo_path": str(self.monorepo_path),
-            "monorepo_exists": self.monorepo_path.exists(),
-            "api_package_path": str(self.api_package_path),
-            "workspace_files": {
-                "pnpm_workspace": (self.monorepo_path / "pnpm-workspace.yaml").exists(),
-                "package_json": (self.monorepo_path / "package.json").exists(),
-                "lerna_json": (self.monorepo_path / "lerna.json").exists(),
-                "turbo_json": (self.monorepo_path / "turbo.json").exists(),
-            },
+            "total_configurations": len(self.config.monorepo.configurations),
+            "enabled_configurations": len(enabled_configs),
+            "configurations": []
         }
 
-    def clean_monorepo_clients(self) -> Dict[str, Any]:
+        for config in self.config.monorepo.configurations:
+            config_status = {
+                "name": config.name,
+                "enabled": config.enabled,
+                "path": config.path,
+                "api_package_path": config.api_package_path,
+                "exists": Path(config.path).exists() if config.enabled else False
+            }
+            status["configurations"].append(config_status)
+
+        return status
+
+    def clean_temp_directory(self) -> bool:
         """
-        Clean generated clients from monorepo.
+        Clean temporary directory.
 
         Returns:
-            Cleanup operation results
+            bool: True if cleaning successful
         """
-        if not self.config.monorepo.enabled:
-            return {"success": False, "error": "Monorepo sync disabled"}
-
-        results = {"typescript_cleaned": 0, "python_cleaned": 0, "errors": []}
-
         try:
-            # Clean TypeScript clients only
-            ts_dir = self.api_package_path / "typescript"
-            if ts_dir.exists():
-                for zone_dir in ts_dir.iterdir():
-                    if zone_dir.is_dir():
-                        shutil.rmtree(zone_dir)
-                        results["typescript_cleaned"] += 1
-
-            # Skip Python clients for monorepo
-            # py_dir = self.api_package_path / 'python'
-            # if py_dir.exists():
-            #     for zone_dir in py_dir.iterdir():
-            #         if zone_dir.is_dir():
-            #             shutil.rmtree(zone_dir)
-            #             results['python_cleaned'] += 1
-
-            total_cleaned = results["typescript_cleaned"]  # Only TypeScript
-            self.logger.success(
-                f"Cleaned {total_cleaned} TypeScript clients from monorepo"
-            )
-
+            if self.temp_dir.exists():
+                shutil.rmtree(self.temp_dir)
+                self.logger.success("Temporary monorepo sync directory cleaned")
+            return True
         except Exception as e:
-            error_msg = f"Failed to clean monorepo clients: {str(e)}"
-            self.logger.error(error_msg)
-            results["errors"].append(error_msg)
-
-        return results
+            self.logger.error(f"Failed to clean temporary directory: {e}")
+            return False 

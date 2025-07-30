@@ -23,7 +23,7 @@ from ..utils import (
 from .heyapi_ts import HeyAPITypeScriptGenerator
 from .python_client import PythonClientGenerator
 from .archive_manager import ArchiveManager
-from .monorepo_sync import MonorepoSync
+from .monorepo_sync import MultiMonorepoSync
 
 
 class OpenAPIGenerator:
@@ -56,7 +56,7 @@ class OpenAPIGenerator:
 
         # Initialize additional services
         self.archive_manager = ArchiveManager(self.config, self.logger, self.output_dir)
-        self.monorepo_sync = MonorepoSync(self.config, self.logger)
+        self.monorepo_sync = MultiMonorepoSync(self.config, self.logger)
 
         self.logger.info("OpenAPI Generator initialized")
 

@@ -27,13 +27,13 @@ Usage:
     summary = generator.generate_all(zones=['public', 'admin'])
 """
 
-from .config import DjangoRevolutionSettings, ZoneModel, get_settings
+from .config import DjangoRevolutionSettings, ZoneModel, get_settings, MonorepoConfig
 from .zones import ZoneManager, ZoneDetector
-from .openapi import OpenAPIGenerator
+from .openapi import OpenAPIGenerator, MultiMonorepoSync
 from .utils import Logger, ErrorHandler
 from .urls_integration import add_revolution_urls, get_revolution_urlpatterns, get_revolution_urls_info
 
-__version__ = "1.0.17"
+__version__ = "1.0.18"
 __author__ = "Unrealos Team"
 __description__ = "Universal Zone-Based API Client Generator for Django"
 
@@ -42,6 +42,8 @@ __all__ = [
     'OpenAPIGenerator',
     'ZoneManager', 
     'ZoneDetector',
+    'MultiMonorepoSync',
+    'MonorepoConfig',
 
     # URL Integration
     'add_revolution_urls',
