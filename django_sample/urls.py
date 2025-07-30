@@ -59,6 +59,7 @@ revolution_info = get_revolution_urls_info()
 if revolution_info:
     print("=" * 60)
     print("🚀 Django Revolution URL Integration")
+    print(f"📦 Version: {revolution_info.get('version', 'unknown')}")
     print(f"📊 Zones: {revolution_info.get('total_zones', 0)}")
     print(f"📱 Apps: {revolution_info.get('total_apps', 0)}")
     print(f"🔗 API Prefix: /{revolution_info.get('api_prefix', 'apix')}/")
