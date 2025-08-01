@@ -335,19 +335,17 @@ __all__ = [
         if not self.config.monorepo.enabled:
             return {"success": False, "error": "Multi-monorepo sync disabled"}
 
-        self.logger.info("Starting multi-monorepo sync for all clients...")
+        self.logger.info("Starting multi-monorepo sync for TypeScript clients...")
 
-        # Get all zone directories
+        # Get TypeScript clients directory only
         ts_clients_dir = clients_dir / "typescript"
-        py_clients_dir = clients_dir / "python"
 
         sync_results = {
             "typescript": {},
-            "python": {},
             "summary": {"total_zones": 0, "successful": 0, "failed": 0}
         }
 
-        # Sync TypeScript clients
+        # Sync TypeScript clients only
         if ts_clients_dir.exists():
             for zone_dir in ts_clients_dir.iterdir():
                 if zone_dir.is_dir():
@@ -361,15 +359,6 @@ __all__ = [
                         sync_results["summary"]["successful"] += 1
                     else:
                         sync_results["summary"]["failed"] += 1
-
-        # Sync Python clients
-        if py_clients_dir.exists():
-            for zone_dir in py_clients_dir.iterdir():
-                if zone_dir.is_dir():
-                    zone_name = zone_dir.name
-                    
-                    result = self.sync_python_client(zone_name, zone_dir)
-                    sync_results["python"][zone_name] = result
 
         self.logger.info(
             f"Multi-monorepo sync completed: {sync_results['summary']['successful']} successful, "
@@ -406,16 +395,10 @@ __all__ = [
 
         clients_dir = Path(self.config.output.base_directory) / self.config.output.clients_directory
         
-        # Try TypeScript first
+        # Sync TypeScript only
         ts_client_path = clients_dir / "typescript" / zone_name
         if ts_client_path.exists():
             result = self.sync_typescript_client(zone_name, ts_client_path)
-            return result.get("success", False)
-
-        # Try Python if TypeScript doesn't exist
-        py_client_path = clients_dir / "python" / zone_name
-        if py_client_path.exists():
-            result = self.sync_python_client(zone_name, py_client_path)
             return result.get("success", False)
 
         return False
