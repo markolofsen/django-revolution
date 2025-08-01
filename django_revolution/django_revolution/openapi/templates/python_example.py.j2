@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""
+Example usage of the generated {{ zone_name | title }} API client.
+
+This demonstrates how to use the HTTP client with generated models.
+"""
+
+import json
+from typing import Dict, Any, List
+
+# Import the generated client and models
+from .http_client import {{ zone_name }}_client, {{ zone_name | title }}Client
+from .django_revolution_{{ zone_name }} import *
+
+
+def main():
+    """Main example function"""
+    
+    print("🔗 {{ zone_name | title }} API Client Example")
+    print("=" * 50)
+    
+    # Initialize client
+    client = {{ zone_name }}_client("http://localhost:8000")
+    
+    # Example 1: Basic API calls
+    print("\n📋 Example 1: Basic API calls")
+    try:
+        # GET request example
+        print("📡 Making GET request...")
+        response = client.get("{{ zone_name }}/")
+        if response.is_success():
+            print(f"✅ GET successful: {response.status_code}")
+            print(f"📄 Response: {json.dumps(response.data, indent=2)}")
+        else:
+            print(f"❌ GET failed: {response.status_code}")
+            
+    except Exception as e:
+        print(f"⚠️  Server not running or error: {e}")
+    
+    # Example 2: Using generated models
+    print("\n📋 Example 2: Using generated models")
+    try:
+        # Create model instances (adjust based on your actual models)
+        # Example: Create a resource request
+        if 'ResourceRequest' in globals():
+            resource_request = ResourceRequest(
+                name="test_resource",
+                description="Test resource",
+                is_active=True
+            )
+            print(f"✅ Created model: {resource_request.model_dump()}")
+            
+            # POST request with model data
+            response = client.post("{{ zone_name }}/resources/", data=resource_request.model_dump())
+            if response.is_success():
+                print(f"✅ POST successful: {response.status_code}")
+            else:
+                print(f"❌ POST failed: {response.status_code}")
+                
+    except Exception as e:
+        print(f"⚠️  Model example error: {e}")
+    
+    # Example 3: Authentication
+    print("\n📋 Example 3: Authentication")
+    try:
+        # Set auth token
+        client.set_auth_token("your-auth-token-here")
+        print("✅ Auth token set")
+        
+        # Make authenticated request
+        response = client.get("{{ zone_name }}/protected-endpoint/")
+        if response.is_success():
+            print(f"✅ Authenticated request successful")
+        else:
+            print(f"❌ Authenticated request failed: {response.status_code}")
+            
+        # Clear auth token
+        client.clear_auth_token()
+        print("✅ Auth token cleared")
+        
+    except Exception as e:
+        print(f"⚠️  Auth example error: {e}")
+    
+    # Example 4: Error handling
+    print("\n📋 Example 4: Error handling")
+    try:
+        # Make request that might fail
+        response = client.get("{{ zone_name }}/non-existent-endpoint/")
+        if response.is_success():
+            print("✅ Request successful")
+        else:
+            print(f"❌ Request failed as expected: {response.status_code}")
+            
+    except Exception as e:
+        print(f"✅ Caught expected error: {e}")
+    
+    # Example 5: Advanced usage
+    print("\n📋 Example 5: Advanced usage")
+    try:
+        # Custom headers
+        headers = {"X-Custom-Header": "custom-value"}
+        
+        # Custom parameters
+        params = {"page": 1, "size": 10}
+        
+        # Make request with custom options
+        response = client.get("{{ zone_name }}/resources/", params=params)
+        if response.is_success():
+            print(f"✅ Advanced request successful")
+            print(f"📄 Data: {json.dumps(response.data, indent=2)}")
+        else:
+            print(f"❌ Advanced request failed: {response.status_code}")
+            
+    except Exception as e:
+        print(f"⚠️  Advanced example error: {e}")
+    
+    print("\n" + "=" * 50)
+    print("🎉 Example completed!")
+
+
+if __name__ == "__main__":
+    main() 

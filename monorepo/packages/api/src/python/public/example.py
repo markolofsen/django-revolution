@@ -2,11 +2,12 @@
 """
 Example usage of the generated Public API client.
 
-This demonstrates how to use the HTTP client with generated models.
+This demonstrates how to use the HTTP client with generated models and specific API methods.
 """
 
 import json
 from typing import Dict, Any, List
+from datetime import datetime
 
 # Import the generated client and models
 from .http_client import public_client, PublicClient
@@ -41,27 +42,81 @@ def main():
     print("\n📋 Example 2: Using generated models")
     try:
         # Create model instances (adjust based on your actual models)
-        # Example: Create a resource request
-        if 'ResourceRequest' in globals():
-            resource_request = ResourceRequest(
-                name="test_resource",
-                description="Test resource",
-                is_active=True
+        # Example: Create a post request
+        if 'Post' in globals():
+            # Create a user first
+            user = User(
+                id=1,
+                username="testuser",
+                email="test@example.com",
+                first_name="Test",
+                last_name="User",
+                date_joined=datetime.now()
             )
-            print(f"✅ Created model: {resource_request.model_dump()}")
             
-            # POST request with model data
-            response = client.post("public/resources/", data=resource_request.model_dump())
-            if response.is_success():
-                print(f"✅ POST successful: {response.status_code}")
-            else:
-                print(f"❌ POST failed: {response.status_code}")
-                
+            # Create a post
+            post = Post(
+                id=1,
+                title="Test Post",
+                content="Test content",
+                author=user,
+                author_id=1,
+                published=True,
+                created_at=datetime.now()
+            )
+            print(f"✅ Created model: {post.title}")
+            
     except Exception as e:
         print(f"⚠️  Model example error: {e}")
     
-    # Example 3: Authentication
-    print("\n📋 Example 3: Authentication")
+    # Example 3: Specific API Methods
+    print("\n📋 Example 3: Specific API Methods")
+    try:
+        # Get all posts
+        print("📡 Getting all posts...")
+        response = client.get_posts(ordering="-created_at", page=1)
+        if response.is_success():
+            print(f"✅ Got posts: {len(response.data.get('results', []))} posts")
+        else:
+            print(f"❌ Failed to get posts: {response.status_code}")
+        
+        # Get published posts only
+        print("📡 Getting published posts...")
+        response = client.get_published_posts(ordering="-created_at")
+        if response.is_success():
+            print(f"✅ Got published posts: {len(response.data.get('results', []))} posts")
+        else:
+            print(f"❌ Failed to get published posts: {response.status_code}")
+        
+        # Create a new post
+        print("📡 Creating a new post...")
+        post_data = {
+            "title": "New Post via Client",
+            "content": "This post was created using the API client",
+            "author_id": 1,
+            "published": False
+        }
+        response = client.create_post(post_data)
+        if response.is_success():
+            print(f"✅ Created post: {response.data.get('title')}")
+            post_id = response.data.get('id')
+            
+            # Publish the post
+            print(f"📡 Publishing post {post_id}...")
+            response = client.publish_post(post_id)
+            if response.is_success():
+                print(f"✅ Published post {post_id}")
+            else:
+                print(f"❌ Failed to publish post: {response.status_code}")
+                
+        else:
+            print(f"❌ Failed to create post: {response.status_code}")
+            
+    except Exception as e:
+        print(f"⚠️  Specific API methods error: {e}")
+    
+    # Example 4: Authentication
+    print("\n📋 Example 4: Authentication")
     try:
         # Set auth token
         client.set_auth_token("your-auth-token-here")
@@ -81,8 +136,8 @@ def main():
     except Exception as e:
         print(f"⚠️  Auth example error: {e}")
     
-    # Example 4: Error handling
-    print("\n📋 Example 4: Error handling")
+    # Example 5: Error handling
+    print("\n📋 Example 5: Error handling")
     try:
         # Make request that might fail
         response = client.get("public/non-existent-endpoint/")
@@ -94,28 +149,33 @@ def main():
     except Exception as e:
         print(f"✅ Caught expected error: {e}")
     
-    # Example 5: Advanced usage
-    print("\n📋 Example 5: Advanced usage")
+    # Example 6: Advanced usage with specific methods
+    print("\n📋 Example 6: Advanced usage with specific methods")
     try:
-        # Custom headers
-        headers = {"X-Custom-Header": "custom-value"}
-        
-        # Custom parameters
-        params = {"page": 1, "size": 10}
-        
-        # Make request with custom options
-        response = client.get("public/resources/", params=params)
+        # Get posts by author
+        print("📡 Getting posts by author...")
+        response = client.get_posts_by_author(author_id=1)
         if response.is_success():
-            print(f"✅ Advanced request successful")
-            print(f"📄 Data: {json.dumps(response.data, indent=2)}")
+            print(f"✅ Got posts by author: {len(response.data.get('results', []))} posts")
         else:
-            print(f"❌ Advanced request failed: {response.status_code}")
+            print(f"❌ Failed to get posts by author: {response.status_code}")
+        
+        # Update a post
+        print("📡 Updating a post...")
+        update_data = {
+            "title": "Updated Post Title",
+            "content": "Updated content"
+        }
+        response = client.patch_post(post_id=1, post_data=update_data)
+        if response.is_success():
+            print(f"✅ Updated post: {response.data.get('title')}")
+        else:
+            print(f"❌ Failed to update post: {response.status_code}")
             
     except Exception as e:
-        print(f"⚠️  Advanced example error: {e}")
+        print(f"⚠️  Advanced usage error: {e}")
     
-    print("\n" + "=" * 50)
-    print("🎉 Example completed!")
+    print("\n🎉 Example completed!")
 
 
 if __name__ == "__main__":

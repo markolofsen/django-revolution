@@ -1,6 +1,6 @@
 {
   "name": "@frontend/public",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "Public API for testing - posts and content",
   "main": "index.ts",
   "types": "index.ts",

@@ -328,6 +328,10 @@ class PythonClientGenerator:
             zone_info = zones.get(zone_name, {})
 
             # Prepare context for templates
+            api_prefix = f"/{self.config.api_prefix}/"
+            self.logger.info(f"Using api_prefix: {api_prefix} for zone {zone_name}")
+            self.logger.info(f"Config api_prefix: {self.config.api_prefix}")
+            
             context = {
                 "zone_name": zone_name,
                 "title": zone_info.get("title", f"{zone_name.title()} API"),
@@ -337,7 +341,10 @@ class PythonClientGenerator:
                 "apps": zone_info.get("apps", []),
                 "generation_time": datetime.now().isoformat(),
                 "version": self.config.version,
+                "api_prefix": api_prefix,
             }
+            
+            self.logger.info(f"Template context api_prefix: {context['api_prefix']}")
 
             # Generate HTTP client
             http_client_template = env.get_template("python_http_client.py.j2")
