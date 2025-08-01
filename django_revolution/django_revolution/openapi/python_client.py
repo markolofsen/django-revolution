@@ -1,7 +1,7 @@
 """
 Python Client Generator for Django Revolution
 
-Generates Python clients using datamodel-code-generator.
+Generates Python clients using openapi-python-generator.
 """
 
 from pathlib import Path
@@ -15,7 +15,7 @@ from ..utils import Logger, run_command, check_dependency, ensure_directories
 
 
 class PythonClientGenerator:
-    """Python client generator using datamodel-code-generator."""
+    """Python client generator using openapi-python-generator."""
 
     def __init__(
         self, config: DjangoRevolutionSettings, logger: Optional[Logger] = None
@@ -31,14 +31,44 @@ class PythonClientGenerator:
         self.logger = logger or Logger("python_client_generator")
         self.output_dir = Path(config.generators.python.output_directory)
 
-    def is_datamodel_available(self) -> bool:
+    def is_openapi_generator_available(self) -> bool:
         """
-        Check if datamodel-code-generator is available.
+        Check if openapi-python-generator is available.
 
         Returns:
             bool: True if available
         """
-        return check_dependency(["datamodel-codegen", "--version"])
+        # Try direct import first
+        try:
+            import openapi_python_generator
+            self.logger.info(f"openapi-python-generator imported successfully")
+            return True
+        except ImportError:
+            self.logger.warning(f"openapi-python-generator import failed")
+        
+        # Try different ways to run the command
+        from ..utils import run_command
+        
+        # Try 1: Direct command
+        success, output = run_command("openapi-python-generator --version")
+        if success:
+            self.logger.info(f"openapi-python-generator available via direct command")
+            return True
+            
+        # Try 2: Poetry run
+        success, output = run_command("poetry run openapi-python-generator --version")
+        if success:
+            self.logger.info(f"openapi-python-generator available via poetry run")
+            return True
+            
+        # Try 3: Python module
+        success, output = run_command("python -m openapi_python_generator --version")
+        if success:
+            self.logger.info(f"openapi-python-generator available via python module")
+            return True
+            
+        self.logger.warning(f"openapi-python-generator not found in any environment")
+        return False
 
     def generate_client(self, zone_name: str, schema_path: Path) -> GenerationResult:
         """
@@ -69,14 +99,14 @@ class PythonClientGenerator:
         zone_output_dir = self.output_dir / zone_name
         ensure_directories(zone_output_dir)
 
-        # Use datamodel-code-generator
-        if self.is_datamodel_available():
-            return self._generate_with_datamodel(
+        # Use openapi-python-generator
+        if self.is_openapi_generator_available():
+            return self._generate_with_openapi_generator(
                 zone_name, schema_path, zone_output_dir
             )
 
         error_msg = (
-            "No Python client generators available. Install 'datamodel-code-generator'"
+            "No Python client generators available. Install 'openapi-python-generator'"
         )
         self.logger.error(error_msg)
         return GenerationResult(
@@ -87,11 +117,38 @@ class PythonClientGenerator:
             error_message=error_msg,
         )
 
-    def _generate_with_datamodel(
+    def _get_openapi_generator_command(self) -> list:
+        """
+        Get the appropriate command to run openapi-python-generator.
+        
+        Returns:
+            List of command parts
+        """
+        from ..utils import run_command
+        
+        # Try 1: Direct command
+        success, _ = run_command("openapi-python-generator --version")
+        if success:
+            return ["openapi-python-generator"]
+            
+        # Try 2: Poetry run
+        success, _ = run_command("poetry run openapi-python-generator --version")
+        if success:
+            return ["poetry", "run", "openapi-python-generator"]
+            
+        # Try 3: Python module
+        success, _ = run_command("python -m openapi_python_generator --version")
+        if success:
+            return ["python", "-m", "openapi_python_generator"]
+            
+        # Fallback to poetry run (most common case)
+        return ["poetry", "run", "openapi-python-generator"]
+
+    def _generate_with_openapi_generator(
         self, zone_name: str, schema_path: Path, zone_output_dir: Path
     ) -> GenerationResult:
         """
-        Generate Python client using datamodel-code-generator.
+        Generate Python client using openapi-python-generator.
 
         Args:
             zone_name: Name of the zone
@@ -101,7 +158,7 @@ class PythonClientGenerator:
         Returns:
             GenerationResult with operation details
         """
-        self.logger.info(f"Using datamodel-code-generator for {zone_name}")
+        self.logger.info(f"Using openapi-python-generator for {zone_name}")
 
         try:
             # Generate project and package names
@@ -109,53 +166,45 @@ class PythonClientGenerator:
                 zone=zone_name
             )
 
-            # Build command for datamodel-code-generator
-            cmd = [
-                "datamodel-codegen",
-                "--input",
+            # Get the appropriate command
+            base_cmd = self._get_openapi_generator_command()
+            
+            # Build command for openapi-python-generator
+            cmd = base_cmd + [
                 str(schema_path),
-                "--input-file-type",
-                "openapi",
-                "--output",
-                str(zone_output_dir / f"{project_name}.py"),
-                "--target-python-version",
-                "3.9",
-                "--use-annotated",
-                "--use-field-description",
-                "--use-standard-collections",
-                "--use-schema-description",
-                "--use-union-operator",
-                "--output-model-type",
-                "pydantic_v2.BaseModel",
+                str(zone_output_dir),
             ]
 
             success, output = run_command(" ".join(cmd), timeout=120)
 
             if success:
-                # Check if file was generated
-                generated_file = zone_output_dir / f"{project_name}.py"
-                if generated_file.exists():
-                    # Count generated files (just the main file for now)
-                    files_generated = 1
+                # Check if files were generated
+                # openapi-python-generator creates a directory structure
+                models_dir = zone_output_dir / "models"
+                services_dir = zone_output_dir / "services"
+                
+                if models_dir.exists() or services_dir.exists():
+                    # Count generated files
+                    files_generated = self._count_generated_files(zone_output_dir)
 
                     # Enhance the generated client
-                    self._enhance_datamodel_client(
-                        zone_name, zone_output_dir, generated_file
+                    self._enhance_openapi_client(
+                        zone_name, zone_output_dir
                     )
 
                     self.logger.success(
-                        f"Python client generated with datamodel-code-generator for {zone_name}: {files_generated} files"
+                        f"Python client generated with openapi-python-generator for {zone_name}: {files_generated} files"
                     )
 
                     return GenerationResult(
                         success=True,
                         zone_name=zone_name,
-                        output_path=generated_file,
+                        output_path=zone_output_dir,
                         files_generated=files_generated,
                         error_message="",
                     )
                 else:
-                    error_msg = f"datamodel-code-generator did not create expected file: {generated_file}"
+                    error_msg = f"openapi-python-generator did not create expected files in: {zone_output_dir}"
                     self.logger.error(error_msg)
                     return GenerationResult(
                         success=False,
@@ -165,7 +214,7 @@ class PythonClientGenerator:
                         error_message=error_msg,
                     )
             else:
-                error_msg = f"datamodel-code-generator failed: {output}"
+                error_msg = f"openapi-python-generator failed: {output}"
                 self.logger.error(error_msg)
 
                 # Save detailed error to log file
@@ -173,7 +222,7 @@ class PythonClientGenerator:
                 try:
                     with open(log_file, "w", encoding="utf-8") as f:
                         f.write(
-                            f"=== Python Client Generation Error (datamodel-code-generator) ===\n"
+                            f"=== Python Client Generation Error (openapi-python-generator) ===\n"
                         )
                         f.write(f"Timestamp: {datetime.datetime.now().isoformat()}\n")
                         f.write(f"Zone: {zone_name}\n")
@@ -200,7 +249,7 @@ class PythonClientGenerator:
                 )
 
         except Exception as e:
-            error_msg = f"datamodel-code-generator exception: {str(e)}"
+            error_msg = f"openapi-python-generator exception: {str(e)}"
             self.logger.error(error_msg)
 
             # Get full traceback with all details
@@ -212,7 +261,7 @@ class PythonClientGenerator:
             try:
                 with open(log_file, "w", encoding="utf-8") as f:
                     f.write(
-                        f"=== Python Client Generation Error (datamodel-code-generator) ===\n"
+                        f"=== Python Client Generation Error (openapi-python-generator) ===\n"
                     )
                     f.write(f"Timestamp: {datetime.datetime.now().isoformat()}\n")
                     f.write(f"Zone: {zone_name}\n")
@@ -289,103 +338,20 @@ class PythonClientGenerator:
 
         return count
 
-    def _enhance_datamodel_client(
-        self, zone_name: str, output_dir: Path, generated_file: Path
+    def _enhance_openapi_client(
+        self, zone_name: str, output_dir: Path
     ):
         """
-        Enhance the generated datamodel-code-generator client with additional features.
+        Enhance the generated openapi-python-generator client with additional features.
 
         Args:
             zone_name: Name of the zone
             output_dir: Output directory for the zone
-            generated_file: Path to the generated Python file
         """
-        try:
-            # Generate HTTP client using templates
-            self._generate_http_client(zone_name, output_dir)
+        # No additional enhancement needed - openapi-python-generator provides everything
+        self.logger.debug(f"Using openapi-python-generator output for {zone_name}")
 
-        except Exception as e:
-            self.logger.warning(
-                f"Failed to enhance datamodel client for {zone_name}: {e}"
-            )
 
-    def _generate_http_client(self, zone_name: str, output_dir: Path):
-        """Generate HTTP client using Jinja2 templates."""
-        try:
-            import jinja2
-            from datetime import datetime
-
-            # Setup Jinja2 environment
-            templates_dir = Path(__file__).parent / "templates"
-            env = jinja2.Environment(
-                loader=jinja2.FileSystemLoader(str(templates_dir)),
-                trim_blocks=True,
-                lstrip_blocks=True,
-            )
-
-            # Get zone info from config
-            zones = self.config.zones
-            zone_info = zones.get(zone_name, {})
-
-            # Prepare context for templates
-            api_prefix = f"/{self.config.api_prefix}/"
-            self.logger.info(f"Using api_prefix: {api_prefix} for zone {zone_name}")
-            self.logger.info(f"Config api_prefix: {self.config.api_prefix}")
-            
-            context = {
-                "zone_name": zone_name,
-                "title": zone_info.get("title", f"{zone_name.title()} API"),
-                "description": zone_info.get(
-                    "description", f"HTTP client for {zone_name} zone"
-                ),
-                "apps": zone_info.get("apps", []),
-                "generation_time": datetime.now().isoformat(),
-                "version": self.config.version,
-                "api_prefix": api_prefix,
-            }
-            
-            self.logger.info(f"Template context api_prefix: {context['api_prefix']}")
-
-            # Generate HTTP client
-            http_client_template = env.get_template("python_http_client.py.j2")
-            http_client_content = http_client_template.render(**context)
-            
-            http_client_file = output_dir / "http_client.py"
-            with open(http_client_file, "w", encoding="utf-8") as f:
-                f.write(http_client_content)
-
-            # Generate example
-            example_template = env.get_template("python_example.py.j2")
-            example_content = example_template.render(**context)
-            
-            example_file = output_dir / "example.py"
-            with open(example_file, "w", encoding="utf-8") as f:
-                f.write(example_content)
-
-            # Generate README
-            readme_template = env.get_template("python_readme.md.j2")
-            readme_content = readme_template.render(**context)
-            
-            readme_file = output_dir / "README.md"
-            with open(readme_file, "w", encoding="utf-8") as f:
-                f.write(readme_content)
-
-            # Generate requirements.txt
-            requirements_template = env.get_template("python_requirements.txt.j2")
-            requirements_content = requirements_template.render(**context)
-            
-            requirements_file = output_dir / "requirements.txt"
-            with open(requirements_file, "w", encoding="utf-8") as f:
-                f.write(requirements_content)
-
-            self.logger.debug(f"Generated HTTP client files for {zone_name}")
-
-        except ImportError:
-            self.logger.warning("Jinja2 not available, skipping HTTP client generation")
-        except Exception as e:
-            self.logger.warning(
-                f"Failed to generate HTTP client for {zone_name}: {e}"
-            )
 
     def _generate_requirements(self, zone_name: str, output_dir: Path):
         """Generate a requirements.txt file for the datamodel client."""
@@ -431,7 +397,7 @@ typing-extensions>=4.0.0
             Status information dictionary
         """
         return {
-            "available": self.is_datamodel_available(),
+            "available": self.is_openapi_generator_available(),
             "output_directory": str(self.output_dir),
             "enabled": self.config.generators.python.enabled,
             "project_name_template": self.config.generators.python.project_name_template,

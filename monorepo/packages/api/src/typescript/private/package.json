@@ -1,6 +1,6 @@
 {
   "name": "@frontend/private",
-  "version": "1.0.17",
+  "version": "1.0.25",
   "description": "Private API for testing - categories, products, orders",
   "main": "index.ts",
   "types": "index.ts",

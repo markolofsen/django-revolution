@@ -26,6 +26,8 @@
 
 ## 🧪 Example: Instantly Get a Typed API Client
 
+### TypeScript Client
+
 ```typescript
 import API from '@myorg/api-client';
 
@@ -34,6 +36,21 @@ api.setToken('your-access-token');
 
 const profile = await api.public.getProfile();
 const items = await api.public.listItems();
+```
+
+### Python Client
+
+```python
+from public.services.api_service import api_public_api_posts_list
+from public.api_config import APIConfig
+
+# Configure API
+config = APIConfig(base_path="https://api.example.com")
+config.set_access_token("your-access-token")
+
+# Use generated functions
+posts = api_public_api_posts_list(api_config_override=config)
+print(f"Found {len(posts.results)} posts")
 ```
 
 > 🔐 Auth, ⚙️ Headers, 🔄 Refresh – handled automatically.
@@ -46,6 +63,16 @@ Manually update OpenAPI spec → Run generator → Fix broken types → Sync cli
 
 One command. Done.
 
+### 🐍 Modern Python Generation
+
+Django Revolution now uses `openapi-python-generator` for:
+
+- ✅ **Pydantic v2 compatibility** - No more validation errors
+- ✅ **Modern HTTP clients** - Using `httpx` for better performance  
+- ✅ **Async & sync support** - Both `api_service.py` and `async_api_service.py`
+- ✅ **Type-safe configuration** - Full IDE autocomplete and validation
+- ✅ **Enhanced templates** - Custom HTTP client with auth, retries, and error handling
+
 ## 🚀 5-Minute Setup
 
 ### 1. Install
@@ -53,6 +80,8 @@ One command. Done.
 ```bash
 pip install django-revolution
 ```
+
+> **Note:** Django Revolution now uses `openapi-python-generator` for modern Python client generation with Pydantic v2 compatibility. The system automatically detects the environment and works with Poetry, pip, or direct installation.
 
 ### 2. Add to Django Settings
 
@@ -197,9 +226,35 @@ python manage.py revolution --no-monorepo
 | Language       | Location                      | Structure                                                 |
 | -------------- | ----------------------------- | --------------------------------------------------------- |
 | **TypeScript** | `openapi/clients/typescript/` | `public/`, `admin/` → `index.ts`, `types.ts`, `services/` |
-| **Python**     | `openapi/clients/python/`     | `public/`, `admin/` → `client.py`, `models/`, `setup.py`  |
+| **Python**     | `openapi/clients/python/`     | `public/`, `admin/` → `models/`, `services/`, `api_config.py` |
 
 💡 Each zone gets its own NPM/PyPI-style package. Ready to publish or import.
+
+### 🐍 Modern Python Client Structure
+
+The new Python client generation using `openapi-python-generator` creates:
+
+```
+python/
+├── models/
+│   ├── __init__.py
+│   ├── User.py          # Pydantic v2 models
+│   ├── Post.py
+│   └── ...
+├── services/
+│   ├── __init__.py
+│   ├── api_service.py   # Sync HTTP client
+│   └── async_api_service.py  # Async HTTP client
+├── api_config.py        # Configuration & auth
+└── __init__.py
+```
+
+**Features:**
+- ✅ **Pydantic v2 compatibility** - Modern type validation
+- ✅ **Async & sync clients** - Both `httpx` and `aiohttp` support
+- ✅ **Type-safe configuration** - Full IDE autocomplete
+- ✅ **Modern HTTP client** - Using `httpx` for better performance
+- ✅ **Clean structure** - No duplicate files, only essential components
 
 ## ⚡️ TypeScript Client Auth & Usage
 
@@ -583,6 +638,7 @@ summary = generator.generate_all(zones=['public', 'admin'])
 | **CLI interface**                 | ✅ **Rich output** | ❌                           | ✅                    | ✅       | ❌           |
 | **Multithreaded generation**      | ✅ **UNIQUE**      | ❌                           | ❌                    | ❌       | ❌           |
 | **Comprehensive testing**         | ✅ **UNIQUE**      | ❌                           | ❌                    | ❌       | ❌           |
+| **Modern Python client generation** | ✅ **openapi-python-generator** | ❌ | ✅ | ❌ | ❌ |
 
 ## 🙋 FAQ
 
@@ -623,6 +679,7 @@ Either don't pass the `monorepo` parameter to `get_revolution_config()`, or use 
 - 🧪 **Comprehensive testing** - Full test suite with pytest and proper mocking
 - 📦 **Multi-monorepo support** - Support for multiple monorepo configurations
 - 🔧 **pnpm-only integration** - Simplified package manager support
+- 🐍 **Modern Python client generation** - Switched to `openapi-python-generator` for better Pydantic v2 compatibility
 
 **Q: How does the dynamic zone system work?**  
 Django Revolution creates URL configuration modules in-memory using Python's `importlib` and `exec`. This eliminates the need for static `.py` files and provides better performance and flexibility.
@@ -632,6 +689,18 @@ Multithreading allows parallel processing of multiple zones, schema generation, 
 
 **Q: Why only pnpm support?**  
 We focus on pnpm for its superior monorepo support, faster installation, and better workspace management. This simplifies the codebase and provides a consistent experience.
+
+**Q: What's the difference between the old and new Python client generation?**  
+We switched from `datamodel-code-generator` to `openapi-python-generator` for better Pydantic v2 compatibility, improved type safety, and more modern HTTP client generation with proper async support and better error handling.
+
+**Q: Does it work without Poetry?**  
+Yes! Django Revolution automatically detects your environment and tries multiple ways to run `openapi-python-generator`:
+1. Direct command: `openapi-python-generator`
+2. Poetry: `poetry run openapi-python-generator`  
+3. Python module: `python -m openapi_python_generator`
+4. Fallback to Poetry (most common)
+
+This ensures it works in any environment - development, production, CI/CD, or Docker containers.
 
 **Q: How do I manage multiple monorepo configurations?**  
 Use `MonorepoSettings` with a list of `MonorepoConfig` objects. Each configuration can be enabled/disabled independently, and clients are synced to all enabled configurations.

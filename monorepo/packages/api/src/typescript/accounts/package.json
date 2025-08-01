@@ -1,6 +1,6 @@
 {
   "name": "@frontend/accounts",
-  "version": "1.0.17",
+  "version": "1.0.25",
   "description": "User authentication and profile management",
   "main": "index.ts",
   "types": "index.ts",

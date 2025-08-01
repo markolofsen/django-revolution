@@ -32,7 +32,7 @@ class ZoneModel(BaseModel):
     auth_required: bool = Field(False, description="Whether authentication is required")
     rate_limit: Optional[str] = Field(None, description="Rate limit configuration")
     permissions: Optional[List[str]] = Field(None, description="Required permissions")
-    version: str = Field("1.0.23", description="API version")
+    version: str = Field("1.0.25", description="API version")
     prefix: Optional[str] = Field(None, description="URL prefix override")
     cors_enabled: bool = Field(False, description="Enable CORS for this zone")
     middleware: Optional[List[str]] = Field(None, description="Custom middleware")
@@ -269,7 +269,7 @@ class DjangoRevolutionSettings(BaseSettings):
     api_prefix: str = Field("apix", description="API prefix for all routes")
     debug: bool = Field(False, description="Enable debug mode")
     auto_install_deps: bool = Field(True, description="Auto-install dependencies")
-    version: str = Field("1.0.23", description="Package version for generated clients")
+    version: str = Field("1.0.25", description="Package version for generated clients")
     
     # Multithreading settings
     max_workers: int = Field(20, description="Maximum number of worker threads for schema generation")
