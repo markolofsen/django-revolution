@@ -36,6 +36,8 @@ This is a test Django project for Django Revolution, demonstrating zone-based AP
 
    - **Swagger UI (Public API):** http://localhost:8000/schema/public/schema/swagger/
    - **Swagger UI (Private API):** http://localhost:8000/schema/private/schema/swagger/
+   - **Redoc UI (Public API):** http://localhost:8000/schema/public/redoc/
+   - **Redoc UI (Private API):** http://localhost:8000/schema/private/redoc/
    - **Public API endpoints:** http://localhost:8000/api/public/
    - **Private API endpoints:** http://localhost:8000/api/private/
 

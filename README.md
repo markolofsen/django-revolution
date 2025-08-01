@@ -246,10 +246,14 @@ urlpatterns = [
 ]
 
 # Django Revolution automatically adds:
-# - /api/public/schema/ (Swagger UI)
-# - /api/public/schema.yaml (OpenAPI spec)
-# - /api/admin/schema/ (Swagger UI)
-# - /api/admin/schema.yaml (OpenAPI spec)
+# - /schema/public/schema/ (OpenAPI spec)
+# - /schema/public/schema/swagger/ (Swagger UI)
+# - /schema/public/redoc/ (Redoc UI)
+# - /schema/admin/schema/ (OpenAPI spec)
+# - /schema/admin/schema/swagger/ (Swagger UI)
+# - /schema/admin/redoc/ (Redoc UI)
+# - /api/public/ (Public API endpoints)
+# - /api/admin/ (Admin API endpoints)
 # - /openapi/archive/ (Generated clients)
 urlpatterns = add_revolution_urls(urlpatterns)
 ```

@@ -160,9 +160,10 @@ urlpatterns = [
 
         schema_view_name = f"{zone_name}-schema"
         swagger_view_name = f"{zone_name}-swagger"
+        redoc_view_name = f"{zone_name}-redoc"
 
         try:
-            from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+            from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
             return [
                 # Schema endpoint - uses dynamic urlconf
@@ -176,6 +177,12 @@ urlpatterns = [
                     "schema/swagger/",
                     SpectacularSwaggerView.as_view(url_name=schema_view_name),
                     name=swagger_view_name,
+                ),
+                # Redoc UI endpoint
+                path(
+                    "redoc/",
+                    SpectacularRedocView.as_view(url_name=schema_view_name),
+                    name=redoc_view_name,
                 ),
             ]
         except ImportError:

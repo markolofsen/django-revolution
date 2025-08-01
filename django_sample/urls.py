@@ -23,8 +23,10 @@ urlpatterns = [
 # This creates:
 # - /schema/public/schema/ (OpenAPI spec)
 # - /schema/public/schema/swagger/ (Swagger UI)
+# - /schema/public/redoc/ (Redoc UI)
 # - /schema/private/schema/ (OpenAPI spec)
 # - /schema/private/schema/swagger/ (Swagger UI)
+# - /schema/private/redoc/ (Redoc UI)
 # - /api/public/ (Public API endpoints)
 # - /api/private/ (Private API endpoints)
 # - /openapi/archive/latest/public.zip (Generated clients)
