@@ -126,23 +126,28 @@ class PythonClientGenerator:
         """
         from ..utils import run_command
         
-        # Try 1: Direct command
-        success, _ = run_command("openapi-python-generator --version")
+        # Try 1: Poetry run with python module (most reliable for poetry projects)
+        success, _ = run_command("poetry run python -m openapi_python_generator --version")
         if success:
-            return ["openapi-python-generator"]
+            return ["poetry", "run", "python", "-m", "openapi_python_generator"]
             
-        # Try 2: Poetry run
+        # Try 2: Poetry run direct command
         success, _ = run_command("poetry run openapi-python-generator --version")
         if success:
             return ["poetry", "run", "openapi-python-generator"]
             
-        # Try 3: Python module
+        # Try 3: Direct python module (for pip installations)
         success, _ = run_command("python -m openapi_python_generator --version")
         if success:
             return ["python", "-m", "openapi_python_generator"]
             
-        # Fallback to poetry run (most common case)
-        return ["poetry", "run", "openapi-python-generator"]
+        # Try 4: Direct command (for pip installations)
+        success, _ = run_command("openapi-python-generator --version")
+        if success:
+            return ["openapi-python-generator"]
+            
+        # Fallback to poetry run with python module (most common case)
+        return ["poetry", "run", "python", "-m", "openapi_python_generator"]
 
     def _generate_with_openapi_generator(
         self, zone_name: str, schema_path: Path, zone_output_dir: Path
@@ -174,6 +179,22 @@ class PythonClientGenerator:
                 str(schema_path),
                 str(zone_output_dir),
             ]
+
+            # Check if zone requires authentication
+            zone = self.config.get_zone(zone_name)
+            if zone and zone.auth_required:
+                # Add token environment variable for zones that require auth
+                cmd.extend(["--env-token-name", "access_token"])
+                self.logger.info(f"Zone {zone_name} requires authentication - adding token requirement")
+            else:
+                # Don't add --env-token-name for zones without auth requirement
+                self.logger.info(f"Zone {zone_name} does not require authentication - skipping token requirement")
+                
+                # Use custom templates for zones without auth to avoid Authorization header
+                custom_template_path = self._create_custom_templates_for_no_auth()
+                if custom_template_path:
+                    cmd.extend(["--custom-template-path", str(custom_template_path)])
+                    self.logger.info(f"Using custom templates for {zone_name} to avoid Authorization header")
 
             success, output = run_command(" ".join(cmd), timeout=120)
 
@@ -406,3 +427,30 @@ typing-extensions>=4.0.0
             "fail_on_warning": self.config.generators.python.fail_on_warning,
             "custom_templates": self.config.generators.python.custom_templates,
         }
+
+    def _create_custom_templates_for_no_auth(self) -> Optional[Path]:
+        """
+        Create custom templates for zones without authentication.
+        
+        Returns:
+            Path to custom templates directory or None if failed
+        """
+        try:
+            # Create temporary templates directory
+            templates_dir = Path(self.config.output.temp_directory) / "python_templates_no_auth"
+            templates_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Copy our custom templates
+            source_templates = Path(__file__).parent / "templates" / "python"
+            if source_templates.exists():
+                import shutil
+                shutil.copytree(source_templates, templates_dir, dirs_exist_ok=True)
+                self.logger.debug(f"Created custom templates at: {templates_dir}")
+                return templates_dir
+            else:
+                self.logger.warning("Custom templates not found, using default templates")
+                return None
+                
+        except Exception as e:
+            self.logger.error(f"Failed to create custom templates: {e}")
+            return None

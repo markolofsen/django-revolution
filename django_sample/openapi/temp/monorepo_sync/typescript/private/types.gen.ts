@@ -326,7 +326,6 @@ export type CategoriesProductsByCategoryListData = {
         category_id: number;
     };
     query?: {
-        category_id?: number;
         /**
          * Which field to use when ordering the results.
          */
@@ -1206,7 +1205,6 @@ export type ProductsByCategoryListData = {
     body?: never;
     path?: never;
     query?: {
-        category_id?: number;
         /**
          * Which field to use when ordering the results.
          */

@@ -12,11 +12,18 @@ def auth_login_create(api_config_override: Optional[APIConfig] = None) -> None:
 
     base_path = api_config.base_path
     path = f"/api/users/auth/login/"
+
+    # Build headers - only add Authorization if token is available
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": f"Bearer { api_config.get_access_token() }",
     }
+
+    # Only add Authorization header if token is available
+    access_token = api_config.get_access_token()
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+
     query_params: Dict[str, Any] = {}
 
     query_params = {key: value for (key, value) in query_params.items() if value is not None}
@@ -40,11 +47,18 @@ def auth_logout_create(api_config_override: Optional[APIConfig] = None) -> None:
 
     base_path = api_config.base_path
     path = f"/api/users/auth/logout/"
+
+    # Build headers - only add Authorization if token is available
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": f"Bearer { api_config.get_access_token() }",
     }
+
+    # Only add Authorization header if token is available
+    access_token = api_config.get_access_token()
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+
     query_params: Dict[str, Any] = {}
 
     query_params = {key: value for (key, value) in query_params.items() if value is not None}
@@ -68,11 +82,18 @@ def auth_password_change_create(api_config_override: Optional[APIConfig] = None)
 
     base_path = api_config.base_path
     path = f"/api/users/auth/password/change/"
+
+    # Build headers - only add Authorization if token is available
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": f"Bearer { api_config.get_access_token() }",
     }
+
+    # Only add Authorization header if token is available
+    access_token = api_config.get_access_token()
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+
     query_params: Dict[str, Any] = {}
 
     query_params = {key: value for (key, value) in query_params.items() if value is not None}
@@ -96,11 +117,18 @@ def auth_password_reset_create(api_config_override: Optional[APIConfig] = None) 
 
     base_path = api_config.base_path
     path = f"/api/users/auth/password/reset/"
+
+    # Build headers - only add Authorization if token is available
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": f"Bearer { api_config.get_access_token() }",
     }
+
+    # Only add Authorization header if token is available
+    access_token = api_config.get_access_token()
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+
     query_params: Dict[str, Any] = {}
 
     query_params = {key: value for (key, value) in query_params.items() if value is not None}
@@ -124,11 +152,18 @@ def auth_password_reset_confirm_create(api_config_override: Optional[APIConfig] 
 
     base_path = api_config.base_path
     path = f"/api/users/auth/password/reset/confirm/"
+
+    # Build headers - only add Authorization if token is available
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": f"Bearer { api_config.get_access_token() }",
     }
+
+    # Only add Authorization header if token is available
+    access_token = api_config.get_access_token()
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+
     query_params: Dict[str, Any] = {}
 
     query_params = {key: value for (key, value) in query_params.items() if value is not None}
@@ -152,11 +187,18 @@ def auth_refresh_create(data: TokenRefresh, api_config_override: Optional[APICon
 
     base_path = api_config.base_path
     path = f"/api/users/auth/refresh/"
+
+    # Build headers - only add Authorization if token is available
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": f"Bearer { api_config.get_access_token() }",
     }
+
+    # Only add Authorization header if token is available
+    access_token = api_config.get_access_token()
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+
     query_params: Dict[str, Any] = {}
 
     query_params = {key: value for (key, value) in query_params.items() if value is not None}
@@ -175,11 +217,18 @@ def auth_refresh_token_create(api_config_override: Optional[APIConfig] = None) -
 
     base_path = api_config.base_path
     path = f"/api/users/auth/refresh-token/"
+
+    # Build headers - only add Authorization if token is available
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": f"Bearer { api_config.get_access_token() }",
     }
+
+    # Only add Authorization header if token is available
+    access_token = api_config.get_access_token()
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+
     query_params: Dict[str, Any] = {}
 
     query_params = {key: value for (key, value) in query_params.items() if value is not None}
@@ -203,11 +252,18 @@ def auth_register_create(data: UserCreate, api_config_override: Optional[APIConf
 
     base_path = api_config.base_path
     path = f"/api/users/auth/register/"
+
+    # Build headers - only add Authorization if token is available
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": f"Bearer { api_config.get_access_token() }",
     }
+
+    # Only add Authorization header if token is available
+    access_token = api_config.get_access_token()
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+
     query_params: Dict[str, Any] = {}
 
     query_params = {key: value for (key, value) in query_params.items() if value is not None}

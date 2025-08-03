@@ -1,0 +1,56 @@
+import json
+from typing import *
+
+import httpx
+
+from ..api_config import APIConfig, HTTPException
+from ..models import *
+
+{% for endpoint in endpoints %}
+async def {{ endpoint.function_name }}(
+    {% for param in endpoint.parameters %}
+    {{ param.name }}: {{ param.type_annotation }}{% if not loop.last %},{% endif %}
+    {% endfor %}
+    api_config_override: Optional[APIConfig] = None,
+) -> {{ endpoint.return_type }}:
+    api_config = api_config_override if api_config_override else APIConfig()
+
+    base_path = api_config.base_path
+    path = f"{{ endpoint.path }}"
+    
+    # Build headers - only add Authorization if token is available
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+    
+    # Only add Authorization header if token is available
+    access_token = api_config.get_access_token()
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+    
+    query_params: Dict[str, Any] = {
+        {% for param in endpoint.query_parameters %}
+        "{{ param.name }}": {{ param.name }},
+        {% endfor %}
+    }
+
+    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+
+    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+        response = await client.request(
+            "{{ endpoint.method }}",
+            httpx.URL(path),
+            headers=headers,
+            params=query_params,
+            {% if endpoint.has_body %}
+            json={{ endpoint.body_parameter }}.dict(),
+            {% endif %}
+        )
+
+    if response.status_code != {{ endpoint.success_status_code }}:
+        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+
+    return {{ endpoint.return_type }}(**response.json()) if response.json() is not None else {{ endpoint.return_type }}()
+
+{% endfor %} 

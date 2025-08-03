@@ -21,8 +21,8 @@ drf-nested-routers = "^0.93.4"
 # Django Revolution
 django-unfold = "^0.63.0"
 requests = "^2.32.4"
-openapi-python-generator = "^1.2.0"
 django-revolution = {path = "../django_revolution", develop = true}
+openapi-python-generator = "^1.2.0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -12,11 +12,18 @@ def me_retrieve(api_config_override: Optional[APIConfig] = None) -> None:
 
     base_path = api_config.base_path
     path = f"/api/users/me/"
+
+    # Build headers - only add Authorization if token is available
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": f"Bearer { api_config.get_access_token() }",
     }
+
+    # Only add Authorization header if token is available
+    access_token = api_config.get_access_token()
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+
     query_params: Dict[str, Any] = {}
 
     query_params = {key: value for (key, value) in query_params.items() if value is not None}

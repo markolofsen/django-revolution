@@ -63,9 +63,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     
     @extend_schema(
         summary="Get products by category",
-        parameters=[
-            OpenApiParameter(name='category_id', type=int, location=OpenApiParameter.QUERY)
-        ],
         responses={200: ProductSerializer(many=True)}
     )
     @action(detail=False, methods=['get'])

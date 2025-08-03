@@ -326,10 +326,6 @@ paths:
         schema:
           type: integer
         required: true
-      - in: query
-        name: category_id
-        schema:
-          type: integer
       - name: ordering
         required: false
         in: query
@@ -1669,10 +1665,6 @@ paths:
       description: Get products filtered by category.
       summary: Get products by category
       parameters:
-      - in: query
-        name: category_id
-        schema:
-          type: integer
       - name: ordering
         required: false
         in: query

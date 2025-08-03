@@ -265,7 +265,6 @@ def categories_products_order_items_list(
 
 def categories_products_by_category_list(
     category_id: int,
-    category_id: Optional[int] = None,
     ordering: Optional[str] = None,
     page: Optional[int] = None,
     search: Optional[str] = None,
@@ -280,7 +279,7 @@ def categories_products_by_category_list(
         "Accept": "application/json",
         "Authorization": f"Bearer { api_config.get_access_token() }",
     }
-    query_params: Dict[str, Any] = {"category_id": category_id, "ordering": ordering, "page": page, "search": search}
+    query_params: Dict[str, Any] = {"ordering": ordering, "page": page, "search": search}
 
     query_params = {key: value for (key, value) in query_params.items() if value is not None}
 

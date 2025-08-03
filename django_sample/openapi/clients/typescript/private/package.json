@@ -1,6 +1,6 @@
 {
   "name": "@unrealosprivate",
-  "version": "1.0.25",
+  "version": "1.0.27",
   "description": "Private API for testing - categories, products, orders",
   "main": "index.ts",
   "types": "index.ts",
