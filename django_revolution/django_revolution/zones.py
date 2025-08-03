@@ -163,7 +163,11 @@ urlpatterns = [
         redoc_view_name = f"{zone_name}-redoc"
 
         try:
-            from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+            from drf_spectacular.views import (
+                SpectacularAPIView,
+                SpectacularSwaggerView,
+                SpectacularRedocView,
+            )
 
             return [
                 # Schema endpoint - uses dynamic urlconf

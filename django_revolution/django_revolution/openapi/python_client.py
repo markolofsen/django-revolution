@@ -41,32 +41,33 @@ class PythonClientGenerator:
         # Try direct import first
         try:
             import openapi_python_generator
+
             self.logger.info(f"openapi-python-generator imported successfully")
             return True
         except ImportError:
             self.logger.warning(f"openapi-python-generator import failed")
-        
+
         # Try different ways to run the command
         from ..utils import run_command
-        
+
         # Try 1: Direct command
         success, output = run_command("openapi-python-generator --version")
         if success:
             self.logger.info(f"openapi-python-generator available via direct command")
             return True
-            
+
         # Try 2: Poetry run
         success, output = run_command("poetry run openapi-python-generator --version")
         if success:
             self.logger.info(f"openapi-python-generator available via poetry run")
             return True
-            
+
         # Try 3: Python module
         success, output = run_command("python -m openapi_python_generator --version")
         if success:
             self.logger.info(f"openapi-python-generator available via python module")
             return True
-            
+
         self.logger.warning(f"openapi-python-generator not found in any environment")
         return False
 
@@ -120,32 +121,34 @@ class PythonClientGenerator:
     def _get_openapi_generator_command(self) -> list:
         """
         Get the appropriate command to run openapi-python-generator.
-        
+
         Returns:
             List of command parts
         """
         from ..utils import run_command
-        
+
         # Try 1: Poetry run with python module (most reliable for poetry projects)
-        success, _ = run_command("poetry run python -m openapi_python_generator --version")
+        success, _ = run_command(
+            "poetry run python -m openapi_python_generator --version"
+        )
         if success:
             return ["poetry", "run", "python", "-m", "openapi_python_generator"]
-            
+
         # Try 2: Poetry run direct command
         success, _ = run_command("poetry run openapi-python-generator --version")
         if success:
             return ["poetry", "run", "openapi-python-generator"]
-            
+
         # Try 3: Direct python module (for pip installations)
         success, _ = run_command("python -m openapi_python_generator --version")
         if success:
             return ["python", "-m", "openapi_python_generator"]
-            
+
         # Try 4: Direct command (for pip installations)
         success, _ = run_command("openapi-python-generator --version")
         if success:
             return ["openapi-python-generator"]
-            
+
         # Fallback to poetry run with python module (most common case)
         return ["poetry", "run", "python", "-m", "openapi_python_generator"]
 
@@ -173,7 +176,7 @@ class PythonClientGenerator:
 
             # Get the appropriate command
             base_cmd = self._get_openapi_generator_command()
-            
+
             # Build command for openapi-python-generator
             cmd = base_cmd + [
                 str(schema_path),
@@ -185,16 +188,22 @@ class PythonClientGenerator:
             if zone and zone.auth_required:
                 # Add token environment variable for zones that require auth
                 cmd.extend(["--env-token-name", "access_token"])
-                self.logger.info(f"Zone {zone_name} requires authentication - adding token requirement")
+                self.logger.info(
+                    f"Zone {zone_name} requires authentication - adding token requirement"
+                )
             else:
                 # Don't add --env-token-name for zones without auth requirement
-                self.logger.info(f"Zone {zone_name} does not require authentication - skipping token requirement")
-                
+                self.logger.info(
+                    f"Zone {zone_name} does not require authentication - skipping token requirement"
+                )
+
                 # Use custom templates for zones without auth to avoid Authorization header
                 custom_template_path = self._create_custom_templates_for_no_auth()
                 if custom_template_path:
                     cmd.extend(["--custom-template-path", str(custom_template_path)])
-                    self.logger.info(f"Using custom templates for {zone_name} to avoid Authorization header")
+                    self.logger.info(
+                        f"Using custom templates for {zone_name} to avoid Authorization header"
+                    )
 
             success, output = run_command(" ".join(cmd), timeout=120)
 
@@ -203,15 +212,13 @@ class PythonClientGenerator:
                 # openapi-python-generator creates a directory structure
                 models_dir = zone_output_dir / "models"
                 services_dir = zone_output_dir / "services"
-                
+
                 if models_dir.exists() or services_dir.exists():
                     # Count generated files
                     files_generated = self._count_generated_files(zone_output_dir)
 
                     # Enhance the generated client
-                    self._enhance_openapi_client(
-                        zone_name, zone_output_dir
-                    )
+                    self._enhance_openapi_client(zone_name, zone_output_dir)
 
                     self.logger.success(
                         f"Python client generated with openapi-python-generator for {zone_name}: {files_generated} files"
@@ -359,9 +366,7 @@ class PythonClientGenerator:
 
         return count
 
-    def _enhance_openapi_client(
-        self, zone_name: str, output_dir: Path
-    ):
+    def _enhance_openapi_client(self, zone_name: str, output_dir: Path):
         """
         Enhance the generated openapi-python-generator client with additional features.
 
@@ -371,8 +376,6 @@ class PythonClientGenerator:
         """
         # No additional enhancement needed - openapi-python-generator provides everything
         self.logger.debug(f"Using openapi-python-generator output for {zone_name}")
-
-
 
     def _generate_requirements(self, zone_name: str, output_dir: Path):
         """Generate a requirements.txt file for the datamodel client."""
@@ -431,26 +434,31 @@ typing-extensions>=4.0.0
     def _create_custom_templates_for_no_auth(self) -> Optional[Path]:
         """
         Create custom templates for zones without authentication.
-        
+
         Returns:
             Path to custom templates directory or None if failed
         """
         try:
             # Create temporary templates directory
-            templates_dir = Path(self.config.output.temp_directory) / "python_templates_no_auth"
+            templates_dir = (
+                Path(self.config.output.temp_directory) / "python_templates_no_auth"
+            )
             templates_dir.mkdir(parents=True, exist_ok=True)
-            
+
             # Copy our custom templates
             source_templates = Path(__file__).parent / "templates" / "python"
             if source_templates.exists():
                 import shutil
+
                 shutil.copytree(source_templates, templates_dir, dirs_exist_ok=True)
                 self.logger.debug(f"Created custom templates at: {templates_dir}")
                 return templates_dir
             else:
-                self.logger.warning("Custom templates not found, using default templates")
+                self.logger.warning(
+                    "Custom templates not found, using default templates"
+                )
                 return None
-                
+
         except Exception as e:
             self.logger.error(f"Failed to create custom templates: {e}")
             return None

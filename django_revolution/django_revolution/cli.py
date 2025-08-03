@@ -45,128 +45,95 @@ Examples:
   django-revolution --validate-zones   # Validate zones
   django-revolution --show-urls        # Show URL patterns
   django-revolution --test-schemas     # Test schema generation
-        """
+        """,
     )
 
     # Generation options
     parser.add_argument(
-        "--generate", "-g",
-        action="store_true",
-        help="Generate API clients"
+        "--generate", "-g", action="store_true", help="Generate API clients"
     )
     parser.add_argument(
-        "--zones", "-z",
+        "--zones",
+        "-z",
         nargs="*",
-        help="Specific zones to generate (default: all zones)"
+        help="Specific zones to generate (default: all zones)",
     )
     parser.add_argument(
-        "--typescript", "-t",
+        "--typescript",
+        "-t",
         action="store_true",
-        help="Generate TypeScript clients only"
+        help="Generate TypeScript clients only",
     )
     parser.add_argument(
-        "--python", "-p",
-        action="store_true",
-        help="Generate Python clients only"
+        "--python", "-p", action="store_true", help="Generate Python clients only"
     )
     parser.add_argument(
-        "--no-typescript",
-        action="store_true",
-        help="Skip TypeScript client generation"
+        "--no-typescript", action="store_true", help="Skip TypeScript client generation"
     )
     parser.add_argument(
-        "--no-python",
-        action="store_true",
-        help="Skip Python client generation"
+        "--no-python", action="store_true", help="Skip Python client generation"
     )
     parser.add_argument(
-        "--no-archive",
-        action="store_true",
-        help="Skip archiving generated clients"
+        "--no-archive", action="store_true", help="Skip archiving generated clients"
     )
+    parser.add_argument("--no-monorepo", action="store_true", help="Skip monorepo sync")
     parser.add_argument(
-        "--no-monorepo",
-        action="store_true",
-        help="Skip monorepo sync"
-    )
-    parser.add_argument(
-        "--list-monorepos",
-        action="store_true",
-        help="List all monorepo configurations"
+        "--list-monorepos", action="store_true", help="List all monorepo configurations"
     )
     parser.add_argument(
         "--validate-monorepos",
         action="store_true",
-        help="Validate monorepo configurations"
+        help="Validate monorepo configurations",
     )
     parser.add_argument(
         "--clean",
         action="store_true",
-        help="Clean output directories before generation"
+        help="Clean output directories before generation",
     )
     parser.add_argument(
         "--no-multithreading",
         action="store_true",
-        help="Disable multithreaded generation"
+        help="Disable multithreaded generation",
     )
     parser.add_argument(
         "--max-workers",
         type=int,
         default=20,
-        help="Maximum number of worker threads (default: 20)"
+        help="Maximum number of worker threads (default: 20)",
     )
 
     # Information options
     parser.add_argument(
-        "--status",
-        action="store_true",
-        help="Show current status and configuration"
+        "--status", action="store_true", help="Show current status and configuration"
     )
     parser.add_argument(
-        "--list-zones",
-        action="store_true",
-        help="List all available zones"
+        "--list-zones", action="store_true", help="List all available zones"
     )
     parser.add_argument(
-        "--validate",
-        action="store_true",
-        help="Validate environment and configuration"
+        "--validate", action="store_true", help="Validate environment and configuration"
     )
     parser.add_argument(
-        "--show-urls",
-        action="store_true",
-        help="Show URL patterns for each zone"
+        "--show-urls", action="store_true", help="Show URL patterns for each zone"
     )
     parser.add_argument(
         "--validate-zones",
         action="store_true",
-        help="Validate each zone with detailed logging"
+        help="Validate each zone with detailed logging",
     )
     parser.add_argument(
         "--test-schemas",
         action="store_true",
-        help="Test schema generation for each zone"
+        help="Test schema generation for each zone",
     )
 
     # Utility options
     parser.add_argument(
-        "--install-deps",
-        action="store_true",
-        help="Install required dependencies"
+        "--install-deps", action="store_true", help="Install required dependencies"
     )
+    parser.add_argument("--output-dir", help="Override output directory")
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
     parser.add_argument(
-        "--output-dir",
-        help="Override output directory"
-    )
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Enable debug logging"
-    )
-    parser.add_argument(
-        "--interactive", "-i",
-        action="store_true",
-        help="Run in interactive mode"
+        "--interactive", "-i", action="store_true", help="Run in interactive mode"
     )
 
     args = parser.parse_args()
@@ -307,7 +274,7 @@ def handle_generate_interactive(generator):
 
     # Zone selection - use all available zones
     available_zones = list(generator.zone_manager.zones.keys())
-    
+
     if not available_zones:
         console.print("❌ No zones configured")
         return 1
@@ -327,15 +294,15 @@ def handle_generate_interactive(generator):
 
     # Multithreading options
     use_multithreading = questionary.confirm(
-        "Enable multithreaded generation?", 
-        default=generator.config.enable_multithreading
+        "Enable multithreaded generation?",
+        default=generator.config.enable_multithreading,
     ).ask()
-    
+
     max_workers = generator.config.max_workers
     if use_multithreading:
         max_workers = questionary.text(
             f"Maximum number of worker threads (current: {generator.config.max_workers}):",
-            default=str(generator.config.max_workers)
+            default=str(generator.config.max_workers),
         ).ask()
         try:
             max_workers = int(max_workers)
@@ -377,7 +344,9 @@ def handle_generate_interactive(generator):
         task = progress.add_task("Generating API clients...", total=None)
 
         try:
-            summary = generator.generate_all(zones=selected_zones, archive=create_archive)
+            summary = generator.generate_all(
+                zones=selected_zones, archive=create_archive
+            )
             progress.update(task, description="✅ Generation completed!")
 
             # Show results
@@ -393,11 +362,15 @@ def handle_generate_interactive(generator):
 def handle_generate(generator, args):
     """Handle generation with command line arguments."""
     # Determine what to generate
-    generate_typescript = not args.no_typescript and (args.typescript or not args.python)
+    generate_typescript = not args.no_typescript and (
+        args.typescript or not args.python
+    )
     generate_python = not args.no_python and (args.python or not args.typescript)
 
     if not generate_typescript and not generate_python:
-        console.print("❌ Nothing to generate. Both TypeScript and Python generation are disabled.")
+        console.print(
+            "❌ Nothing to generate. Both TypeScript and Python generation are disabled."
+        )
         return 1
 
     # Configure generator
@@ -440,13 +413,17 @@ def show_generation_results(summary):
     if summary.typescript_results:
         successful_ts = sum(1 for r in summary.typescript_results.values() if r.success)
         failed_ts = len(summary.typescript_results) - successful_ts
-        table.add_row("TypeScript Clients", f"{successful_ts} successful, {failed_ts} failed")
+        table.add_row(
+            "TypeScript Clients", f"{successful_ts} successful, {failed_ts} failed"
+        )
 
     # Python results
     if summary.python_results:
         successful_py = sum(1 for r in summary.python_results.values() if r.success)
         failed_py = len(summary.python_results) - successful_py
-        table.add_row("Python Clients", f"{successful_py} successful, {failed_py} failed")
+        table.add_row(
+            "Python Clients", f"{successful_py} successful, {failed_py} failed"
+        )
 
     console.print(table)
 
@@ -470,7 +447,9 @@ def show_generation_results(summary):
 
 def handle_status(generator):
     """Show current status and configuration."""
-    console.print(Panel("Django Revolution Status", title="📊 Status", border_style="blue"))
+    console.print(
+        Panel("Django Revolution Status", title="📊 Status", border_style="blue")
+    )
     console.print("=" * 50)
 
     status = generator.get_status()
@@ -481,25 +460,31 @@ def handle_status(generator):
     console.print(f"TypeScript available: {status['typescript_available']}")
     console.print(f"Python available: {status['python_available']}")
     console.print(f"Multi-monorepo enabled: {status['monorepo_enabled']}")
-    
+
     # Multithreading info
-    multithreading = status.get('multithreading', {})
+    multithreading = status.get("multithreading", {})
     console.print(f"Multithreading enabled: {multithreading.get('enabled', False)}")
     console.print(f"Max workers: {multithreading.get('max_workers', 20)}")
 
     # Multi-monorepo info
-    if status.get('monorepo_enabled'):
-        monorepo_status = status.get('monorepo_status', {})
+    if status.get("monorepo_enabled"):
+        monorepo_status = status.get("monorepo_status", {})
         console.print(f"\n[bold]Multi-Monorepo Status:[/bold]")
-        console.print(f"  Total configurations: {monorepo_status.get('total_configurations', 0)}")
-        console.print(f"  Enabled configurations: {monorepo_status.get('enabled_configurations', 0)}")
-        
-        if monorepo_status.get('configurations'):
+        console.print(
+            f"  Total configurations: {monorepo_status.get('total_configurations', 0)}"
+        )
+        console.print(
+            f"  Enabled configurations: {monorepo_status.get('enabled_configurations', 0)}"
+        )
+
+        if monorepo_status.get("configurations"):
             console.print("  [bold]Configurations:[/bold]")
-            for config in monorepo_status['configurations']:
-                status_icon = "✅" if config.get('enabled') else "❌"
-                exists_icon = "✅" if config.get('exists') else "❌"
-                console.print(f"    {status_icon} {config['name']}: {config['path']} {exists_icon}")
+            for config in monorepo_status["configurations"]:
+                status_icon = "✅" if config.get("enabled") else "❌"
+                exists_icon = "✅" if config.get("exists") else "❌"
+                console.print(
+                    f"    {status_icon} {config['name']}: {config['path']} {exists_icon}"
+                )
 
     # Zone details
     if status["zones"]:
@@ -514,7 +499,9 @@ def handle_status(generator):
         console.print("\n[bold]Configuration:[/bold]")
         console.print(f"  API Prefix: {config.get('api_prefix', 'apix')}")
         console.print(f"  Debug Mode: {config.get('debug', False)}")
-        console.print(f"  Auto Install Dependencies: {config.get('auto_install_deps', True)}")
+        console.print(
+            f"  Auto Install Dependencies: {config.get('auto_install_deps', True)}"
+        )
 
     console.print("\n" + "=" * 50)
     return 0
@@ -545,7 +532,9 @@ def handle_list_zones(generator):
 
 def handle_validate_environment(generator):
     """Validate environment and dependencies."""
-    console.print(Panel("Validating Environment", title="✅ Validation", border_style="yellow"))
+    console.print(
+        Panel("Validating Environment", title="✅ Validation", border_style="yellow")
+    )
     console.print("=" * 50)
 
     # Basic validation
@@ -574,7 +563,9 @@ def handle_validate_environment(generator):
 
 def handle_install_dependencies():
     """Install required dependencies."""
-    console.print(Panel("Installing Dependencies", title="📦 Dependencies", border_style="cyan"))
+    console.print(
+        Panel("Installing Dependencies", title="📦 Dependencies", border_style="cyan")
+    )
     console.print("=" * 50)
 
     success = auto_install_dependencies()
@@ -603,7 +594,7 @@ def handle_show_urls(generator):
         console.print(f"  Apps: {', '.join(zone.apps)}")
         console.print(f"  Public: {zone.public}")
         console.print(f"  Auth Required: {zone.auth_required}")
-        
+
         # Show app URL patterns
         try:
             app_patterns = generator.zone_manager.get_app_urls(zone.apps)
@@ -613,10 +604,12 @@ def handle_show_urls(generator):
                     console.print(f"    • {pattern.pattern}")
         except Exception as e:
             console.print(f"  ❌ App URLs: {e}")
-        
+
         # Show schema URL patterns
         try:
-            schema_patterns = generator.zone_manager.create_zone_schema_patterns(zone_name, zone)
+            schema_patterns = generator.zone_manager.create_zone_schema_patterns(
+                zone_name, zone
+            )
             if schema_patterns:
                 console.print("  [bold]Schema URLs:[/bold]")
                 for pattern in schema_patterns:
@@ -629,7 +622,9 @@ def handle_show_urls(generator):
 
 def handle_validate_zones_detailed(generator):
     """Validate each zone with detailed logging."""
-    console.print(Panel("Detailed Zone Validation", title="🧪 Validation", border_style="red"))
+    console.print(
+        Panel("Detailed Zone Validation", title="🧪 Validation", border_style="red")
+    )
     console.print("=" * 50)
 
     zones = generator.zone_manager.zones
@@ -643,17 +638,18 @@ def handle_validate_zones_detailed(generator):
     for zone_name, zone in zones.items():
         console.print(f"\n🔍 Validating zone: {zone_name}")
         console.print("-" * 30)
-        
+
         zone_valid = True
-        
+
         # Check zone configuration
         console.print(f"  ✅ Zone configuration: {zone.title}")
-        
+
         # Check apps
         console.print(f"  Apps ({len(zone.apps)}):")
         for app in zone.apps:
             try:
                 from django.apps import apps
+
                 if apps.is_installed(app):
                     console.print(f"    ✅ {app}")
                 else:
@@ -662,7 +658,7 @@ def handle_validate_zones_detailed(generator):
             except Exception as e:
                 console.print(f"    ❌ {app} (error: {e})")
                 zone_valid = False
-        
+
         # Check URL patterns
         try:
             app_patterns = generator.zone_manager.get_app_urls(zone.apps)
@@ -670,15 +666,17 @@ def handle_validate_zones_detailed(generator):
         except Exception as e:
             console.print(f"  ❌ URL patterns: {e}")
             zone_valid = False
-        
+
         # Check schema patterns
         try:
-            schema_patterns = generator.zone_manager.create_zone_schema_patterns(zone_name, zone)
+            schema_patterns = generator.zone_manager.create_zone_schema_patterns(
+                zone_name, zone
+            )
             console.print(f"  ✅ Schema patterns: {len(schema_patterns)} patterns")
         except Exception as e:
             console.print(f"  ❌ Schema patterns: {e}")
             zone_valid = False
-        
+
         # Summary for this zone
         if zone_valid:
             console.print(f"  ✅ Zone '{zone_name}' is valid")
@@ -691,7 +689,7 @@ def handle_validate_zones_detailed(generator):
     console.print(f"\n📊 Validation Summary:")
     console.print(f"  Valid zones: {total_valid}")
     console.print(f"  Invalid zones: {total_invalid}")
-    
+
     if total_invalid == 0:
         console.print("🎉 All zones are valid!")
     else:
@@ -702,7 +700,9 @@ def handle_validate_zones_detailed(generator):
 
 def handle_test_schemas(generator):
     """Test schema generation for each zone."""
-    console.print(Panel("Testing Schema Generation", title="🧪 Schema Tests", border_style="blue"))
+    console.print(
+        Panel("Testing Schema Generation", title="🧪 Schema Tests", border_style="blue")
+    )
     console.print("=" * 50)
 
     zones = generator.zone_manager.zones
@@ -716,10 +716,12 @@ def handle_test_schemas(generator):
     for zone_name, zone in zones.items():
         console.print(f"\n🧪 Testing schema generation for: {zone_name}")
         console.print("-" * 40)
-        
+
         try:
             # Test dynamic module creation
-            module = generator.zone_manager.create_dynamic_urlconf_module(zone_name, zone)
+            module = generator.zone_manager.create_dynamic_urlconf_module(
+                zone_name, zone
+            )
             if module:
                 console.print(f"  ✅ Dynamic module created: {module.__name__}")
                 console.print(f"  ✅ URL patterns: {len(module.urlpatterns)}")
@@ -727,32 +729,37 @@ def handle_test_schemas(generator):
                 console.print("  ❌ Failed to create dynamic module")
                 total_failed += 1
                 continue
-            
+
             # Test schema generation
-            with tempfile.NamedTemporaryFile(suffix='.yaml', delete=False) as tmp_file:
+            with tempfile.NamedTemporaryFile(suffix=".yaml", delete=False) as tmp_file:
                 schema_file = Path(tmp_file.name)
-            
+
             try:
                 # Generate schema using drf-spectacular
                 from django.core.management import call_command
-                
+
                 out = StringIO()
                 call_command(
-                    'spectacular',
-                    '--file', str(schema_file),
-                    '--api-version', zone.version,
-                    '--urlconf', module.__name__,
+                    "spectacular",
+                    "--file",
+                    str(schema_file),
+                    "--api-version",
+                    zone.version,
+                    "--urlconf",
+                    module.__name__,
                     stdout=out,
-                    stderr=out
+                    stderr=out,
                 )
-                
+
                 if schema_file.exists() and schema_file.stat().st_size > 0:
-                    console.print(f"  ✅ Schema generated: {schema_file.stat().st_size} bytes")
+                    console.print(
+                        f"  ✅ Schema generated: {schema_file.stat().st_size} bytes"
+                    )
                     total_success += 1
                 else:
                     console.print("  ❌ Schema generation failed")
                     total_failed += 1
-                    
+
             except Exception as e:
                 console.print(f"  ❌ Schema generation error: {e}")
                 total_failed += 1
@@ -760,7 +767,7 @@ def handle_test_schemas(generator):
                 # Cleanup
                 if schema_file.exists():
                     schema_file.unlink()
-                    
+
         except Exception as e:
             console.print(f"  ❌ Zone test failed: {e}")
             total_failed += 1
@@ -769,7 +776,7 @@ def handle_test_schemas(generator):
     console.print(f"\n📊 Schema Test Summary:")
     console.print(f"  Successful: {total_success}")
     console.print(f"  Failed: {total_failed}")
-    
+
     if total_failed == 0:
         console.print("🎉 All schema tests passed!")
     else:
@@ -791,8 +798,8 @@ def handle_config_interactive():
         choices=[
             {"name": "Pretty (Rich)", "value": "pretty"},
             {"name": "JSON", "value": "json"},
-            {"name": "YAML", "value": "yaml"}
-        ]
+            {"name": "YAML", "value": "yaml"},
+        ],
     ).ask()
 
     if format_choice == "pretty":
@@ -840,34 +847,34 @@ Description: [italic]{__description__}[/italic]
 def handle_list_monorepos(generator):
     """Handle list-monorepos command."""
     console.print("\n[bold blue]Monorepo Configurations[/bold blue]")
-    
+
     status = generator.monorepo_sync.get_status()
-    
+
     if not status["enabled"]:
         console.print("[yellow]Multi-monorepo sync is disabled[/yellow]")
         return
-    
+
     table = Table(title="Monorepo Configurations")
     table.add_column("Name", style="cyan")
     table.add_column("Status", style="green")
     table.add_column("Path", style="blue")
     table.add_column("API Package", style="magenta")
     table.add_column("Exists", style="yellow")
-    
+
     for config in status["configurations"]:
         status_icon = "✅" if config["enabled"] else "❌"
         exists_icon = "✅" if config["exists"] else "❌"
-        
+
         table.add_row(
             config["name"],
             f"{status_icon} {'Enabled' if config['enabled'] else 'Disabled'}",
             config["path"],
             config["api_package_path"],
-            f"{exists_icon} {'Yes' if config['exists'] else 'No'}"
+            f"{exists_icon} {'Yes' if config['exists'] else 'No'}",
         )
-    
+
     console.print(table)
-    
+
     console.print(f"\n[bold]Summary:[/bold]")
     console.print(f"  Total configurations: {status['total_configurations']}")
     console.print(f"  Enabled configurations: {status['enabled_configurations']}")
@@ -876,29 +883,35 @@ def handle_list_monorepos(generator):
 def handle_validate_monorepos(generator):
     """Handle validate-monorepos command."""
     console.print("\n[bold blue]Validating Monorepo Configurations[/bold blue]")
-    
+
     status = generator.monorepo_sync.get_status()
-    
+
     if not status["enabled"]:
         console.print("[yellow]Multi-monorepo sync is disabled[/yellow]")
         return
-    
+
     all_valid = True
-    
+
     for config in status["configurations"]:
         if config["enabled"]:
             if config["exists"]:
                 console.print(f"✅ {config['name']}: Valid")
             else:
-                console.print(f"❌ {config['name']}: Path does not exist - {config['path']}")
+                console.print(
+                    f"❌ {config['name']}: Path does not exist - {config['path']}"
+                )
                 all_valid = False
         else:
             console.print(f"⏸️  {config['name']}: Disabled")
-    
+
     if all_valid:
-        console.print("\n[bold green]All enabled monorepo configurations are valid![/bold green]")
+        console.print(
+            "\n[bold green]All enabled monorepo configurations are valid![/bold green]"
+        )
     else:
-        console.print("\n[bold red]Some monorepo configurations are invalid![/bold red]")
+        console.print(
+            "\n[bold red]Some monorepo configurations are invalid![/bold red]"
+        )
 
 
 if __name__ == "__main__":

@@ -110,34 +110,36 @@ class OpenAPIGenerator:
         self.logger.success("Environment validation completed")
         return True
 
-    def _generate_single_schema(self, zone_name: str, zone, schemas_dir: Path, manage_py: Path) -> Tuple[str, Optional[Path]]:
+    def _generate_single_schema(
+        self, zone_name: str, zone, schemas_dir: Path, manage_py: Path
+    ) -> Tuple[str, Optional[Path]]:
         """
         Generate schema for a single zone.
-        
+
         Args:
             zone_name: Name of the zone
             zone: Zone configuration
             schemas_dir: Directory for schemas
             manage_py: Path to Django manage.py
-            
+
         Returns:
             Tuple of (zone_name, schema_file_path or None)
         """
         try:
             self.logger.info(f"Generating schema for zone: {zone_name}")
-            
+
             # Schema file path
             schema_file = schemas_dir / f"{zone_name}.yaml"
-            
+
             # Create URLconf for this zone
             urlconf_module = self.zone_manager.create_dynamic_urlconf_module(
                 zone_name, zone
             )
-            
+
             if not urlconf_module:
                 self.logger.error(f"Failed to create URLconf for {zone_name}")
                 return zone_name, None
-            
+
             # Generate schema using drf-spectacular
             cmd = [
                 "python",
@@ -150,16 +152,16 @@ class OpenAPIGenerator:
                 "--urlconf",
                 urlconf_module.__name__,
             ]
-            
+
             success, output = run_command(" ".join(cmd), timeout=60)
-            
+
             if success and schema_file.exists():
                 self.logger.success(f"Schema generated: {schema_file}")
                 return zone_name, schema_file
             else:
                 self.logger.error(f"Schema generation failed for {zone_name}: {output}")
                 return zone_name, None
-                
+
         except Exception as e:
             self.logger.error(f"Exception generating schema for {zone_name}: {e}")
             return zone_name, None
@@ -202,29 +204,33 @@ class OpenAPIGenerator:
         generated_schemas = {}
 
         # Check if multithreading is enabled and we have multiple zones
-        if (self.config.enable_multithreading and 
-            len(zones_to_process) > 1 and 
-            self.config.max_workers > 1):
-            
-            self.logger.info(f"Using multithreaded generation with {self.config.max_workers} workers for {len(zones_to_process)} zones")
-            
+        if (
+            self.config.enable_multithreading
+            and len(zones_to_process) > 1
+            and self.config.max_workers > 1
+        ):
+
+            self.logger.info(
+                f"Using multithreaded generation with {self.config.max_workers} workers for {len(zones_to_process)} zones"
+            )
+
             # Use ThreadPoolExecutor for concurrent schema generation
             with concurrent.futures.ThreadPoolExecutor(
                 max_workers=min(self.config.max_workers, len(zones_to_process))
             ) as executor:
-                
+
                 # Submit all schema generation tasks
                 future_to_zone = {
                     executor.submit(
-                        self._generate_single_schema, 
-                        zone_name, 
-                        zone, 
-                        schemas_dir, 
-                        manage_py
+                        self._generate_single_schema,
+                        zone_name,
+                        zone,
+                        schemas_dir,
+                        manage_py,
                     ): zone_name
                     for zone_name, zone in zones_to_process.items()
                 }
-                
+
                 # Collect results as they complete
                 for future in concurrent.futures.as_completed(future_to_zone):
                     zone_name = future_to_zone[future]
@@ -233,7 +239,9 @@ class OpenAPIGenerator:
                         if schema_file:
                             generated_schemas[zone_name_result] = schema_file
                     except Exception as e:
-                        self.logger.error(f"Exception in thread for zone {zone_name}: {e}")
+                        self.logger.error(
+                            f"Exception in thread for zone {zone_name}: {e}"
+                        )
         else:
             # Fallback to sequential generation
             if len(zones_to_process) == 1:
@@ -242,7 +250,7 @@ class OpenAPIGenerator:
                 self.logger.info("Multithreading disabled, using sequential generation")
             else:
                 self.logger.info("Using sequential generation")
-                
+
             for zone_name, zone in zones_to_process.items():
                 zone_name_result, schema_file = self._generate_single_schema(
                     zone_name, zone, schemas_dir, manage_py
@@ -279,27 +287,29 @@ class OpenAPIGenerator:
             schemas = self.generate_schemas(zones)
 
         # Check if multithreading is enabled and we have multiple schemas
-        if (self.config.enable_multithreading and 
-            len(schemas) > 1 and 
-            self.config.max_workers > 1):
-            
-            self.logger.info(f"Using multithreaded TypeScript generation with {self.config.max_workers} workers for {len(schemas)} schemas")
-            
+        if (
+            self.config.enable_multithreading
+            and len(schemas) > 1
+            and self.config.max_workers > 1
+        ):
+
+            self.logger.info(
+                f"Using multithreaded TypeScript generation with {self.config.max_workers} workers for {len(schemas)} schemas"
+            )
+
             # Use ThreadPoolExecutor for concurrent client generation
             with concurrent.futures.ThreadPoolExecutor(
                 max_workers=min(self.config.max_workers, len(schemas))
             ) as executor:
-                
+
                 # Submit all client generation tasks
                 future_to_zone = {
                     executor.submit(
-                        self.ts_generator.generate_client, 
-                        zone_name, 
-                        schema_path
+                        self.ts_generator.generate_client, zone_name, schema_path
                     ): zone_name
                     for zone_name, schema_path in schemas.items()
                 }
-                
+
                 # Collect results as they complete
                 results = {}
                 for future in concurrent.futures.as_completed(future_to_zone):
@@ -308,24 +318,30 @@ class OpenAPIGenerator:
                         result = future.result()
                         results[zone_name] = result
                     except Exception as e:
-                        self.logger.error(f"Exception in TypeScript thread for zone {zone_name}: {e}")
+                        self.logger.error(
+                            f"Exception in TypeScript thread for zone {zone_name}: {e}"
+                        )
                         # Create failed result
                         results[zone_name] = GenerationResult(
                             success=False,
                             zone_name=zone_name,
                             output_path=Path(),
                             files_generated=0,
-                            error_message=str(e)
+                            error_message=str(e),
                         )
         else:
             # Fallback to sequential generation
             if len(schemas) == 1:
-                self.logger.info("Single schema detected, using sequential TypeScript generation")
+                self.logger.info(
+                    "Single schema detected, using sequential TypeScript generation"
+                )
             elif not self.config.enable_multithreading:
-                self.logger.info("Multithreading disabled, using sequential TypeScript generation")
+                self.logger.info(
+                    "Multithreading disabled, using sequential TypeScript generation"
+                )
             else:
                 self.logger.info("Using sequential TypeScript generation")
-                
+
             results = self.ts_generator.generate_all(schemas)
 
         successful = sum(1 for r in results.values() if r.success)
@@ -361,27 +377,29 @@ class OpenAPIGenerator:
             schemas = self.generate_schemas(zones)
 
         # Check if multithreading is enabled and we have multiple schemas
-        if (self.config.enable_multithreading and 
-            len(schemas) > 1 and 
-            self.config.max_workers > 1):
-            
-            self.logger.info(f"Using multithreaded Python generation with {self.config.max_workers} workers for {len(schemas)} schemas")
-            
+        if (
+            self.config.enable_multithreading
+            and len(schemas) > 1
+            and self.config.max_workers > 1
+        ):
+
+            self.logger.info(
+                f"Using multithreaded Python generation with {self.config.max_workers} workers for {len(schemas)} schemas"
+            )
+
             # Use ThreadPoolExecutor for concurrent client generation
             with concurrent.futures.ThreadPoolExecutor(
                 max_workers=min(self.config.max_workers, len(schemas))
             ) as executor:
-                
+
                 # Submit all client generation tasks
                 future_to_zone = {
                     executor.submit(
-                        self.python_generator.generate_client, 
-                        zone_name, 
-                        schema_path
+                        self.python_generator.generate_client, zone_name, schema_path
                     ): zone_name
                     for zone_name, schema_path in schemas.items()
                 }
-                
+
                 # Collect results as they complete
                 results = {}
                 for future in concurrent.futures.as_completed(future_to_zone):
@@ -390,24 +408,30 @@ class OpenAPIGenerator:
                         result = future.result()
                         results[zone_name] = result
                     except Exception as e:
-                        self.logger.error(f"Exception in Python thread for zone {zone_name}: {e}")
+                        self.logger.error(
+                            f"Exception in Python thread for zone {zone_name}: {e}"
+                        )
                         # Create failed result
                         results[zone_name] = GenerationResult(
                             success=False,
                             zone_name=zone_name,
                             output_path=Path(),
                             files_generated=0,
-                            error_message=str(e)
+                            error_message=str(e),
                         )
         else:
             # Fallback to sequential generation
             if len(schemas) == 1:
-                self.logger.info("Single schema detected, using sequential Python generation")
+                self.logger.info(
+                    "Single schema detected, using sequential Python generation"
+                )
             elif not self.config.enable_multithreading:
-                self.logger.info("Multithreading disabled, using sequential Python generation")
+                self.logger.info(
+                    "Multithreading disabled, using sequential Python generation"
+                )
             else:
                 self.logger.info("Using sequential Python generation")
-                
+
             results = self.python_generator.generate_all(schemas)
 
         successful = sum(1 for r in results.values() if r.success)
@@ -451,7 +475,9 @@ class OpenAPIGenerator:
 
         return self.monorepo_sync.sync_all()
 
-    def _sync_to_monorepo_multithreaded(self, typescript_results: Dict[str, GenerationResult]):
+    def _sync_to_monorepo_multithreaded(
+        self, typescript_results: Dict[str, GenerationResult]
+    ):
         """
         Sync generated clients to monorepo using multithreading.
 
@@ -462,31 +488,27 @@ class OpenAPIGenerator:
             return
 
         self.logger.info("Starting multithreaded monorepo sync...")
-        
+
         # Get successful TypeScript results
         successful_zones = [
-            zone for zone, result in typescript_results.items() 
-            if result.success
+            zone for zone, result in typescript_results.items() if result.success
         ]
-        
+
         if not successful_zones:
             self.logger.warning("No successful TypeScript clients to sync")
             return
-        
+
         # Use ThreadPoolExecutor for concurrent monorepo sync
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=min(self.config.max_workers, len(successful_zones))
         ) as executor:
-            
+
             # Submit sync tasks for each zone
             future_to_zone = {
-                executor.submit(
-                    self.monorepo_sync.sync_zone, 
-                    zone
-                ): zone
+                executor.submit(self.monorepo_sync.sync_zone, zone): zone
                 for zone in successful_zones
             }
-            
+
             # Collect results
             sync_results = {}
             for future in concurrent.futures.as_completed(future_to_zone):
@@ -501,18 +523,22 @@ class OpenAPIGenerator:
                 except Exception as e:
                     self.logger.error(f"Exception syncing {zone} to monorepo: {e}")
                     sync_results[zone] = False
-            
+
             # Generate consolidated index.ts in monorepo after all zones are synced
             successful_syncs = [zone for zone, result in sync_results.items() if result]
             if successful_syncs:
-                self.logger.info(f"Generating monorepo index.ts for {len(successful_syncs)} zones...")
+                self.logger.info(
+                    f"Generating monorepo index.ts for {len(successful_syncs)} zones..."
+                )
                 try:
                     self.monorepo_sync.generate_consolidated_index(successful_syncs)
                     self.logger.success("✅ Monorepo index.ts generated successfully")
                 except Exception as e:
                     self.logger.error(f"Failed to generate monorepo index.ts: {e}")
-            
-            self.logger.success(f"Multithreaded monorepo sync completed: {len(successful_syncs)}/{len(successful_zones)} zones synced")
+
+            self.logger.success(
+                f"Multithreaded monorepo sync completed: {len(successful_syncs)}/{len(successful_zones)} zones synced"
+            )
 
     def generate_all(
         self, zones: Optional[List[str]] = None, archive: bool = True
@@ -578,75 +604,85 @@ class OpenAPIGenerator:
         schemas = self.generate_schemas(list(zones_to_process.keys()))
 
         # Generate TypeScript and Python clients in parallel if multithreading is enabled
-        if (self.config.enable_multithreading and 
-            len(schemas) > 1 and 
-            self.config.max_workers > 1):
-            
-            self.logger.info(f"Using multithreaded client generation with {self.config.max_workers} workers")
-            
+        if (
+            self.config.enable_multithreading
+            and len(schemas) > 1
+            and self.config.max_workers > 1
+        ):
+
+            self.logger.info(
+                f"Using multithreaded client generation with {self.config.max_workers} workers"
+            )
+
             # Use ThreadPoolExecutor for concurrent client generation
             with concurrent.futures.ThreadPoolExecutor(
-                max_workers=min(self.config.max_workers, len(schemas) * 2)  # *2 for TS + Python
+                max_workers=min(
+                    self.config.max_workers, len(schemas) * 2
+                )  # *2 for TS + Python
             ) as executor:
-                
+
                 # Submit TypeScript generation tasks
                 ts_futures = {
                     executor.submit(
-                        self.generate_typescript_clients, 
-                        {zone: schemas[zone]}, 
-                        [zone]
+                        self.generate_typescript_clients, {zone: schemas[zone]}, [zone]
                     ): f"ts_{zone}"
                     for zone in schemas.keys()
                 }
-                
+
                 # Submit Python generation tasks
                 py_futures = {
                     executor.submit(
-                        self.generate_python_clients, 
-                        {zone: schemas[zone]}, 
-                        [zone]
+                        self.generate_python_clients, {zone: schemas[zone]}, [zone]
                     ): f"py_{zone}"
                     for zone in schemas.keys()
                 }
-                
+
                 # Combine all futures
                 all_futures = {**ts_futures, **py_futures}
-                
+
                 # Collect results
                 typescript_results = {}
                 python_results = {}
-                
+
                 for future in concurrent.futures.as_completed(all_futures):
                     task_name = all_futures[future]
                     try:
                         result = future.result()
                         if task_name.startswith("ts_"):
                             zone = task_name[3:]  # Remove "ts_" prefix
-                            typescript_results[zone] = result.get(zone, GenerationResult(
-                                success=False,
-                                zone_name=zone,
-                                output_path=Path(),
-                                files_generated=0,
-                                error_message="No result returned"
-                            ))
+                            typescript_results[zone] = result.get(
+                                zone,
+                                GenerationResult(
+                                    success=False,
+                                    zone_name=zone,
+                                    output_path=Path(),
+                                    files_generated=0,
+                                    error_message="No result returned",
+                                ),
+                            )
                         elif task_name.startswith("py_"):
                             zone = task_name[3:]  # Remove "py_" prefix
-                            python_results[zone] = result.get(zone, GenerationResult(
-                                success=False,
-                                zone_name=zone,
-                                output_path=Path(),
-                                files_generated=0,
-                                error_message="No result returned"
-                            ))
+                            python_results[zone] = result.get(
+                                zone,
+                                GenerationResult(
+                                    success=False,
+                                    zone_name=zone,
+                                    output_path=Path(),
+                                    files_generated=0,
+                                    error_message="No result returned",
+                                ),
+                            )
                     except Exception as e:
-                        self.logger.error(f"Exception in client generation thread for {task_name}: {e}")
+                        self.logger.error(
+                            f"Exception in client generation thread for {task_name}: {e}"
+                        )
                         zone = task_name[3:]  # Remove prefix
                         failed_result = GenerationResult(
                             success=False,
                             zone_name=zone,
                             output_path=Path(),
                             files_generated=0,
-                            error_message=str(e)
+                            error_message=str(e),
                         )
                         if task_name.startswith("ts_"):
                             typescript_results[zone] = failed_result
@@ -655,10 +691,10 @@ class OpenAPIGenerator:
         else:
             # Sequential generation
             self.logger.info("Using sequential client generation")
-            
+
             # Generate TypeScript clients
             typescript_results = self.generate_typescript_clients(schemas)
-            
+
             # Generate Python clients
             python_results = self.generate_python_clients(schemas)
 
@@ -672,11 +708,15 @@ class OpenAPIGenerator:
 
         # Sync to monorepo with multithreading if enabled
         if self.config.monorepo.enabled:
-            if (self.config.enable_multithreading and 
-                len(typescript_results) > 1 and 
-                self.config.max_workers > 1):
-                
-                self.logger.info(f"Using multithreaded monorepo sync with {self.config.max_workers} workers")
+            if (
+                self.config.enable_multithreading
+                and len(typescript_results) > 1
+                and self.config.max_workers > 1
+            ):
+
+                self.logger.info(
+                    f"Using multithreaded monorepo sync with {self.config.max_workers} workers"
+                )
                 self._sync_to_monorepo_multithreaded(typescript_results)
             else:
                 self.sync_to_monorepo()
@@ -760,8 +800,8 @@ class OpenAPIGenerator:
 
             def camelcase(name: str) -> str:
                 """Convert snake_case to camelCase."""
-                parts = name.split('_')
-                return parts[0] + ''.join(part.title() for part in parts[1:])
+                parts = name.split("_")
+                return parts[0] + "".join(part.title() for part in parts[1:])
 
             # Setup Jinja2 environment
             templates_dir = Path(__file__).parent / "templates"

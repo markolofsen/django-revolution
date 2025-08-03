@@ -270,10 +270,14 @@ class DjangoRevolutionSettings(BaseSettings):
     debug: bool = Field(False, description="Enable debug mode")
     auto_install_deps: bool = Field(True, description="Auto-install dependencies")
     version: str = Field("1.0.27", description="Package version for generated clients")
-    
+
     # Multithreading settings
-    max_workers: int = Field(20, description="Maximum number of worker threads for schema generation")
-    enable_multithreading: bool = Field(True, description="Enable multithreaded schema generation")
+    max_workers: int = Field(
+        20, description="Maximum number of worker threads for schema generation"
+    )
+    enable_multithreading: bool = Field(
+        True, description="Enable multithreaded schema generation"
+    )
 
     # Output configuration
     output: OutputSettings = Field(default_factory=OutputSettings)

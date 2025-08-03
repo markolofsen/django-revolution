@@ -17,9 +17,11 @@ from .config import get_settings
 from .zones import ZoneManager
 from .utils import Logger
 
+
 # Get version from __init__.py safely
 def get_version():
     from . import __version__
+
     return __version__
 
 
