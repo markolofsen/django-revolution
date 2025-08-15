@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django-revolution"
-version = "1.0.28"
+version = "1.0.29"
 description = "Zone-based API architecture for Django. Install and go."
 readme = "README.md"
 requires-python = ">=3.9,<4.0"
@@ -111,7 +111,7 @@ extend-exclude = '''
 '''
 
 [tool.mypy]
-python_version = "1.0.28"
+python_version = "1.0.29"
 check_untyped_defs = true
 ignore_missing_imports = true
 warn_unused_ignores = true
