@@ -6,38 +6,17 @@ This script automatically generates requirements.txt files for different environ
 based on the dependencies defined in pyproject.toml.
 """
 
-import re
 import sys
+import tomllib
 from pathlib import Path
-from typing import Dict, List, Optional
-
-# Try to import tomllib (Python 3.11+) or toml
-try:
-    import tomllib  # Python 3.11+
-
-    TOML_LIB = "tomllib"
-except ImportError:
-    try:
-        import toml
-
-        TOML_LIB = "toml"
-    except ImportError:
-        print(
-            "❌ Error: Neither 'tomllib' (Python 3.11+) nor 'toml' package is available."
-        )
-        print("💡 Install toml package: pip install toml")
-        sys.exit(1)
+from typing import Dict, List
 
 
 def parse_pyproject_toml(pyproject_path: Path) -> Dict:
     """Parse pyproject.toml file."""
     try:
-        if TOML_LIB == "tomllib":
-            with open(pyproject_path, "rb") as f:
-                return tomllib.load(f)
-        else:  # toml
-            with open(pyproject_path, "r", encoding="utf-8") as f:
-                return toml.load(f)
+        with open(pyproject_path, "rb") as f:
+            return tomllib.load(f)
     except Exception as e:
         print(f"❌ Failed to parse pyproject.toml: {e}")
         sys.exit(1)
@@ -100,20 +79,20 @@ def write_requirements_file(
             f.write(f"{req}\n")
 
 
-def generate_requirements_files():
+def generate_requirements_files() -> bool:
     """Generate all requirements files."""
     base_path = Path(__file__).parent.parent
     pyproject_path = base_path / "pyproject.toml"
 
     if not pyproject_path.exists():
         print(f"❌ pyproject.toml not found at {pyproject_path}")
-        sys.exit(1)
+        return False
 
     try:
         project_data = parse_pyproject_toml(pyproject_path)
     except Exception as e:
         print(f"❌ Failed to parse pyproject.toml: {e}")
-        sys.exit(1)
+        return False
 
     # Extract dependencies
     main_deps = extract_dependencies(project_data)
@@ -122,7 +101,7 @@ def generate_requirements_files():
     # Generate requirements.txt (main dependencies only)
     requirements_path = base_path / "requirements.txt"
     write_requirements_file(
-        main_deps, requirements_path, "Main dependencies for django-revolution"
+        main_deps, requirements_path, "Main dependencies for UnrealOn SDK"
     )
     print(f"✅ Generated {requirements_path}")
 
@@ -132,23 +111,21 @@ def generate_requirements_files():
     write_requirements_file(
         all_deps,
         requirements_dev_path,
-        "Development dependencies for django-revolution (includes main deps)",
+        "Development dependencies for UnrealOn SDK (includes main deps)",
     )
     print(f"✅ Generated {requirements_dev_path}")
 
     # Generate requirements-minimal.txt (core dependencies only)
     core_deps = [
-        "Django>=3.2",
-        "djangorestframework>=3.12.0",
-        "drf-spectacular>=0.24.0",
         "pydantic>=2.0.0",
-        "pydantic-settings>=2.0.0",
+        "websockets>=10.0",
+        "aiohttp>=3.8.0",
     ]
     requirements_minimal_path = base_path / "requirements-minimal.txt"
     write_requirements_file(
         core_deps,
         requirements_minimal_path,
-        "Minimal dependencies for django-revolution (core only)",
+        "Minimal dependencies for UnrealOn SDK (core only)",
     )
     print(f"✅ Generated {requirements_minimal_path}")
 
@@ -162,4 +139,4 @@ def generate_requirements_files():
 
 
 if __name__ == "__main__":
-    generate_requirements_files()
+    sys.exit(0 if generate_requirements_files() else 1)
