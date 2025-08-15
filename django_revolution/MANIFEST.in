@@ -1,14 +1,32 @@
 include LICENSE
 include README.md
 include pyproject.toml
-include setup.py
+
+# Include package files
 recursive-include django_revolution *.py
 recursive-include django_revolution/openapi/templates *.j2
-recursive-include django_revolution *.j2
-recursive-include docs *.md
+
+# Exclude development files
+recursive-exclude @* *
+recursive-exclude scripts *
+recursive-exclude tests *
+recursive-exclude docs *
+
+# Exclude cache files
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 recursive-exclude * *.orig
 recursive-exclude * *.rej
+
+# Exclude system files
 recursive-exclude * .DS_Store
 recursive-exclude * Thumbs.db
+
+# Exclude dev files
+exclude setup.py
+exclude requirements*.txt
+exclude *.lock
+exclude package*.json
+exclude .env*
+exclude .git*
+exclude poetry.lock
