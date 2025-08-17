@@ -32,7 +32,7 @@ class ZoneModel(BaseModel):
     auth_required: bool = Field(False, description="Whether authentication is required")
     rate_limit: Optional[str] = Field(None, description="Rate limit configuration")
     permissions: Optional[List[str]] = Field(None, description="Required permissions")
-    version: str = Field("1.0.29", description="API version")
+    version: str = Field("1.0.30", description="API version")
     prefix: Optional[str] = Field(None, description="URL prefix override")
     cors_enabled: bool = Field(False, description="Enable CORS for this zone")
     middleware: Optional[List[str]] = Field(None, description="Custom middleware")
@@ -75,7 +75,9 @@ class OutputSettings(BaseModel):
     clients_directory: str = Field(
         "clients", description="Directory for generated clients"
     )
-    temp_directory: str = Field("temp", description="Temporary directory")
+    temp_directory: str = Field(
+        "openapi/temp", description="Temporary directory"
+    )
     archive_directory_ts: str = Field(
         "archive/typescript", description="TypeScript archive directory"
     )
@@ -86,6 +88,14 @@ class OutputSettings(BaseModel):
     @field_validator("base_directory")
     @classmethod
     def validate_base_directory(cls, v):
+        path = Path(v)
+        if not path.is_absolute():
+            path = Path.cwd() / path
+        return str(path)
+
+    @field_validator("temp_directory")
+    @classmethod
+    def validate_temp_directory(cls, v):
         path = Path(v)
         if not path.is_absolute():
             path = Path.cwd() / path
@@ -193,8 +203,17 @@ class MonorepoSettings(BaseModel):
         default_factory=list, description="List of monorepo configurations"
     )
     temp_directory: str = Field(
-        "temp/monorepo_sync", description="Temporary directory for monorepo sync"
+        "openapi/temp/monorepo_sync",
+        description="Temporary directory for monorepo sync",
     )
+
+    @field_validator("temp_directory")
+    @classmethod
+    def validate_temp_directory(cls, v):
+        path = Path(v)
+        if not path.is_absolute():
+            path = Path.cwd() / path
+        return str(path)
 
     def add_configuration(self, config: MonorepoConfig):
         """Add a monorepo configuration."""
@@ -269,7 +288,7 @@ class DjangoRevolutionSettings(BaseSettings):
     api_prefix: str = Field("apix", description="API prefix for all routes")
     debug: bool = Field(False, description="Enable debug mode")
     auto_install_deps: bool = Field(True, description="Auto-install dependencies")
-    version: str = Field("1.0.29", description="Package version for generated clients")
+    version: str = Field("1.0.30", description="Package version for generated clients")
 
     # Multithreading settings
     max_workers: int = Field(
