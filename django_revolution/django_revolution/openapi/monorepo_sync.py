@@ -6,7 +6,6 @@ Synchronizes generated clients to multiple monorepo structures with temporary st
 
 import shutil
 import json
-import tempfile
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
@@ -391,6 +390,28 @@ __all__ = [
 
         # Sync TypeScript clients only
         if ts_clients_dir.exists():
+            # First, copy consolidated index.ts if it exists
+            consolidated_index = ts_clients_dir / "index.ts"
+            if consolidated_index.exists():
+                self.logger.info("Copying consolidated index.ts to monorepos...")
+                enabled_configs = self.config.monorepo.get_enabled_configurations()
+                
+                for config in enabled_configs:
+                    try:
+                        monorepo_path = Path(config.path)
+                        target_index = monorepo_path / config.api_package_path / "typescript" / "index.ts"
+                        
+                        # Ensure target directory exists
+                        target_index.parent.mkdir(parents=True, exist_ok=True)
+                        
+                        # Copy consolidated index
+                        shutil.copy2(consolidated_index, target_index)
+                        
+                        self.logger.success(f"✅ Copied consolidated index.ts to monorepo {config.name}")
+                    except Exception as e:
+                        self.logger.error(f"Failed to copy consolidated index.ts to {config.name}: {e}")
+            
+            # Then sync zone clients
             for zone_dir in ts_clients_dir.iterdir():
                 if zone_dir.is_dir():
                     zone_name = zone_dir.name
