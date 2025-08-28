@@ -36,6 +36,10 @@ class UserCreate(BaseModel):
 
     location: Optional[str] = Field(validation_alias="location", default=None)
 
-    email_notifications: Optional[bool] = Field(validation_alias="email_notifications", default=None)
+    email_notifications: Optional[bool] = Field(
+        validation_alias="email_notifications", default=None
+    )
 
-    newsletter_subscription: Optional[bool] = Field(validation_alias="newsletter_subscription", default=None)
+    newsletter_subscription: Optional[bool] = Field(
+        validation_alias="newsletter_subscription", default=None
+    )

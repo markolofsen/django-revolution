@@ -26,9 +26,13 @@ async def me_retrieve(api_config_override: Optional[APIConfig] = None) -> None:
 
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "get",
             httpx.URL(path),
@@ -37,6 +41,8 @@ async def me_retrieve(api_config_override: Optional[APIConfig] = None) -> None:
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return None

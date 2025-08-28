@@ -3,119 +3,223 @@
 /**
  * Serializer for Category model.
  */
-export type Category = {
-    readonly id: number;
-    name: string;
-    description?: string;
-    is_active?: boolean;
-};
-
-/**
- * Serializer for Order model.
- */
-export type Order = {
-    readonly id: number;
-    order_number: string;
-    status?: StatusEnum;
-    total_amount: string;
-    readonly created_at: string;
-    readonly items: Array<OrderItem>;
-};
-
-/**
- * Serializer for OrderItem model.
- */
-export type OrderItem = {
-    readonly id: number;
-    product: Product;
-    quantity: number;
-    price: string;
-};
-
-export type PaginatedCategoryList = {
-    count: number;
-    next?: string | null;
-    previous?: string | null;
-    results: Array<Category>;
-};
-
-export type PaginatedOrderItemList = {
-    count: number;
-    next?: string | null;
-    previous?: string | null;
-    results: Array<OrderItem>;
-};
-
-export type PaginatedOrderList = {
-    count: number;
-    next?: string | null;
-    previous?: string | null;
-    results: Array<Order>;
-};
-
-export type PaginatedProductList = {
-    count: number;
-    next?: string | null;
-    previous?: string | null;
-    results: Array<Product>;
+export type CategoryReadable = {
+  readonly id: number;
+  name: string;
+  description?: string;
+  is_active?: boolean;
 };
 
 /**
  * Serializer for Category model.
  */
-export type PatchedCategory = {
-    readonly id?: number;
-    name?: string;
-    description?: string;
-    is_active?: boolean;
+export type CategoryWritable = {
+  name: string;
+  description?: string;
+  is_active?: boolean;
 };
 
 /**
  * Serializer for Order model.
  */
-export type PatchedOrder = {
-    readonly id?: number;
-    order_number?: string;
-    status?: StatusEnum;
-    total_amount?: string;
-    readonly created_at?: string;
-    readonly items?: Array<OrderItem>;
+export type OrderReadable = {
+  readonly id: number;
+  order_number: string;
+  status?: StatusEnum;
+  total_amount: string;
+  readonly created_at: string;
+  readonly items: Array<OrderItemReadable>;
+};
+
+/**
+ * Serializer for Order model.
+ */
+export type OrderWritable = {
+  order_number: string;
+  status?: StatusEnum;
+  total_amount: string;
 };
 
 /**
  * Serializer for OrderItem model.
  */
-export type PatchedOrderItem = {
-    readonly id?: number;
-    product?: Product;
-    quantity?: number;
-    price?: string;
+export type OrderItemReadable = {
+  readonly id: number;
+  product: ProductReadable;
+  quantity: number;
+  price: string;
+};
+
+/**
+ * Serializer for OrderItem model.
+ */
+export type OrderItemWritable = {
+  product: ProductWritable;
+  quantity: number;
+  price: string;
+};
+
+export type PaginatedCategoryListReadable = {
+  count: number;
+  next?: string | null;
+  previous?: string | null;
+  results: Array<CategoryReadable>;
+};
+
+export type PaginatedCategoryListWritable = {
+  count: number;
+  next?: string | null;
+  previous?: string | null;
+  results: Array<CategoryWritable>;
+};
+
+export type PaginatedOrderItemListReadable = {
+  count: number;
+  next?: string | null;
+  previous?: string | null;
+  results: Array<OrderItemReadable>;
+};
+
+export type PaginatedOrderItemListWritable = {
+  count: number;
+  next?: string | null;
+  previous?: string | null;
+  results: Array<OrderItemWritable>;
+};
+
+export type PaginatedOrderListReadable = {
+  count: number;
+  next?: string | null;
+  previous?: string | null;
+  results: Array<OrderReadable>;
+};
+
+export type PaginatedOrderListWritable = {
+  count: number;
+  next?: string | null;
+  previous?: string | null;
+  results: Array<OrderWritable>;
+};
+
+export type PaginatedProductListReadable = {
+  count: number;
+  next?: string | null;
+  previous?: string | null;
+  results: Array<ProductReadable>;
+};
+
+export type PaginatedProductListWritable = {
+  count: number;
+  next?: string | null;
+  previous?: string | null;
+  results: Array<ProductWritable>;
+};
+
+/**
+ * Serializer for Category model.
+ */
+export type PatchedCategoryReadable = {
+  readonly id?: number;
+  name?: string;
+  description?: string;
+  is_active?: boolean;
+};
+
+/**
+ * Serializer for Category model.
+ */
+export type PatchedCategoryWritable = {
+  name?: string;
+  description?: string;
+  is_active?: boolean;
+};
+
+/**
+ * Serializer for Order model.
+ */
+export type PatchedOrderReadable = {
+  readonly id?: number;
+  order_number?: string;
+  status?: StatusEnum;
+  total_amount?: string;
+  readonly created_at?: string;
+  readonly items?: Array<OrderItemReadable>;
+};
+
+/**
+ * Serializer for Order model.
+ */
+export type PatchedOrderWritable = {
+  order_number?: string;
+  status?: StatusEnum;
+  total_amount?: string;
+};
+
+/**
+ * Serializer for OrderItem model.
+ */
+export type PatchedOrderItemReadable = {
+  readonly id?: number;
+  product?: ProductReadable;
+  quantity?: number;
+  price?: string;
+};
+
+/**
+ * Serializer for OrderItem model.
+ */
+export type PatchedOrderItemWritable = {
+  product?: ProductWritable;
+  quantity?: number;
+  price?: string;
 };
 
 /**
  * Serializer for Product model.
  */
-export type PatchedProduct = {
-    readonly id?: number;
-    name?: string;
-    description?: string;
-    price?: string;
-    category?: Category;
-    stock?: number;
-    readonly created_at?: string;
+export type PatchedProductReadable = {
+  readonly id?: number;
+  name?: string;
+  description?: string;
+  price?: string;
+  category?: CategoryReadable;
+  stock?: number;
+  readonly created_at?: string;
 };
 
 /**
  * Serializer for Product model.
  */
-export type Product = {
-    readonly id: number;
-    name: string;
-    description: string;
-    price: string;
-    category: Category;
-    stock?: number;
-    readonly created_at: string;
+export type PatchedProductWritable = {
+  name?: string;
+  description?: string;
+  price?: string;
+  category?: CategoryWritable;
+  stock?: number;
+};
+
+/**
+ * Serializer for Product model.
+ */
+export type ProductReadable = {
+  readonly id: number;
+  name: string;
+  description: string;
+  price: string;
+  category: CategoryReadable;
+  stock?: number;
+  readonly created_at: string;
+};
+
+/**
+ * Serializer for Product model.
+ */
+export type ProductWritable = {
+  name: string;
+  description: string;
+  price: string;
+  category: CategoryWritable;
+  stock?: number;
 };
 
 /**
@@ -125,1134 +229,1191 @@ export type Product = {
  * * `delivered` - Delivered
  * * `cancelled` - Cancelled
  */
-export type StatusEnum = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+export type StatusEnum =
+  | "pending"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
 
 export type CategoriesListData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/categories/';
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/categories/";
 };
 
 export type CategoriesListResponses = {
-    200: PaginatedCategoryList;
+  200: PaginatedCategoryListReadable;
 };
 
-export type CategoriesListResponse = CategoriesListResponses[keyof CategoriesListResponses];
+export type CategoriesListResponse =
+  CategoriesListResponses[keyof CategoriesListResponses];
 
 export type CategoriesCreateData = {
-    body: Category;
-    path?: never;
-    query?: never;
-    url: '/api/private_api/categories/';
+  body: CategoryWritable;
+  path?: never;
+  query?: never;
+  url: "/api/private_api/categories/";
 };
 
 export type CategoriesCreateResponses = {
-    201: Category;
+  201: CategoryReadable;
 };
 
-export type CategoriesCreateResponse = CategoriesCreateResponses[keyof CategoriesCreateResponses];
+export type CategoriesCreateResponse =
+  CategoriesCreateResponses[keyof CategoriesCreateResponses];
 
 export type CategoriesProductsListData = {
-    body?: never;
-    path: {
-        category_id: number;
-    };
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/categories/{category_id}/products/';
+  body?: never;
+  path: {
+    category_id: number;
+  };
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/categories/{category_id}/products/";
 };
 
 export type CategoriesProductsListResponses = {
-    200: PaginatedProductList;
+  200: PaginatedProductListReadable;
 };
 
-export type CategoriesProductsListResponse = CategoriesProductsListResponses[keyof CategoriesProductsListResponses];
+export type CategoriesProductsListResponse =
+  CategoriesProductsListResponses[keyof CategoriesProductsListResponses];
 
 export type CategoriesProductsCreateData = {
-    body: Product;
-    path: {
-        category_id: number;
-    };
-    query?: never;
-    url: '/api/private_api/categories/{category_id}/products/';
+  body: ProductWritable;
+  path: {
+    category_id: number;
+  };
+  query?: never;
+  url: "/api/private_api/categories/{category_id}/products/";
 };
 
 export type CategoriesProductsCreateResponses = {
-    201: Product;
+  201: ProductReadable;
 };
 
-export type CategoriesProductsCreateResponse = CategoriesProductsCreateResponses[keyof CategoriesProductsCreateResponses];
+export type CategoriesProductsCreateResponse =
+  CategoriesProductsCreateResponses[keyof CategoriesProductsCreateResponses];
 
 export type CategoriesProductsDestroyData = {
-    body?: never;
-    path: {
-        category_id: number;
-        /**
-         * A unique integer value identifying this product.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/categories/{category_id}/products/{id}/';
+  body?: never;
+  path: {
+    category_id: number;
+    /**
+     * A unique integer value identifying this product.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/categories/{category_id}/products/{id}/";
 };
 
 export type CategoriesProductsDestroyResponses = {
-    /**
-     * No response body
-     */
-    204: void;
+  /**
+   * No response body
+   */
+  204: void;
 };
 
-export type CategoriesProductsDestroyResponse = CategoriesProductsDestroyResponses[keyof CategoriesProductsDestroyResponses];
+export type CategoriesProductsDestroyResponse =
+  CategoriesProductsDestroyResponses[keyof CategoriesProductsDestroyResponses];
 
 export type CategoriesProductsRetrieveData = {
-    body?: never;
-    path: {
-        category_id: number;
-        /**
-         * A unique integer value identifying this product.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/categories/{category_id}/products/{id}/';
+  body?: never;
+  path: {
+    category_id: number;
+    /**
+     * A unique integer value identifying this product.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/categories/{category_id}/products/{id}/";
 };
 
 export type CategoriesProductsRetrieveResponses = {
-    200: Product;
+  200: ProductReadable;
 };
 
-export type CategoriesProductsRetrieveResponse = CategoriesProductsRetrieveResponses[keyof CategoriesProductsRetrieveResponses];
+export type CategoriesProductsRetrieveResponse =
+  CategoriesProductsRetrieveResponses[keyof CategoriesProductsRetrieveResponses];
 
 export type CategoriesProductsPartialUpdateData = {
-    body?: PatchedProduct;
-    path: {
-        category_id: number;
-        /**
-         * A unique integer value identifying this product.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/categories/{category_id}/products/{id}/';
+  body?: PatchedProductWritable;
+  path: {
+    category_id: number;
+    /**
+     * A unique integer value identifying this product.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/categories/{category_id}/products/{id}/";
 };
 
 export type CategoriesProductsPartialUpdateResponses = {
-    200: Product;
+  200: ProductReadable;
 };
 
-export type CategoriesProductsPartialUpdateResponse = CategoriesProductsPartialUpdateResponses[keyof CategoriesProductsPartialUpdateResponses];
+export type CategoriesProductsPartialUpdateResponse =
+  CategoriesProductsPartialUpdateResponses[keyof CategoriesProductsPartialUpdateResponses];
 
 export type CategoriesProductsUpdateData = {
-    body: Product;
-    path: {
-        category_id: number;
-        /**
-         * A unique integer value identifying this product.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/categories/{category_id}/products/{id}/';
+  body: ProductWritable;
+  path: {
+    category_id: number;
+    /**
+     * A unique integer value identifying this product.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/categories/{category_id}/products/{id}/";
 };
 
 export type CategoriesProductsUpdateResponses = {
-    200: Product;
+  200: ProductReadable;
 };
 
-export type CategoriesProductsUpdateResponse = CategoriesProductsUpdateResponses[keyof CategoriesProductsUpdateResponses];
+export type CategoriesProductsUpdateResponse =
+  CategoriesProductsUpdateResponses[keyof CategoriesProductsUpdateResponses];
 
 export type CategoriesProductsOrderItemsListData = {
-    body?: never;
-    path: {
-        category_id: number;
-        /**
-         * A unique integer value identifying this product.
-         */
-        id: number;
-    };
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/categories/{category_id}/products/{id}/order_items/';
+  body?: never;
+  path: {
+    category_id: number;
+    /**
+     * A unique integer value identifying this product.
+     */
+    id: number;
+  };
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/categories/{category_id}/products/{id}/order_items/";
 };
 
 export type CategoriesProductsOrderItemsListResponses = {
-    200: PaginatedOrderItemList;
+  200: PaginatedOrderItemListReadable;
 };
 
-export type CategoriesProductsOrderItemsListResponse = CategoriesProductsOrderItemsListResponses[keyof CategoriesProductsOrderItemsListResponses];
+export type CategoriesProductsOrderItemsListResponse =
+  CategoriesProductsOrderItemsListResponses[keyof CategoriesProductsOrderItemsListResponses];
 
 export type CategoriesProductsByCategoryListData = {
-    body?: never;
-    path: {
-        category_id: number;
-    };
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/categories/{category_id}/products/by_category/';
+  body?: never;
+  path: {
+    category_id: number;
+  };
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/categories/{category_id}/products/by_category/";
 };
 
 export type CategoriesProductsByCategoryListResponses = {
-    200: PaginatedProductList;
+  200: PaginatedProductListReadable;
 };
 
-export type CategoriesProductsByCategoryListResponse = CategoriesProductsByCategoryListResponses[keyof CategoriesProductsByCategoryListResponses];
+export type CategoriesProductsByCategoryListResponse =
+  CategoriesProductsByCategoryListResponses[keyof CategoriesProductsByCategoryListResponses];
 
 export type CategoriesProductsLowStockListData = {
-    body?: never;
-    path: {
-        category_id: number;
-    };
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/categories/{category_id}/products/low_stock/';
+  body?: never;
+  path: {
+    category_id: number;
+  };
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/categories/{category_id}/products/low_stock/";
 };
 
 export type CategoriesProductsLowStockListResponses = {
-    200: PaginatedProductList;
+  200: PaginatedProductListReadable;
 };
 
-export type CategoriesProductsLowStockListResponse = CategoriesProductsLowStockListResponses[keyof CategoriesProductsLowStockListResponses];
+export type CategoriesProductsLowStockListResponse =
+  CategoriesProductsLowStockListResponses[keyof CategoriesProductsLowStockListResponses];
 
 export type CategoriesDestroyData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this category.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/categories/{id}/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this category.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/categories/{id}/";
 };
 
 export type CategoriesDestroyResponses = {
-    /**
-     * No response body
-     */
-    204: void;
+  /**
+   * No response body
+   */
+  204: void;
 };
 
-export type CategoriesDestroyResponse = CategoriesDestroyResponses[keyof CategoriesDestroyResponses];
+export type CategoriesDestroyResponse =
+  CategoriesDestroyResponses[keyof CategoriesDestroyResponses];
 
 export type CategoriesRetrieveData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this category.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/categories/{id}/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this category.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/categories/{id}/";
 };
 
 export type CategoriesRetrieveResponses = {
-    200: Category;
+  200: CategoryReadable;
 };
 
-export type CategoriesRetrieveResponse = CategoriesRetrieveResponses[keyof CategoriesRetrieveResponses];
+export type CategoriesRetrieveResponse =
+  CategoriesRetrieveResponses[keyof CategoriesRetrieveResponses];
 
 export type CategoriesPartialUpdateData = {
-    body?: PatchedCategory;
-    path: {
-        /**
-         * A unique integer value identifying this category.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/categories/{id}/';
+  body?: PatchedCategoryWritable;
+  path: {
+    /**
+     * A unique integer value identifying this category.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/categories/{id}/";
 };
 
 export type CategoriesPartialUpdateResponses = {
-    200: Category;
+  200: CategoryReadable;
 };
 
-export type CategoriesPartialUpdateResponse = CategoriesPartialUpdateResponses[keyof CategoriesPartialUpdateResponses];
+export type CategoriesPartialUpdateResponse =
+  CategoriesPartialUpdateResponses[keyof CategoriesPartialUpdateResponses];
 
 export type CategoriesUpdateData = {
-    body: Category;
-    path: {
-        /**
-         * A unique integer value identifying this category.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/categories/{id}/';
+  body: CategoryWritable;
+  path: {
+    /**
+     * A unique integer value identifying this category.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/categories/{id}/";
 };
 
 export type CategoriesUpdateResponses = {
-    200: Category;
+  200: CategoryReadable;
 };
 
-export type CategoriesUpdateResponse = CategoriesUpdateResponses[keyof CategoriesUpdateResponses];
+export type CategoriesUpdateResponse =
+  CategoriesUpdateResponses[keyof CategoriesUpdateResponses];
 
 export type CategoriesProductsList2Data = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this category.
-         */
-        id: number;
-    };
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/categories/{id}/products/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this category.
+     */
+    id: number;
+  };
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/categories/{id}/products/";
 };
 
 export type CategoriesProductsList2Responses = {
-    200: PaginatedProductList;
+  200: PaginatedProductListReadable;
 };
 
-export type CategoriesProductsList2Response = CategoriesProductsList2Responses[keyof CategoriesProductsList2Responses];
+export type CategoriesProductsList2Response =
+  CategoriesProductsList2Responses[keyof CategoriesProductsList2Responses];
 
 export type CategoriesActiveListData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/categories/active/';
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/categories/active/";
 };
 
 export type CategoriesActiveListResponses = {
-    200: PaginatedCategoryList;
+  200: PaginatedCategoryListReadable;
 };
 
-export type CategoriesActiveListResponse = CategoriesActiveListResponses[keyof CategoriesActiveListResponses];
+export type CategoriesActiveListResponse =
+  CategoriesActiveListResponses[keyof CategoriesActiveListResponses];
 
 export type OrderItemsListData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/order-items/';
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/order-items/";
 };
 
 export type OrderItemsListResponses = {
-    200: PaginatedOrderItemList;
+  200: PaginatedOrderItemListReadable;
 };
 
-export type OrderItemsListResponse = OrderItemsListResponses[keyof OrderItemsListResponses];
+export type OrderItemsListResponse =
+  OrderItemsListResponses[keyof OrderItemsListResponses];
 
 export type OrderItemsCreateData = {
-    body: OrderItem;
-    path?: never;
-    query?: never;
-    url: '/api/private_api/order-items/';
+  body: OrderItemWritable;
+  path?: never;
+  query?: never;
+  url: "/api/private_api/order-items/";
 };
 
 export type OrderItemsCreateResponses = {
-    201: OrderItem;
+  201: OrderItemReadable;
 };
 
-export type OrderItemsCreateResponse = OrderItemsCreateResponses[keyof OrderItemsCreateResponses];
+export type OrderItemsCreateResponse =
+  OrderItemsCreateResponses[keyof OrderItemsCreateResponses];
 
 export type OrderItemsDestroyData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this order item.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/order-items/{id}/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this order item.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/order-items/{id}/";
 };
 
 export type OrderItemsDestroyResponses = {
-    /**
-     * No response body
-     */
-    204: void;
+  /**
+   * No response body
+   */
+  204: void;
 };
 
-export type OrderItemsDestroyResponse = OrderItemsDestroyResponses[keyof OrderItemsDestroyResponses];
+export type OrderItemsDestroyResponse =
+  OrderItemsDestroyResponses[keyof OrderItemsDestroyResponses];
 
 export type OrderItemsRetrieveData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this order item.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/order-items/{id}/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this order item.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/order-items/{id}/";
 };
 
 export type OrderItemsRetrieveResponses = {
-    200: OrderItem;
+  200: OrderItemReadable;
 };
 
-export type OrderItemsRetrieveResponse = OrderItemsRetrieveResponses[keyof OrderItemsRetrieveResponses];
+export type OrderItemsRetrieveResponse =
+  OrderItemsRetrieveResponses[keyof OrderItemsRetrieveResponses];
 
 export type OrderItemsPartialUpdateData = {
-    body?: PatchedOrderItem;
-    path: {
-        /**
-         * A unique integer value identifying this order item.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/order-items/{id}/';
+  body?: PatchedOrderItemWritable;
+  path: {
+    /**
+     * A unique integer value identifying this order item.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/order-items/{id}/";
 };
 
 export type OrderItemsPartialUpdateResponses = {
-    200: OrderItem;
+  200: OrderItemReadable;
 };
 
-export type OrderItemsPartialUpdateResponse = OrderItemsPartialUpdateResponses[keyof OrderItemsPartialUpdateResponses];
+export type OrderItemsPartialUpdateResponse =
+  OrderItemsPartialUpdateResponses[keyof OrderItemsPartialUpdateResponses];
 
 export type OrderItemsUpdateData = {
-    body: OrderItem;
-    path: {
-        /**
-         * A unique integer value identifying this order item.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/order-items/{id}/';
+  body: OrderItemWritable;
+  path: {
+    /**
+     * A unique integer value identifying this order item.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/order-items/{id}/";
 };
 
 export type OrderItemsUpdateResponses = {
-    200: OrderItem;
+  200: OrderItemReadable;
 };
 
-export type OrderItemsUpdateResponse = OrderItemsUpdateResponses[keyof OrderItemsUpdateResponses];
+export type OrderItemsUpdateResponse =
+  OrderItemsUpdateResponses[keyof OrderItemsUpdateResponses];
 
 export type OrdersListData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/orders/';
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/orders/";
 };
 
 export type OrdersListResponses = {
-    200: PaginatedOrderList;
+  200: PaginatedOrderListReadable;
 };
 
 export type OrdersListResponse = OrdersListResponses[keyof OrdersListResponses];
 
 export type OrdersCreateData = {
-    body: Order;
-    path?: never;
-    query?: never;
-    url: '/api/private_api/orders/';
+  body: OrderWritable;
+  path?: never;
+  query?: never;
+  url: "/api/private_api/orders/";
 };
 
 export type OrdersCreateResponses = {
-    201: Order;
+  201: OrderReadable;
 };
 
-export type OrdersCreateResponse = OrdersCreateResponses[keyof OrdersCreateResponses];
+export type OrdersCreateResponse =
+  OrdersCreateResponses[keyof OrdersCreateResponses];
 
 export type OrdersDestroyData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this order.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/orders/{id}/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this order.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/orders/{id}/";
 };
 
 export type OrdersDestroyResponses = {
-    /**
-     * No response body
-     */
-    204: void;
+  /**
+   * No response body
+   */
+  204: void;
 };
 
-export type OrdersDestroyResponse = OrdersDestroyResponses[keyof OrdersDestroyResponses];
+export type OrdersDestroyResponse =
+  OrdersDestroyResponses[keyof OrdersDestroyResponses];
 
 export type OrdersRetrieveData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this order.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/orders/{id}/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this order.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/orders/{id}/";
 };
 
 export type OrdersRetrieveResponses = {
-    200: Order;
+  200: OrderReadable;
 };
 
-export type OrdersRetrieveResponse = OrdersRetrieveResponses[keyof OrdersRetrieveResponses];
+export type OrdersRetrieveResponse =
+  OrdersRetrieveResponses[keyof OrdersRetrieveResponses];
 
 export type OrdersPartialUpdateData = {
-    body?: PatchedOrder;
-    path: {
-        /**
-         * A unique integer value identifying this order.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/orders/{id}/';
+  body?: PatchedOrderWritable;
+  path: {
+    /**
+     * A unique integer value identifying this order.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/orders/{id}/";
 };
 
 export type OrdersPartialUpdateResponses = {
-    200: Order;
+  200: OrderReadable;
 };
 
-export type OrdersPartialUpdateResponse = OrdersPartialUpdateResponses[keyof OrdersPartialUpdateResponses];
+export type OrdersPartialUpdateResponse =
+  OrdersPartialUpdateResponses[keyof OrdersPartialUpdateResponses];
 
 export type OrdersUpdateData = {
-    body: Order;
-    path: {
-        /**
-         * A unique integer value identifying this order.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/orders/{id}/';
+  body: OrderWritable;
+  path: {
+    /**
+     * A unique integer value identifying this order.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/orders/{id}/";
 };
 
 export type OrdersUpdateResponses = {
-    200: Order;
+  200: OrderReadable;
 };
 
-export type OrdersUpdateResponse = OrdersUpdateResponses[keyof OrdersUpdateResponses];
+export type OrdersUpdateResponse =
+  OrdersUpdateResponses[keyof OrdersUpdateResponses];
 
 export type OrdersCancelCreateData = {
-    body: Order;
-    path: {
-        /**
-         * A unique integer value identifying this order.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/orders/{id}/cancel/';
+  body: OrderWritable;
+  path: {
+    /**
+     * A unique integer value identifying this order.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/orders/{id}/cancel/";
 };
 
 export type OrdersCancelCreateResponses = {
-    200: Order;
+  200: OrderReadable;
 };
 
-export type OrdersCancelCreateResponse = OrdersCancelCreateResponses[keyof OrdersCancelCreateResponses];
+export type OrdersCancelCreateResponse =
+  OrdersCancelCreateResponses[keyof OrdersCancelCreateResponses];
 
 export type OrdersItemsListData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this order.
-         */
-        id: number;
-    };
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/orders/{id}/items/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this order.
+     */
+    id: number;
+  };
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/orders/{id}/items/";
 };
 
 export type OrdersItemsListResponses = {
-    200: PaginatedOrderItemList;
+  200: PaginatedOrderItemListReadable;
 };
 
-export type OrdersItemsListResponse = OrdersItemsListResponses[keyof OrdersItemsListResponses];
+export type OrdersItemsListResponse =
+  OrdersItemsListResponses[keyof OrdersItemsListResponses];
 
 export type OrdersItemsList2Data = {
-    body?: never;
-    path: {
-        order_id: number;
-    };
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/orders/{order_id}/items/';
+  body?: never;
+  path: {
+    order_id: number;
+  };
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/orders/{order_id}/items/";
 };
 
 export type OrdersItemsList2Responses = {
-    200: PaginatedOrderItemList;
+  200: PaginatedOrderItemListReadable;
 };
 
-export type OrdersItemsList2Response = OrdersItemsList2Responses[keyof OrdersItemsList2Responses];
+export type OrdersItemsList2Response =
+  OrdersItemsList2Responses[keyof OrdersItemsList2Responses];
 
 export type OrdersItemsCreateData = {
-    body: OrderItem;
-    path: {
-        order_id: number;
-    };
-    query?: never;
-    url: '/api/private_api/orders/{order_id}/items/';
+  body: OrderItemWritable;
+  path: {
+    order_id: number;
+  };
+  query?: never;
+  url: "/api/private_api/orders/{order_id}/items/";
 };
 
 export type OrdersItemsCreateResponses = {
-    201: OrderItem;
+  201: OrderItemReadable;
 };
 
-export type OrdersItemsCreateResponse = OrdersItemsCreateResponses[keyof OrdersItemsCreateResponses];
+export type OrdersItemsCreateResponse =
+  OrdersItemsCreateResponses[keyof OrdersItemsCreateResponses];
 
 export type OrdersItemsDestroyData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this order item.
-         */
-        id: number;
-        order_id: number;
-    };
-    query?: never;
-    url: '/api/private_api/orders/{order_id}/items/{id}/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this order item.
+     */
+    id: number;
+    order_id: number;
+  };
+  query?: never;
+  url: "/api/private_api/orders/{order_id}/items/{id}/";
 };
 
 export type OrdersItemsDestroyResponses = {
-    /**
-     * No response body
-     */
-    204: void;
+  /**
+   * No response body
+   */
+  204: void;
 };
 
-export type OrdersItemsDestroyResponse = OrdersItemsDestroyResponses[keyof OrdersItemsDestroyResponses];
+export type OrdersItemsDestroyResponse =
+  OrdersItemsDestroyResponses[keyof OrdersItemsDestroyResponses];
 
 export type OrdersItemsRetrieveData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this order item.
-         */
-        id: number;
-        order_id: number;
-    };
-    query?: never;
-    url: '/api/private_api/orders/{order_id}/items/{id}/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this order item.
+     */
+    id: number;
+    order_id: number;
+  };
+  query?: never;
+  url: "/api/private_api/orders/{order_id}/items/{id}/";
 };
 
 export type OrdersItemsRetrieveResponses = {
-    200: OrderItem;
+  200: OrderItemReadable;
 };
 
-export type OrdersItemsRetrieveResponse = OrdersItemsRetrieveResponses[keyof OrdersItemsRetrieveResponses];
+export type OrdersItemsRetrieveResponse =
+  OrdersItemsRetrieveResponses[keyof OrdersItemsRetrieveResponses];
 
 export type OrdersItemsPartialUpdateData = {
-    body?: PatchedOrderItem;
-    path: {
-        /**
-         * A unique integer value identifying this order item.
-         */
-        id: number;
-        order_id: number;
-    };
-    query?: never;
-    url: '/api/private_api/orders/{order_id}/items/{id}/';
+  body?: PatchedOrderItemWritable;
+  path: {
+    /**
+     * A unique integer value identifying this order item.
+     */
+    id: number;
+    order_id: number;
+  };
+  query?: never;
+  url: "/api/private_api/orders/{order_id}/items/{id}/";
 };
 
 export type OrdersItemsPartialUpdateResponses = {
-    200: OrderItem;
+  200: OrderItemReadable;
 };
 
-export type OrdersItemsPartialUpdateResponse = OrdersItemsPartialUpdateResponses[keyof OrdersItemsPartialUpdateResponses];
+export type OrdersItemsPartialUpdateResponse =
+  OrdersItemsPartialUpdateResponses[keyof OrdersItemsPartialUpdateResponses];
 
 export type OrdersItemsUpdateData = {
-    body: OrderItem;
-    path: {
-        /**
-         * A unique integer value identifying this order item.
-         */
-        id: number;
-        order_id: number;
-    };
-    query?: never;
-    url: '/api/private_api/orders/{order_id}/items/{id}/';
+  body: OrderItemWritable;
+  path: {
+    /**
+     * A unique integer value identifying this order item.
+     */
+    id: number;
+    order_id: number;
+  };
+  query?: never;
+  url: "/api/private_api/orders/{order_id}/items/{id}/";
 };
 
 export type OrdersItemsUpdateResponses = {
-    200: OrderItem;
+  200: OrderItemReadable;
 };
 
-export type OrdersItemsUpdateResponse = OrdersItemsUpdateResponses[keyof OrdersItemsUpdateResponses];
+export type OrdersItemsUpdateResponse =
+  OrdersItemsUpdateResponses[keyof OrdersItemsUpdateResponses];
 
 export type OrdersByStatusListData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-        status?: string;
-    };
-    url: '/api/private_api/orders/by_status/';
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+    status?: string;
+  };
+  url: "/api/private_api/orders/by_status/";
 };
 
 export type OrdersByStatusListResponses = {
-    200: PaginatedOrderList;
+  200: PaginatedOrderListReadable;
 };
 
-export type OrdersByStatusListResponse = OrdersByStatusListResponses[keyof OrdersByStatusListResponses];
+export type OrdersByStatusListResponse =
+  OrdersByStatusListResponses[keyof OrdersByStatusListResponses];
 
 export type ProductsListData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/products/';
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/products/";
 };
 
 export type ProductsListResponses = {
-    200: PaginatedProductList;
+  200: PaginatedProductListReadable;
 };
 
-export type ProductsListResponse = ProductsListResponses[keyof ProductsListResponses];
+export type ProductsListResponse =
+  ProductsListResponses[keyof ProductsListResponses];
 
 export type ProductsCreateData = {
-    body: Product;
-    path?: never;
-    query?: never;
-    url: '/api/private_api/products/';
+  body: ProductWritable;
+  path?: never;
+  query?: never;
+  url: "/api/private_api/products/";
 };
 
 export type ProductsCreateResponses = {
-    201: Product;
+  201: ProductReadable;
 };
 
-export type ProductsCreateResponse = ProductsCreateResponses[keyof ProductsCreateResponses];
+export type ProductsCreateResponse =
+  ProductsCreateResponses[keyof ProductsCreateResponses];
 
 export type ProductsDestroyData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this product.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/products/{id}/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this product.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/products/{id}/";
 };
 
 export type ProductsDestroyResponses = {
-    /**
-     * No response body
-     */
-    204: void;
+  /**
+   * No response body
+   */
+  204: void;
 };
 
-export type ProductsDestroyResponse = ProductsDestroyResponses[keyof ProductsDestroyResponses];
+export type ProductsDestroyResponse =
+  ProductsDestroyResponses[keyof ProductsDestroyResponses];
 
 export type ProductsRetrieveData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this product.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/products/{id}/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this product.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/products/{id}/";
 };
 
 export type ProductsRetrieveResponses = {
-    200: Product;
+  200: ProductReadable;
 };
 
-export type ProductsRetrieveResponse = ProductsRetrieveResponses[keyof ProductsRetrieveResponses];
+export type ProductsRetrieveResponse =
+  ProductsRetrieveResponses[keyof ProductsRetrieveResponses];
 
 export type ProductsPartialUpdateData = {
-    body?: PatchedProduct;
-    path: {
-        /**
-         * A unique integer value identifying this product.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/products/{id}/';
+  body?: PatchedProductWritable;
+  path: {
+    /**
+     * A unique integer value identifying this product.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/products/{id}/";
 };
 
 export type ProductsPartialUpdateResponses = {
-    200: Product;
+  200: ProductReadable;
 };
 
-export type ProductsPartialUpdateResponse = ProductsPartialUpdateResponses[keyof ProductsPartialUpdateResponses];
+export type ProductsPartialUpdateResponse =
+  ProductsPartialUpdateResponses[keyof ProductsPartialUpdateResponses];
 
 export type ProductsUpdateData = {
-    body: Product;
-    path: {
-        /**
-         * A unique integer value identifying this product.
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/private_api/products/{id}/';
+  body: ProductWritable;
+  path: {
+    /**
+     * A unique integer value identifying this product.
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/private_api/products/{id}/";
 };
 
 export type ProductsUpdateResponses = {
-    200: Product;
+  200: ProductReadable;
 };
 
-export type ProductsUpdateResponse = ProductsUpdateResponses[keyof ProductsUpdateResponses];
+export type ProductsUpdateResponse =
+  ProductsUpdateResponses[keyof ProductsUpdateResponses];
 
 export type ProductsOrderItemsListData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this product.
-         */
-        id: number;
-    };
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/products/{id}/order_items/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this product.
+     */
+    id: number;
+  };
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/products/{id}/order_items/";
 };
 
 export type ProductsOrderItemsListResponses = {
-    200: PaginatedOrderItemList;
+  200: PaginatedOrderItemListReadable;
 };
 
-export type ProductsOrderItemsListResponse = ProductsOrderItemsListResponses[keyof ProductsOrderItemsListResponses];
+export type ProductsOrderItemsListResponse =
+  ProductsOrderItemsListResponses[keyof ProductsOrderItemsListResponses];
 
 export type ProductsOrderItemsList2Data = {
-    body?: never;
-    path: {
-        product_id: number;
-    };
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/products/{product_id}/order-items/';
+  body?: never;
+  path: {
+    product_id: number;
+  };
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/products/{product_id}/order-items/";
 };
 
 export type ProductsOrderItemsList2Responses = {
-    200: PaginatedOrderItemList;
+  200: PaginatedOrderItemListReadable;
 };
 
-export type ProductsOrderItemsList2Response = ProductsOrderItemsList2Responses[keyof ProductsOrderItemsList2Responses];
+export type ProductsOrderItemsList2Response =
+  ProductsOrderItemsList2Responses[keyof ProductsOrderItemsList2Responses];
 
 export type ProductsOrderItemsCreateData = {
-    body: OrderItem;
-    path: {
-        product_id: number;
-    };
-    query?: never;
-    url: '/api/private_api/products/{product_id}/order-items/';
+  body: OrderItemWritable;
+  path: {
+    product_id: number;
+  };
+  query?: never;
+  url: "/api/private_api/products/{product_id}/order-items/";
 };
 
 export type ProductsOrderItemsCreateResponses = {
-    201: OrderItem;
+  201: OrderItemReadable;
 };
 
-export type ProductsOrderItemsCreateResponse = ProductsOrderItemsCreateResponses[keyof ProductsOrderItemsCreateResponses];
+export type ProductsOrderItemsCreateResponse =
+  ProductsOrderItemsCreateResponses[keyof ProductsOrderItemsCreateResponses];
 
 export type ProductsOrderItemsDestroyData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this order item.
-         */
-        id: number;
-        product_id: number;
-    };
-    query?: never;
-    url: '/api/private_api/products/{product_id}/order-items/{id}/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this order item.
+     */
+    id: number;
+    product_id: number;
+  };
+  query?: never;
+  url: "/api/private_api/products/{product_id}/order-items/{id}/";
 };
 
 export type ProductsOrderItemsDestroyResponses = {
-    /**
-     * No response body
-     */
-    204: void;
+  /**
+   * No response body
+   */
+  204: void;
 };
 
-export type ProductsOrderItemsDestroyResponse = ProductsOrderItemsDestroyResponses[keyof ProductsOrderItemsDestroyResponses];
+export type ProductsOrderItemsDestroyResponse =
+  ProductsOrderItemsDestroyResponses[keyof ProductsOrderItemsDestroyResponses];
 
 export type ProductsOrderItemsRetrieveData = {
-    body?: never;
-    path: {
-        /**
-         * A unique integer value identifying this order item.
-         */
-        id: number;
-        product_id: number;
-    };
-    query?: never;
-    url: '/api/private_api/products/{product_id}/order-items/{id}/';
+  body?: never;
+  path: {
+    /**
+     * A unique integer value identifying this order item.
+     */
+    id: number;
+    product_id: number;
+  };
+  query?: never;
+  url: "/api/private_api/products/{product_id}/order-items/{id}/";
 };
 
 export type ProductsOrderItemsRetrieveResponses = {
-    200: OrderItem;
+  200: OrderItemReadable;
 };
 
-export type ProductsOrderItemsRetrieveResponse = ProductsOrderItemsRetrieveResponses[keyof ProductsOrderItemsRetrieveResponses];
+export type ProductsOrderItemsRetrieveResponse =
+  ProductsOrderItemsRetrieveResponses[keyof ProductsOrderItemsRetrieveResponses];
 
 export type ProductsOrderItemsPartialUpdateData = {
-    body?: PatchedOrderItem;
-    path: {
-        /**
-         * A unique integer value identifying this order item.
-         */
-        id: number;
-        product_id: number;
-    };
-    query?: never;
-    url: '/api/private_api/products/{product_id}/order-items/{id}/';
+  body?: PatchedOrderItemWritable;
+  path: {
+    /**
+     * A unique integer value identifying this order item.
+     */
+    id: number;
+    product_id: number;
+  };
+  query?: never;
+  url: "/api/private_api/products/{product_id}/order-items/{id}/";
 };
 
 export type ProductsOrderItemsPartialUpdateResponses = {
-    200: OrderItem;
+  200: OrderItemReadable;
 };
 
-export type ProductsOrderItemsPartialUpdateResponse = ProductsOrderItemsPartialUpdateResponses[keyof ProductsOrderItemsPartialUpdateResponses];
+export type ProductsOrderItemsPartialUpdateResponse =
+  ProductsOrderItemsPartialUpdateResponses[keyof ProductsOrderItemsPartialUpdateResponses];
 
 export type ProductsOrderItemsUpdateData = {
-    body: OrderItem;
-    path: {
-        /**
-         * A unique integer value identifying this order item.
-         */
-        id: number;
-        product_id: number;
-    };
-    query?: never;
-    url: '/api/private_api/products/{product_id}/order-items/{id}/';
+  body: OrderItemWritable;
+  path: {
+    /**
+     * A unique integer value identifying this order item.
+     */
+    id: number;
+    product_id: number;
+  };
+  query?: never;
+  url: "/api/private_api/products/{product_id}/order-items/{id}/";
 };
 
 export type ProductsOrderItemsUpdateResponses = {
-    200: OrderItem;
+  200: OrderItemReadable;
 };
 
-export type ProductsOrderItemsUpdateResponse = ProductsOrderItemsUpdateResponses[keyof ProductsOrderItemsUpdateResponses];
+export type ProductsOrderItemsUpdateResponse =
+  ProductsOrderItemsUpdateResponses[keyof ProductsOrderItemsUpdateResponses];
 
 export type ProductsByCategoryListData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/products/by_category/';
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/products/by_category/";
 };
 
 export type ProductsByCategoryListResponses = {
-    200: PaginatedProductList;
+  200: PaginatedProductListReadable;
 };
 
-export type ProductsByCategoryListResponse = ProductsByCategoryListResponses[keyof ProductsByCategoryListResponses];
+export type ProductsByCategoryListResponse =
+  ProductsByCategoryListResponses[keyof ProductsByCategoryListResponses];
 
 export type ProductsLowStockListData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Which field to use when ordering the results.
-         */
-        ordering?: string;
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * A search term.
-         */
-        search?: string;
-    };
-    url: '/api/private_api/products/low_stock/';
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * A page number within the paginated result set.
+     */
+    page?: number;
+    /**
+     * A search term.
+     */
+    search?: string;
+  };
+  url: "/api/private_api/products/low_stock/";
 };
 
 export type ProductsLowStockListResponses = {
-    200: PaginatedProductList;
+  200: PaginatedProductListReadable;
 };
 
-export type ProductsLowStockListResponse = ProductsLowStockListResponses[keyof ProductsLowStockListResponses];
+export type ProductsLowStockListResponse =
+  ProductsLowStockListResponses[keyof ProductsLowStockListResponses];
 
 export type ClientOptions = {
-    baseUrl: `${string}://${string}` | (string & {});
+  baseUrl: `${string}://${string}` | (string & {});
 };

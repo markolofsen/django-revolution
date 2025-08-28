@@ -804,7 +804,7 @@ class OpenAPIGenerator:
                 return parts[0] + "".join(part.title() for part in parts[1:])
 
             # Setup Jinja2 environment
-            templates_dir = Path(__file__).parent / "templates"
+            templates_dir = Path(__file__).parent / "templates" / "typescript"
             env = jinja2.Environment(
                 loader=jinja2.FileSystemLoader(str(templates_dir)),
                 trim_blocks=True,

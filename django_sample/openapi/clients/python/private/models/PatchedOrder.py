@@ -25,4 +25,6 @@ class PatchedOrder(BaseModel):
 
     created_at: Optional[str] = Field(validation_alias="created_at", default=None)
 
-    items: Optional[List[Optional[OrderItem]]] = Field(validation_alias="items", default=None)
+    items: Optional[List[Optional[OrderItem]]] = Field(
+        validation_alias="items", default=None
+    )

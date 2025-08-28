@@ -22,11 +22,19 @@ async def products_list(
         "Accept": "application/json",
         "Authorization": f"Bearer { api_config.get_access_token() }",
     }
-    query_params: Dict[str, Any] = {"ordering": ordering, "page": page, "search": search}
+    query_params: Dict[str, Any] = {
+        "ordering": ordering,
+        "page": page,
+        "search": search,
+    }
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "get",
             httpx.URL(path),
@@ -35,12 +43,20 @@ async def products_list(
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
-    return PaginatedProductList(**response.json()) if response.json() is not None else PaginatedProductList()
+    return (
+        PaginatedProductList(**response.json())
+        if response.json() is not None
+        else PaginatedProductList()
+    )
 
 
-async def products_create(data: Product, api_config_override: Optional[APIConfig] = None) -> Product:
+async def products_create(
+    data: Product, api_config_override: Optional[APIConfig] = None
+) -> Product:
     api_config = api_config_override if api_config_override else APIConfig()
 
     base_path = api_config.base_path
@@ -52,18 +68,32 @@ async def products_create(data: Product, api_config_override: Optional[APIConfig
     }
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
-        response = await client.request("post", httpx.URL(path), headers=headers, params=query_params, json=data.dict())
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
+        response = await client.request(
+            "post",
+            httpx.URL(path),
+            headers=headers,
+            params=query_params,
+            json=data.dict(),
+        )
 
     if response.status_code != 201:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return Product(**response.json()) if response.json() is not None else Product()
 
 
-async def products_retrieve(id: int, api_config_override: Optional[APIConfig] = None) -> Product:
+async def products_retrieve(
+    id: int, api_config_override: Optional[APIConfig] = None
+) -> Product:
     api_config = api_config_override if api_config_override else APIConfig()
 
     base_path = api_config.base_path
@@ -75,9 +105,13 @@ async def products_retrieve(id: int, api_config_override: Optional[APIConfig] = 
     }
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "get",
             httpx.URL(path),
@@ -86,12 +120,16 @@ async def products_retrieve(id: int, api_config_override: Optional[APIConfig] = 
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return Product(**response.json()) if response.json() is not None else Product()
 
 
-async def products_update(id: int, data: Product, api_config_override: Optional[APIConfig] = None) -> Product:
+async def products_update(
+    id: int, data: Product, api_config_override: Optional[APIConfig] = None
+) -> Product:
     api_config = api_config_override if api_config_override else APIConfig()
 
     base_path = api_config.base_path
@@ -103,18 +141,32 @@ async def products_update(id: int, data: Product, api_config_override: Optional[
     }
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
-        response = await client.request("put", httpx.URL(path), headers=headers, params=query_params, json=data.dict())
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
+        response = await client.request(
+            "put",
+            httpx.URL(path),
+            headers=headers,
+            params=query_params,
+            json=data.dict(),
+        )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return Product(**response.json()) if response.json() is not None else Product()
 
 
-async def products_destroy(id: int, api_config_override: Optional[APIConfig] = None) -> None:
+async def products_destroy(
+    id: int, api_config_override: Optional[APIConfig] = None
+) -> None:
     api_config = api_config_override if api_config_override else APIConfig()
 
     base_path = api_config.base_path
@@ -126,9 +178,13 @@ async def products_destroy(id: int, api_config_override: Optional[APIConfig] = N
     }
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "delete",
             httpx.URL(path),
@@ -137,7 +193,9 @@ async def products_destroy(id: int, api_config_override: Optional[APIConfig] = N
         )
 
     if response.status_code != 204:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return None
 
@@ -156,15 +214,25 @@ async def products_partial_update(
     }
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
-            "patch", httpx.URL(path), headers=headers, params=query_params, json=data.dict()
+            "patch",
+            httpx.URL(path),
+            headers=headers,
+            params=query_params,
+            json=data.dict(),
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return Product(**response.json()) if response.json() is not None else Product()
 
@@ -185,11 +253,19 @@ async def products_order_items_list(
         "Accept": "application/json",
         "Authorization": f"Bearer { api_config.get_access_token() }",
     }
-    query_params: Dict[str, Any] = {"ordering": ordering, "page": page, "search": search}
+    query_params: Dict[str, Any] = {
+        "ordering": ordering,
+        "page": page,
+        "search": search,
+    }
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "get",
             httpx.URL(path),
@@ -198,9 +274,15 @@ async def products_order_items_list(
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
-    return PaginatedOrderItemList(**response.json()) if response.json() is not None else PaginatedOrderItemList()
+    return (
+        PaginatedOrderItemList(**response.json())
+        if response.json() is not None
+        else PaginatedOrderItemList()
+    )
 
 
 async def products_order_items_list_2(
@@ -219,11 +301,19 @@ async def products_order_items_list_2(
         "Accept": "application/json",
         "Authorization": f"Bearer { api_config.get_access_token() }",
     }
-    query_params: Dict[str, Any] = {"ordering": ordering, "page": page, "search": search}
+    query_params: Dict[str, Any] = {
+        "ordering": ordering,
+        "page": page,
+        "search": search,
+    }
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "get",
             httpx.URL(path),
@@ -232,9 +322,15 @@ async def products_order_items_list_2(
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
-    return PaginatedOrderItemList(**response.json()) if response.json() is not None else PaginatedOrderItemList()
+    return (
+        PaginatedOrderItemList(**response.json())
+        if response.json() is not None
+        else PaginatedOrderItemList()
+    )
 
 
 async def products_order_items_create(
@@ -251,13 +347,25 @@ async def products_order_items_create(
     }
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
-        response = await client.request("post", httpx.URL(path), headers=headers, params=query_params, json=data.dict())
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
+        response = await client.request(
+            "post",
+            httpx.URL(path),
+            headers=headers,
+            params=query_params,
+            json=data.dict(),
+        )
 
     if response.status_code != 201:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return OrderItem(**response.json()) if response.json() is not None else OrderItem()
 
@@ -276,9 +384,13 @@ async def products_order_items_retrieve(
     }
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "get",
             httpx.URL(path),
@@ -287,13 +399,18 @@ async def products_order_items_retrieve(
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return OrderItem(**response.json()) if response.json() is not None else OrderItem()
 
 
 async def products_order_items_update(
-    id: int, product_id: int, data: OrderItem, api_config_override: Optional[APIConfig] = None
+    id: int,
+    product_id: int,
+    data: OrderItem,
+    api_config_override: Optional[APIConfig] = None,
 ) -> OrderItem:
     api_config = api_config_override if api_config_override else APIConfig()
 
@@ -306,13 +423,25 @@ async def products_order_items_update(
     }
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
-        response = await client.request("put", httpx.URL(path), headers=headers, params=query_params, json=data.dict())
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
+        response = await client.request(
+            "put",
+            httpx.URL(path),
+            headers=headers,
+            params=query_params,
+            json=data.dict(),
+        )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return OrderItem(**response.json()) if response.json() is not None else OrderItem()
 
@@ -331,9 +460,13 @@ async def products_order_items_destroy(
     }
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "delete",
             httpx.URL(path),
@@ -342,13 +475,18 @@ async def products_order_items_destroy(
         )
 
     if response.status_code != 204:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return None
 
 
 async def products_order_items_partial_update(
-    id: int, product_id: int, data: PatchedOrderItem, api_config_override: Optional[APIConfig] = None
+    id: int,
+    product_id: int,
+    data: PatchedOrderItem,
+    api_config_override: Optional[APIConfig] = None,
 ) -> OrderItem:
     api_config = api_config_override if api_config_override else APIConfig()
 
@@ -361,15 +499,25 @@ async def products_order_items_partial_update(
     }
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
-            "patch", httpx.URL(path), headers=headers, params=query_params, json=data.dict()
+            "patch",
+            httpx.URL(path),
+            headers=headers,
+            params=query_params,
+            json=data.dict(),
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return OrderItem(**response.json()) if response.json() is not None else OrderItem()
 
@@ -389,11 +537,19 @@ async def products_by_category_list(
         "Accept": "application/json",
         "Authorization": f"Bearer { api_config.get_access_token() }",
     }
-    query_params: Dict[str, Any] = {"ordering": ordering, "page": page, "search": search}
+    query_params: Dict[str, Any] = {
+        "ordering": ordering,
+        "page": page,
+        "search": search,
+    }
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "get",
             httpx.URL(path),
@@ -402,9 +558,15 @@ async def products_by_category_list(
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
-    return PaginatedProductList(**response.json()) if response.json() is not None else PaginatedProductList()
+    return (
+        PaginatedProductList(**response.json())
+        if response.json() is not None
+        else PaginatedProductList()
+    )
 
 
 async def products_low_stock_list(
@@ -422,11 +584,19 @@ async def products_low_stock_list(
         "Accept": "application/json",
         "Authorization": f"Bearer { api_config.get_access_token() }",
     }
-    query_params: Dict[str, Any] = {"ordering": ordering, "page": page, "search": search}
+    query_params: Dict[str, Any] = {
+        "ordering": ordering,
+        "page": page,
+        "search": search,
+    }
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "get",
             httpx.URL(path),
@@ -435,6 +605,12 @@ async def products_low_stock_list(
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
-    return PaginatedProductList(**response.json()) if response.json() is not None else PaginatedProductList()
+    return (
+        PaginatedProductList(**response.json())
+        if response.json() is not None
+        else PaginatedProductList()
+    )

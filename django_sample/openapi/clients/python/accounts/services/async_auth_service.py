@@ -26,9 +26,13 @@ async def auth_login_create(api_config_override: Optional[APIConfig] = None) -> 
 
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "post",
             httpx.URL(path),
@@ -37,7 +41,9 @@ async def auth_login_create(api_config_override: Optional[APIConfig] = None) -> 
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return None
 
@@ -61,9 +67,13 @@ async def auth_logout_create(api_config_override: Optional[APIConfig] = None) ->
 
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "post",
             httpx.URL(path),
@@ -72,12 +82,16 @@ async def auth_logout_create(api_config_override: Optional[APIConfig] = None) ->
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return None
 
 
-async def auth_password_change_create(api_config_override: Optional[APIConfig] = None) -> None:
+async def auth_password_change_create(
+    api_config_override: Optional[APIConfig] = None,
+) -> None:
     api_config = api_config_override if api_config_override else APIConfig()
 
     base_path = api_config.base_path
@@ -96,9 +110,13 @@ async def auth_password_change_create(api_config_override: Optional[APIConfig] =
 
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "post",
             httpx.URL(path),
@@ -107,12 +125,16 @@ async def auth_password_change_create(api_config_override: Optional[APIConfig] =
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return None
 
 
-async def auth_password_reset_create(api_config_override: Optional[APIConfig] = None) -> None:
+async def auth_password_reset_create(
+    api_config_override: Optional[APIConfig] = None,
+) -> None:
     api_config = api_config_override if api_config_override else APIConfig()
 
     base_path = api_config.base_path
@@ -131,9 +153,13 @@ async def auth_password_reset_create(api_config_override: Optional[APIConfig] = 
 
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "post",
             httpx.URL(path),
@@ -142,12 +168,16 @@ async def auth_password_reset_create(api_config_override: Optional[APIConfig] = 
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return None
 
 
-async def auth_password_reset_confirm_create(api_config_override: Optional[APIConfig] = None) -> None:
+async def auth_password_reset_confirm_create(
+    api_config_override: Optional[APIConfig] = None,
+) -> None:
     api_config = api_config_override if api_config_override else APIConfig()
 
     base_path = api_config.base_path
@@ -166,9 +196,13 @@ async def auth_password_reset_confirm_create(api_config_override: Optional[APICo
 
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "post",
             httpx.URL(path),
@@ -177,12 +211,16 @@ async def auth_password_reset_confirm_create(api_config_override: Optional[APICo
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return None
 
 
-async def auth_refresh_create(data: TokenRefresh, api_config_override: Optional[APIConfig] = None) -> TokenRefresh:
+async def auth_refresh_create(
+    data: TokenRefresh, api_config_override: Optional[APIConfig] = None
+) -> TokenRefresh:
     api_config = api_config_override if api_config_override else APIConfig()
 
     base_path = api_config.base_path
@@ -201,18 +239,36 @@ async def auth_refresh_create(data: TokenRefresh, api_config_override: Optional[
 
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
-        response = await client.request("post", httpx.URL(path), headers=headers, params=query_params, json=data.dict())
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
+        response = await client.request(
+            "post",
+            httpx.URL(path),
+            headers=headers,
+            params=query_params,
+            json=data.dict(),
+        )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
-    return TokenRefresh(**response.json()) if response.json() is not None else TokenRefresh()
+    return (
+        TokenRefresh(**response.json())
+        if response.json() is not None
+        else TokenRefresh()
+    )
 
 
-async def auth_refresh_token_create(api_config_override: Optional[APIConfig] = None) -> None:
+async def auth_refresh_token_create(
+    api_config_override: Optional[APIConfig] = None,
+) -> None:
     api_config = api_config_override if api_config_override else APIConfig()
 
     base_path = api_config.base_path
@@ -231,9 +287,13 @@ async def auth_refresh_token_create(api_config_override: Optional[APIConfig] = N
 
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
         response = await client.request(
             "post",
             httpx.URL(path),
@@ -242,12 +302,16 @@ async def auth_refresh_token_create(api_config_override: Optional[APIConfig] = N
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
     return None
 
 
-async def auth_register_create(data: UserCreate, api_config_override: Optional[APIConfig] = None) -> UserCreate:
+async def auth_register_create(
+    data: UserCreate, api_config_override: Optional[APIConfig] = None
+) -> UserCreate:
     api_config = api_config_override if api_config_override else APIConfig()
 
     base_path = api_config.base_path
@@ -266,12 +330,26 @@ async def auth_register_create(data: UserCreate, api_config_override: Optional[A
 
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
-    async with httpx.AsyncClient(base_url=base_path, verify=api_config.verify) as client:
-        response = await client.request("post", httpx.URL(path), headers=headers, params=query_params, json=data.dict())
+    async with httpx.AsyncClient(
+        base_url=base_path, verify=api_config.verify
+    ) as client:
+        response = await client.request(
+            "post",
+            httpx.URL(path),
+            headers=headers,
+            params=query_params,
+            json=data.dict(),
+        )
 
     if response.status_code != 201:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
-    return UserCreate(**response.json()) if response.json() is not None else UserCreate()
+    return (
+        UserCreate(**response.json()) if response.json() is not None else UserCreate()
+    )

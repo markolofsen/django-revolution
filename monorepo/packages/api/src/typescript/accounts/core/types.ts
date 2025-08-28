@@ -1,9 +1,9 @@
-import type { Auth, AuthToken } from './auth';
+import type { Auth, AuthToken } from "./auth";
 import type {
   BodySerializer,
   QuerySerializer,
   QuerySerializerOptions,
-} from './bodySerializer';
+} from "./bodySerializer";
 
 export interface Client<
   RequestFn = never,
@@ -47,7 +47,7 @@ export interface Config {
    * {@link https://developer.mozilla.org/docs/Web/API/Headers/Headers#init See more}
    */
   headers?:
-    | RequestInit['headers']
+    | RequestInit["headers"]
     | Record<
         string,
         | string
@@ -64,15 +64,15 @@ export interface Config {
    * {@link https://developer.mozilla.org/docs/Web/API/fetch#method See more}
    */
   method?:
-    | 'CONNECT'
-    | 'DELETE'
-    | 'GET'
-    | 'HEAD'
-    | 'OPTIONS'
-    | 'PATCH'
-    | 'POST'
-    | 'PUT'
-    | 'TRACE';
+    | "CONNECT"
+    | "DELETE"
+    | "GET"
+    | "HEAD"
+    | "OPTIONS"
+    | "PATCH"
+    | "POST"
+    | "PUT"
+    | "TRACE";
   /**
    * A function for serializing request query parameters. By default, arrays
    * will be exploded in form style, objects will be exploded in deepObject
@@ -85,12 +85,6 @@ export interface Config {
    */
   querySerializer?: QuerySerializer | QuerySerializerOptions;
   /**
-   * A function validating request data. This is useful if you want to ensure
-   * the request conforms to the desired shape, so it can be safely sent to
-   * the server.
-   */
-  requestValidator?: (data: unknown) => Promise<unknown>;
-  /**
    * A function transforming response data before it's returned. This is useful
    * for post-processing data, e.g. converting ISO strings into Date objects.
    */
@@ -102,17 +96,3 @@ export interface Config {
    */
   responseValidator?: (data: unknown) => Promise<unknown>;
 }
-
-type IsExactlyNeverOrNeverUndefined<T> = [T] extends [never]
-  ? true
-  : [T] extends [never | undefined]
-    ? [undefined] extends [T]
-      ? false
-      : true
-    : false;
-
-export type OmitNever<T extends Record<string, unknown>> = {
-  [K in keyof T as IsExactlyNeverOrNeverUndefined<T[K]> extends true
-    ? never
-    : K]: T[K];
-};

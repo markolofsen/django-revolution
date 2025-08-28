@@ -32,7 +32,7 @@ class ZoneModel(BaseModel):
     auth_required: bool = Field(False, description="Whether authentication is required")
     rate_limit: Optional[str] = Field(None, description="Rate limit configuration")
     permissions: Optional[List[str]] = Field(None, description="Required permissions")
-    version: str = Field("1.0.30", description="API version")
+    version: str = Field("1.0.31", description="API version")
     prefix: Optional[str] = Field(None, description="URL prefix override")
     cors_enabled: bool = Field(False, description="Enable CORS for this zone")
     middleware: Optional[List[str]] = Field(None, description="Custom middleware")
@@ -117,6 +117,7 @@ class TypeScriptGeneratorSettings(BaseModel):
     custom_templates: Optional[str] = Field(
         None, description="Path to custom templates"
     )
+    auto_format: bool = Field(True, description="Automatically format generated files with Prettier")
 
     @field_validator("output_directory")
     @classmethod
@@ -148,6 +149,7 @@ class PythonGeneratorSettings(BaseModel):
     custom_templates: Optional[str] = Field(
         None, description="Path to custom templates"
     )
+    auto_format: bool = Field(True, description="Automatically format generated files with Black")
 
     @field_validator("output_directory")
     @classmethod
@@ -288,7 +290,7 @@ class DjangoRevolutionSettings(BaseSettings):
     api_prefix: str = Field("apix", description="API prefix for all routes")
     debug: bool = Field(False, description="Enable debug mode")
     auto_install_deps: bool = Field(True, description="Auto-install dependencies")
-    version: str = Field("1.0.30", description="Package version for generated clients")
+    version: str = Field("1.0.31", description="Package version for generated clients")
 
     # Multithreading settings
     max_workers: int = Field(

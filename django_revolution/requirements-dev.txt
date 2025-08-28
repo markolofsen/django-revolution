@@ -1,4 +1,4 @@
-# Development dependencies for django-revolution (includes main deps)
+# Development dependencies for UnrealOn SDK (includes main deps)
 # Generated automatically from pyproject.toml
 # Do not edit manually!
 
@@ -7,6 +7,7 @@ Jinja2>=3.0.0
 PyYAML>=6.0
 black>=21.0
 build>=1.0.0
+click>=8.0.0
 django-filter>=22.0.0
 djangorestframework-simplejwt>=5.0.0
 djangorestframework>=3.12.0
@@ -14,6 +15,7 @@ drf-spectacular>=0.24.0
 flake8>=3.9
 mypy>=0.800
 openapi-python-generator>=1.2.0
+prompt-toolkit>=3.0.0,<3.0.50
 pydantic-settings>=2.0.0
 pydantic>=2.0.0
 pytest-django>=4.0

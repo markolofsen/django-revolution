@@ -1,0 +1,33 @@
+{
+  "name": "django-revolution-formatting",
+  "version": "1.0.30",
+  "description": "Formatting tools for Django Revolution generated clients",
+  "private": true,
+  "scripts": {
+    "format:ts": "prettier --write \"**/*.ts\" \"**/*.tsx\" \"**/*.js\" \"**/*.jsx\"",
+    "format:check": "prettier --check \"**/*.ts\" \"**/*.tsx\" \"**/*.js\" \"**/*.jsx\"",
+    "format:python": "black .",
+    "format:all": "npm run format:ts && npm run format:python",
+    "lint:ts": "prettier --check \"**/*.ts\" \"**/*.tsx\"",
+    "install:deps": "npm install"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0",
+    "@hey-api/openapi-ts": "^0.80.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "django",
+    "openapi",
+    "typescript",
+    "python",
+    "formatting",
+    "prettier",
+    "black"
+  ],
+  "author": "Unrealos",
+  "license": "MIT"
+}

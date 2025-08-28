@@ -94,6 +94,13 @@ class HeyAPITypeScriptGenerator:
                 # Generate files using templates
                 self._generate_from_templates(zone_name, zone_output_dir)
 
+                # Format generated TypeScript files if enabled
+                if self.config.generators.typescript.auto_format:
+                    if not self._format_typescript_files(zone_output_dir):
+                        self.logger.warning("⚠️ TypeScript file formatting failed, but generation succeeded")
+                else:
+                    self.logger.debug("TypeScript auto-formatting disabled")
+
                 self.logger.success(
                     f"TypeScript client generated for {zone_name}: {files_generated} files"
                 )
@@ -191,7 +198,7 @@ class HeyAPITypeScriptGenerator:
             from datetime import datetime
 
             # Setup Jinja2 environment
-            templates_dir = Path(__file__).parent / "templates"
+            templates_dir = Path(__file__).parent / "templates" / "typescript"
             env = jinja2.Environment(
                 loader=jinja2.FileSystemLoader(str(templates_dir)),
                 trim_blocks=True,
@@ -270,4 +277,61 @@ class HeyAPITypeScriptGenerator:
             "output_format": self.config.generators.typescript.output_format,
             "generate_tests": self.config.generators.typescript.generate_tests,
             "custom_templates": self.config.generators.typescript.custom_templates,
+            "auto_format": self.config.generators.typescript.auto_format,
         }
+
+    def _format_typescript_files(self, directory: Path) -> bool:
+        """
+        Format TypeScript files using Prettier.
+        
+        Args:
+            directory: Directory containing TypeScript files
+            
+        Returns:
+            bool: True if formatting succeeded, False otherwise
+        """
+        try:
+            # Check if prettier is available - run from django_revolution directory
+            config_dir = Path(__file__).parent.parent
+            success, output = run_command("npx prettier --version", timeout=10, cwd=config_dir)
+            if not success:
+                self.logger.warning("Prettier not available, skipping TypeScript formatting")
+                return True
+            
+            # Format TypeScript files
+            ts_files = list(directory.glob("**/*.ts")) + list(directory.glob("**/*.tsx"))
+            if ts_files:
+                self.logger.info(f"🎨 Formatting {len(ts_files)} TypeScript files...")
+                
+                # Format all TypeScript files in the directory using config
+                config_dir = Path(__file__).parent.parent
+                prettierrc_path = config_dir / ".prettierrc"
+                
+                # Get all TypeScript files to format
+                ts_file_paths = [str(f) for f in ts_files if f.is_file()]
+                
+                if ts_file_paths:
+                    if prettierrc_path.exists():
+                        command_parts = ["npx", "prettier", "--config", str(prettierrc_path), "--write"] + ts_file_paths
+                    else:
+                        command_parts = ["npx", "prettier", "--write"] + ts_file_paths
+                    
+                    command = " ".join(f'"{part}"' if " " in part else part for part in command_parts)
+                    success, output = run_command(command, cwd=config_dir, timeout=60)
+                else:
+                    self.logger.debug("No TypeScript files found to format")
+                    return True
+                
+                if success:
+                    self.logger.info("✅ TypeScript files formatted successfully")
+                    return True
+                else:
+                    self.logger.warning(f"⚠️ TypeScript formatting failed: {output}")
+                    return False
+            else:
+                self.logger.debug("No TypeScript files to format")
+                return True
+                
+        except Exception as e:
+            self.logger.error(f"Failed to format TypeScript files: {e}")
+            return False

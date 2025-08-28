@@ -7,7 +7,9 @@ from ..api_config import APIConfig, HTTPException
 from ..models import *
 
 
-def root_retrieve(username: str, api_config_override: Optional[APIConfig] = None) -> UserProfile:
+def root_retrieve(
+    username: str, api_config_override: Optional[APIConfig] = None
+) -> UserProfile:
     api_config = api_config_override if api_config_override else APIConfig()
 
     base_path = api_config.base_path
@@ -26,7 +28,9 @@ def root_retrieve(username: str, api_config_override: Optional[APIConfig] = None
 
     query_params: Dict[str, Any] = {}
 
-    query_params = {key: value for (key, value) in query_params.items() if value is not None}
+    query_params = {
+        key: value for (key, value) in query_params.items() if value is not None
+    }
 
     with httpx.Client(base_url=base_path, verify=api_config.verify) as client:
         response = client.request(
@@ -37,6 +41,10 @@ def root_retrieve(username: str, api_config_override: Optional[APIConfig] = None
         )
 
     if response.status_code != 200:
-        raise HTTPException(response.status_code, f" failed with status code: {response.status_code}")
+        raise HTTPException(
+            response.status_code, f" failed with status code: {response.status_code}"
+        )
 
-    return UserProfile(**response.json()) if response.json() is not None else UserProfile()
+    return (
+        UserProfile(**response.json()) if response.json() is not None else UserProfile()
+    )

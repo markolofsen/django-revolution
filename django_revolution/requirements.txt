@@ -1,15 +1,17 @@
-# Main dependencies for django-revolution
+# Main dependencies for UnrealOn SDK
 # Generated automatically from pyproject.toml
 # Do not edit manually!
 
 Django>=3.2
 Jinja2>=3.0.0
 PyYAML>=6.0
+click>=8.0.0
 django-filter>=22.0.0
 djangorestframework-simplejwt>=5.0.0
 djangorestframework>=3.12.0
 drf-spectacular>=0.24.0
 openapi-python-generator>=1.2.0
+prompt-toolkit>=3.0.0,<3.0.50
 pydantic-settings>=2.0.0
 pydantic>=2.0.0
 questionary>=2.0.0

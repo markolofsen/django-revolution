@@ -11,6 +11,7 @@ from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
 import questionary
+import traceback
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -196,6 +197,7 @@ def main():
             break
         except Exception as e:
             console.print(f"❌ Unexpected error: {e}")
+            console.print(f"Full traceback:\n{traceback.format_exc()}")
             break
 
 

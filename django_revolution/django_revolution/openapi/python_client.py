@@ -220,6 +220,13 @@ class PythonClientGenerator:
                     # Enhance the generated client
                     self._enhance_openapi_client(zone_name, zone_output_dir)
 
+                    # Format generated Python files if enabled
+                    if self.config.generators.python.auto_format:
+                        if not self._format_python_files(zone_output_dir):
+                            self.logger.warning("⚠️ Python file formatting failed, but generation succeeded")
+                    else:
+                        self.logger.debug("Python auto-formatting disabled")
+
                     self.logger.success(
                         f"Python client generated with openapi-python-generator for {zone_name}: {files_generated} files"
                     )
@@ -429,6 +436,7 @@ typing-extensions>=4.0.0
             "overwrite": self.config.generators.python.overwrite,
             "fail_on_warning": self.config.generators.python.fail_on_warning,
             "custom_templates": self.config.generators.python.custom_templates,
+            "auto_format": self.config.generators.python.auto_format,
         }
 
     def _create_custom_templates_for_no_auth(self) -> Optional[Path]:
@@ -462,3 +470,43 @@ typing-extensions>=4.0.0
         except Exception as e:
             self.logger.error(f"Failed to create custom templates: {e}")
             return None
+
+    def _format_python_files(self, directory: Path) -> bool:
+        """
+        Format Python files using Black.
+        
+        Args:
+            directory: Directory containing Python files
+            
+        Returns:
+            bool: True if formatting succeeded, False otherwise
+        """
+        try:
+            # Check if black is available
+            success, output = run_command("black --version", timeout=10)
+            if not success:
+                self.logger.warning("Black not available, skipping Python formatting")
+                return True
+            
+            # Format Python files
+            py_files = list(directory.glob("**/*.py"))
+            if py_files:
+                self.logger.info(f"🎨 Formatting {len(py_files)} Python files...")
+                
+                # Format all Python files in the directory
+                command = f"black --line-length 88 {directory}"
+                success, output = run_command(command, timeout=60)
+                
+                if success:
+                    self.logger.info("✅ Python files formatted successfully")
+                    return True
+                else:
+                    self.logger.warning(f"⚠️ Python formatting failed: {output}")
+                    return False
+            else:
+                self.logger.debug("No Python files to format")
+                return True
+                
+        except Exception as e:
+            self.logger.error(f"Failed to format Python files: {e}")
+            return False

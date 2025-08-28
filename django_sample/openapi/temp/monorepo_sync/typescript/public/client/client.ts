@@ -1,4 +1,4 @@
-import type { Client, Config, RequestOptions } from './types';
+import type { Client, Config, RequestOptions } from "./types";
 import {
   buildUrl,
   createConfig,
@@ -7,9 +7,9 @@ import {
   mergeConfigs,
   mergeHeaders,
   setAuthParams,
-} from './utils';
+} from "./utils";
 
-type ReqInit = Omit<RequestInit, 'body' | 'headers'> & {
+type ReqInit = Omit<RequestInit, "body" | "headers"> & {
   body?: any;
   headers: ReturnType<typeof mergeHeaders>;
 };
@@ -31,7 +31,7 @@ export const createClient = (config: Config = {}): Client => {
     RequestOptions
   >();
 
-  const request: Client['request'] = async (options) => {
+  const request: Client["request"] = async (options) => {
     const opts = {
       ..._config,
       ...options,
@@ -46,22 +46,18 @@ export const createClient = (config: Config = {}): Client => {
       });
     }
 
-    if (opts.requestValidator) {
-      await opts.requestValidator(opts);
-    }
-
     if (opts.body && opts.bodySerializer) {
       opts.body = opts.bodySerializer(opts.body);
     }
 
     // remove Content-Type header if body is empty to avoid sending invalid requests
-    if (opts.body === undefined || opts.body === '') {
-      opts.headers.delete('Content-Type');
+    if (opts.body === undefined || opts.body === "") {
+      opts.headers.delete("Content-Type");
     }
 
     const url = buildUrl(opts);
     const requestInit: ReqInit = {
-      redirect: 'follow',
+      redirect: "follow",
       ...opts,
     };
 
@@ -92,9 +88,9 @@ export const createClient = (config: Config = {}): Client => {
     if (response.ok) {
       if (
         response.status === 204 ||
-        response.headers.get('Content-Length') === '0'
+        response.headers.get("Content-Length") === "0"
       ) {
-        return opts.responseStyle === 'data'
+        return opts.responseStyle === "data"
           ? {}
           : {
               data: {},
@@ -103,21 +99,21 @@ export const createClient = (config: Config = {}): Client => {
       }
 
       const parseAs =
-        (opts.parseAs === 'auto'
-          ? getParseAs(response.headers.get('Content-Type'))
-          : opts.parseAs) ?? 'json';
+        (opts.parseAs === "auto"
+          ? getParseAs(response.headers.get("Content-Type"))
+          : opts.parseAs) ?? "json";
 
       let data: any;
       switch (parseAs) {
-        case 'arrayBuffer':
-        case 'blob':
-        case 'formData':
-        case 'json':
-        case 'text':
+        case "arrayBuffer":
+        case "blob":
+        case "formData":
+        case "json":
+        case "text":
           data = await response[parseAs]();
           break;
-        case 'stream':
-          return opts.responseStyle === 'data'
+        case "stream":
+          return opts.responseStyle === "data"
             ? response.body
             : {
                 data: response.body,
@@ -125,7 +121,7 @@ export const createClient = (config: Config = {}): Client => {
               };
       }
 
-      if (parseAs === 'json') {
+      if (parseAs === "json") {
         if (opts.responseValidator) {
           await opts.responseValidator(data);
         }
@@ -135,7 +131,7 @@ export const createClient = (config: Config = {}): Client => {
         }
       }
 
-      return opts.responseStyle === 'data'
+      return opts.responseStyle === "data"
         ? data
         : {
             data,
@@ -143,16 +139,14 @@ export const createClient = (config: Config = {}): Client => {
           };
     }
 
-    const textError = await response.text();
-    let jsonError: unknown;
+    let error = await response.text();
 
     try {
-      jsonError = JSON.parse(textError);
+      error = JSON.parse(error);
     } catch {
       // noop
     }
 
-    const error = jsonError ?? textError;
     let finalError = error;
 
     for (const fn of interceptors.error._fns) {
@@ -168,7 +162,7 @@ export const createClient = (config: Config = {}): Client => {
     }
 
     // TODO: we probably want to return error and improve types
-    return opts.responseStyle === 'data'
+    return opts.responseStyle === "data"
       ? undefined
       : {
           error: finalError,
@@ -178,18 +172,18 @@ export const createClient = (config: Config = {}): Client => {
 
   return {
     buildUrl,
-    connect: (options) => request({ ...options, method: 'CONNECT' }),
-    delete: (options) => request({ ...options, method: 'DELETE' }),
-    get: (options) => request({ ...options, method: 'GET' }),
+    connect: (options) => request({ ...options, method: "CONNECT" }),
+    delete: (options) => request({ ...options, method: "DELETE" }),
+    get: (options) => request({ ...options, method: "GET" }),
     getConfig,
-    head: (options) => request({ ...options, method: 'HEAD' }),
+    head: (options) => request({ ...options, method: "HEAD" }),
     interceptors,
-    options: (options) => request({ ...options, method: 'OPTIONS' }),
-    patch: (options) => request({ ...options, method: 'PATCH' }),
-    post: (options) => request({ ...options, method: 'POST' }),
-    put: (options) => request({ ...options, method: 'PUT' }),
+    options: (options) => request({ ...options, method: "OPTIONS" }),
+    patch: (options) => request({ ...options, method: "PATCH" }),
+    post: (options) => request({ ...options, method: "POST" }),
+    put: (options) => request({ ...options, method: "PUT" }),
     request,
     setConfig,
-    trace: (options) => request({ ...options, method: 'TRACE' }),
+    trace: (options) => request({ ...options, method: "TRACE" }),
   };
 };
