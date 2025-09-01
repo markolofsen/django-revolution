@@ -14,7 +14,6 @@ from django_revolution.config import (
     TypeScriptGeneratorSettings,
     PythonGeneratorSettings,
     GeneratorsSettings,
-    MonorepoSettings,
     GenerationResult,
     GenerationSummary
 )
@@ -30,12 +29,11 @@ class TestDjangoRevolutionSettings:
         assert config.api_prefix == "apix"
         assert config.debug is False
         assert config.auto_install_deps is True
-        assert config.version == "1.0.12"
+        assert config.version == "1.0.32"
         assert config.enable_multithreading is True
         assert config.max_workers == 20
         assert isinstance(config.output, OutputSettings)
         assert isinstance(config.generators, GeneratorsSettings)
-        assert isinstance(config.monorepo, MonorepoSettings)
         assert config.zones == {}
 
     def test_custom_settings(self):
@@ -89,7 +87,6 @@ class TestDjangoRevolutionSettings:
         assert config_dict["max_workers"] == 5
         assert "output" in config_dict
         assert "generators" in config_dict
-        assert "monorepo" in config_dict
         assert "zones" in config_dict
 
     def test_get_zones(self):
@@ -153,7 +150,7 @@ class TestZoneModel:
         assert zone.description == "Test zone description"
         assert zone.public is True
         assert zone.auth_required is False
-        assert zone.version == "v1"
+        assert zone.version == "1.0.32"
 
     def test_zone_model_defaults(self):
         """Test ZoneModel default values."""
@@ -167,7 +164,7 @@ class TestZoneModel:
         assert zone.title is None  # Title is not auto-generated anymore
         assert zone.public is True
         assert zone.auth_required is False
-        assert zone.version == "v1"
+        assert zone.version == "1.0.32"
         assert zone.path_prefix == "test"  # Auto-generated from name
 
     def test_zone_model_validation(self):

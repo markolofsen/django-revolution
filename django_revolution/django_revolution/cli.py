@@ -76,15 +76,6 @@ Examples:
     parser.add_argument(
         "--no-archive", action="store_true", help="Skip archiving generated clients"
     )
-    parser.add_argument("--no-monorepo", action="store_true", help="Skip monorepo sync")
-    parser.add_argument(
-        "--list-monorepos", action="store_true", help="List all monorepo configurations"
-    )
-    parser.add_argument(
-        "--validate-monorepos",
-        action="store_true",
-        help="Validate monorepo configurations",
-    )
     parser.add_argument(
         "--clean",
         action="store_true",
@@ -164,10 +155,7 @@ Examples:
             return handle_status(generator)
         elif args.list_zones:
             return handle_list_zones(generator)
-        elif args.list_monorepos:
-            return handle_list_monorepos(generator)
-        elif args.validate_monorepos:
-            return handle_validate_monorepos(generator)
+
         elif args.validate:
             return handle_validate_environment(generator)
         elif args.install_deps:
@@ -204,8 +192,6 @@ def handle_interactive_mode(generator):
             choices=[
                 {"name": "🚀 Generate API Clients", "value": "generate"},
                 {"name": "📋 List Zones", "value": "list_zones"},
-                {"name": "📦 List Monorepos", "value": "list_monorepos"},
-                {"name": "✅ Validate Monorepos", "value": "validate_monorepos"},
                 {"name": "🔧 Show Configuration", "value": "config"},
                 {"name": "📊 Show Status", "value": "status"},
                 {"name": "✅ Validate Environment", "value": "validate"},
@@ -222,10 +208,6 @@ def handle_interactive_mode(generator):
             return handle_generate_interactive(generator)
         elif action == "list_zones":
             return handle_list_zones(generator)
-        elif action == "list_monorepos":
-            return handle_list_monorepos(generator)
-        elif action == "validate_monorepos":
-            return handle_validate_monorepos(generator)
         elif action == "config":
             return handle_config_interactive()
         elif action == "status":
@@ -377,9 +359,6 @@ def handle_generate(generator, args):
     generator.config.generators.typescript.enabled = generate_typescript
     generator.config.generators.python.enabled = generate_python
 
-    if args.no_monorepo:
-        generator.config.monorepo.enabled = False
-
     # Clean if requested
     if args.clean:
         console.print("🧹 Cleaning output directories...")
@@ -459,32 +438,10 @@ def handle_status(generator):
     console.print(f"Output directory: {status['output_dir']}")
     console.print(f"TypeScript available: {status['typescript_available']}")
     console.print(f"Python available: {status['python_available']}")
-    console.print(f"Multi-monorepo enabled: {status['monorepo_enabled']}")
-
     # Multithreading info
     multithreading = status.get("multithreading", {})
     console.print(f"Multithreading enabled: {multithreading.get('enabled', False)}")
     console.print(f"Max workers: {multithreading.get('max_workers', 20)}")
-
-    # Multi-monorepo info
-    if status.get("monorepo_enabled"):
-        monorepo_status = status.get("monorepo_status", {})
-        console.print(f"\n[bold]Multi-Monorepo Status:[/bold]")
-        console.print(
-            f"  Total configurations: {monorepo_status.get('total_configurations', 0)}"
-        )
-        console.print(
-            f"  Enabled configurations: {monorepo_status.get('enabled_configurations', 0)}"
-        )
-
-        if monorepo_status.get("configurations"):
-            console.print("  [bold]Configurations:[/bold]")
-            for config in monorepo_status["configurations"]:
-                status_icon = "✅" if config.get("enabled") else "❌"
-                exists_icon = "✅" if config.get("exists") else "❌"
-                console.print(
-                    f"    {status_icon} {config['name']}: {config['path']} {exists_icon}"
-                )
 
     # Zone details
     if status["zones"]:
@@ -820,7 +777,6 @@ def show_config_pretty(config):
 
     table.add_row("Base URL", config.base_url)
     table.add_row("Output Directory", str(config.output.base_directory))
-    table.add_row("Monorepo Path", str(config.monorepo.path))
     table.add_row("Zones", ", ".join(config.zones.keys()))
     table.add_row("TypeScript", "✅" if config.generators.typescript.enabled else "❌")
     table.add_row("Python", "✅" if config.generators.python.enabled else "❌")
@@ -844,74 +800,7 @@ Description: [italic]{__description__}[/italic]
     return 0
 
 
-def handle_list_monorepos(generator):
-    """Handle list-monorepos command."""
-    console.print("\n[bold blue]Monorepo Configurations[/bold blue]")
 
-    status = generator.monorepo_sync.get_status()
-
-    if not status["enabled"]:
-        console.print("[yellow]Multi-monorepo sync is disabled[/yellow]")
-        return
-
-    table = Table(title="Monorepo Configurations")
-    table.add_column("Name", style="cyan")
-    table.add_column("Status", style="green")
-    table.add_column("Path", style="blue")
-    table.add_column("API Package", style="magenta")
-    table.add_column("Exists", style="yellow")
-
-    for config in status["configurations"]:
-        status_icon = "✅" if config["enabled"] else "❌"
-        exists_icon = "✅" if config["exists"] else "❌"
-
-        table.add_row(
-            config["name"],
-            f"{status_icon} {'Enabled' if config['enabled'] else 'Disabled'}",
-            config["path"],
-            config["api_package_path"],
-            f"{exists_icon} {'Yes' if config['exists'] else 'No'}",
-        )
-
-    console.print(table)
-
-    console.print(f"\n[bold]Summary:[/bold]")
-    console.print(f"  Total configurations: {status['total_configurations']}")
-    console.print(f"  Enabled configurations: {status['enabled_configurations']}")
-
-
-def handle_validate_monorepos(generator):
-    """Handle validate-monorepos command."""
-    console.print("\n[bold blue]Validating Monorepo Configurations[/bold blue]")
-
-    status = generator.monorepo_sync.get_status()
-
-    if not status["enabled"]:
-        console.print("[yellow]Multi-monorepo sync is disabled[/yellow]")
-        return
-
-    all_valid = True
-
-    for config in status["configurations"]:
-        if config["enabled"]:
-            if config["exists"]:
-                console.print(f"✅ {config['name']}: Valid")
-            else:
-                console.print(
-                    f"❌ {config['name']}: Path does not exist - {config['path']}"
-                )
-                all_valid = False
-        else:
-            console.print(f"⏸️  {config['name']}: Disabled")
-
-    if all_valid:
-        console.print(
-            "\n[bold green]All enabled monorepo configurations are valid![/bold green]"
-        )
-    else:
-        console.print(
-            "\n[bold red]Some monorepo configurations are invalid![/bold red]"
-        )
 
 
 if __name__ == "__main__":

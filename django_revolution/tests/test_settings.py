@@ -21,7 +21,7 @@ class TestSettingsManagement:
         assert settings.api_prefix == "apix"
         assert settings.debug is False
         assert settings.auto_install_deps is True
-        assert settings.version == "1.0.12"
+        assert settings.version == "1.0.32"
         assert settings.enable_multithreading is False  # Default is False
         assert settings.max_workers == 10  # Default is 10
 
@@ -44,7 +44,6 @@ class TestSettingsManagement:
         assert "max_workers" in config
         assert "output" in config
         assert "generators" in config
-        assert "monorepo" in config
         assert "zones" in config
 
     def test_settings_with_custom_values(self):
@@ -146,19 +145,7 @@ class TestSettingsManagement:
         assert settings.generators.python.enabled is True
         assert settings.generators.python.output_directory == "/custom/py"
 
-    def test_settings_monorepo_configuration(self):
-        """Test monorepo configuration in settings."""
-        settings = DjangoRevolutionSettings(
-            monorepo={
-                "enabled": True,
-                "path": "/custom/monorepo",
-                "api_package_path": "packages/api"
-            }
-        )
-        
-        assert settings.monorepo.enabled is True
-        assert settings.monorepo.path == "/custom/monorepo"
-        assert settings.monorepo.api_package_path == "packages/api"
+
 
     def test_settings_to_dict(self):
         """Test settings to_dict method."""
@@ -179,7 +166,6 @@ class TestSettingsManagement:
         assert config_dict["max_workers"] == 10
         assert "output" in config_dict
         assert "generators" in config_dict
-        assert "monorepo" in config_dict
         assert "zones" in config_dict
 
     def test_settings_get_zones(self):

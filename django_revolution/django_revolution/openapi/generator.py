@@ -7,9 +7,10 @@ Main coordinator for generating OpenAPI schemas and client libraries.
 import time
 import shutil
 import concurrent.futures
-import threading
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+import jinja2
+from datetime import datetime
 
 from ..config import DjangoRevolutionSettings, GenerationResult, GenerationSummary
 from ..zones import ZoneManager, ZoneDetector
@@ -23,7 +24,6 @@ from ..utils import (
 from .heyapi_ts import HeyAPITypeScriptGenerator
 from .python_client import PythonClientGenerator
 from .archive_manager import ArchiveManager
-from .monorepo_sync import MultiMonorepoSync
 
 
 class OpenAPIGenerator:
@@ -56,7 +56,6 @@ class OpenAPIGenerator:
 
         # Initialize additional services
         self.archive_manager = ArchiveManager(self.config, self.logger, self.output_dir)
-        self.monorepo_sync = MultiMonorepoSync(self.config, self.logger)
 
         self.logger.info("OpenAPI Generator initialized")
 
@@ -463,82 +462,9 @@ class OpenAPIGenerator:
             clients_dir, typescript_results, python_results
         )
 
-    def sync_to_monorepo(self) -> Dict[str, bool]:
-        """
-        Sync generated clients to monorepo.
 
-        Returns:
-            Dictionary with sync results
-        """
-        if not self.config.monorepo.enabled:
-            return {}
 
-        return self.monorepo_sync.sync_all()
 
-    def _sync_to_monorepo_multithreaded(
-        self, typescript_results: Dict[str, GenerationResult]
-    ):
-        """
-        Sync generated clients to monorepo using multithreading.
-
-        Args:
-            typescript_results: Dictionary of TypeScript generation results
-        """
-        if not self.config.monorepo.enabled:
-            return
-
-        self.logger.info("Starting multithreaded monorepo sync...")
-
-        # Get successful TypeScript results
-        successful_zones = [
-            zone for zone, result in typescript_results.items() if result.success
-        ]
-
-        if not successful_zones:
-            self.logger.warning("No successful TypeScript clients to sync")
-            return
-
-        # Use ThreadPoolExecutor for concurrent monorepo sync
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=min(self.config.max_workers, len(successful_zones))
-        ) as executor:
-
-            # Submit sync tasks for each zone
-            future_to_zone = {
-                executor.submit(self.monorepo_sync.sync_zone, zone): zone
-                for zone in successful_zones
-            }
-
-            # Collect results
-            sync_results = {}
-            for future in concurrent.futures.as_completed(future_to_zone):
-                zone = future_to_zone[future]
-                try:
-                    result = future.result()
-                    sync_results[zone] = result
-                    if result:
-                        self.logger.info(f"✅ Synced {zone} to monorepo")
-                    else:
-                        self.logger.warning(f"⚠️ Failed to sync {zone} to monorepo")
-                except Exception as e:
-                    self.logger.error(f"Exception syncing {zone} to monorepo: {e}")
-                    sync_results[zone] = False
-
-            # Generate consolidated index.ts in monorepo after all zones are synced
-            successful_syncs = [zone for zone, result in sync_results.items() if result]
-            if successful_syncs:
-                self.logger.info(
-                    f"Generating monorepo index.ts for {len(successful_syncs)} zones..."
-                )
-                try:
-                    self.monorepo_sync.generate_consolidated_index(successful_syncs)
-                    self.logger.success("✅ Monorepo index.ts generated successfully")
-                except Exception as e:
-                    self.logger.error(f"Failed to generate monorepo index.ts: {e}")
-
-            self.logger.success(
-                f"Multithreaded monorepo sync completed: {len(successful_syncs)}/{len(successful_zones)} zones synced"
-            )
 
     def generate_all(
         self, zones: Optional[List[str]] = None, archive: bool = True
@@ -706,21 +632,6 @@ class OpenAPIGenerator:
         if archive:
             self.archive_clients(typescript_results, python_results)
 
-        # Sync to monorepo with multithreading if enabled
-        if self.config.monorepo.enabled:
-            if (
-                self.config.enable_multithreading
-                and len(typescript_results) > 1
-                and self.config.max_workers > 1
-            ):
-
-                self.logger.info(
-                    f"Using multithreaded monorepo sync with {self.config.max_workers} workers"
-                )
-                self._sync_to_monorepo_multithreaded(typescript_results)
-            else:
-                self.sync_to_monorepo()
-
         # Calculate summary
         successful_typescript = sum(1 for r in typescript_results.values() if r.success)
         failed_typescript = len(typescript_results) - successful_typescript
@@ -795,8 +706,7 @@ class OpenAPIGenerator:
             zones: List of zone names
         """
         try:
-            import jinja2
-            from datetime import datetime
+            
 
             def camelcase(name: str) -> str:
                 """Convert snake_case to camelCase."""
@@ -864,10 +774,6 @@ class OpenAPIGenerator:
             ),
             "output_dir": str(self.output_dir),
             "config": self.config.to_dict(),
-            "monorepo_enabled": self.config.monorepo.enabled,
-            "monorepo_status": (
-                self.monorepo_sync.get_status() if self.config.monorepo.enabled else {}
-            ),
             "multithreading": {
                 "enabled": self.config.enable_multithreading,
                 "max_workers": self.config.max_workers,

@@ -13,8 +13,7 @@ from django_revolution.config import (
     OutputSettings,
     TypeScriptGeneratorSettings,
     PythonGeneratorSettings,
-    GeneratorsSettings,
-    MonorepoSettings
+    GeneratorsSettings
 )
 from django_revolution.openapi.generator import OpenAPIGenerator
 
@@ -25,7 +24,7 @@ class TestBasicFunctionality:
     def test_import_django_revolution(self):
         """Test that django_revolution can be imported."""
         import django_revolution
-        assert django_revolution.__version__ == "1.0.12"
+        assert django_revolution.__version__ == "1.0.32"
 
     def test_create_basic_config(self):
         """Test creating a basic configuration."""
@@ -34,7 +33,7 @@ class TestBasicFunctionality:
         assert config.api_prefix == "apix"
         assert config.debug is False
         assert config.auto_install_deps is True
-        assert config.version == "1.0.12"
+        assert config.version == "1.0.32"
         assert config.enable_multithreading is True
         assert config.max_workers == 20
 
@@ -56,7 +55,7 @@ class TestBasicFunctionality:
         assert zone.description == "Test zone description"
         assert zone.public is True
         assert zone.auth_required is False
-        assert zone.version == "v1"
+        assert zone.version == "1.0.32"
 
     def test_zone_model_defaults(self):
         """Test zone model default values."""
@@ -70,7 +69,7 @@ class TestBasicFunctionality:
         assert zone.title is None  # Title is not auto-generated anymore
         assert zone.public is True
         assert zone.auth_required is False
-        assert zone.version == "v1"
+        assert zone.version == "1.0.32"
         assert zone.path_prefix == "test"  # Auto-generated from name
 
     def test_config_with_zones(self):
@@ -147,7 +146,6 @@ class TestBasicFunctionality:
         assert config_dict["max_workers"] == 5
         assert "output" in config_dict
         assert "generators" in config_dict
-        assert "monorepo" in config_dict
         assert "zones" in config_dict
 
 

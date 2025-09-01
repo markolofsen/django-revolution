@@ -55,7 +55,7 @@ class TestRevolutionCommand:
         # Check that all expected arguments are present
         expected_args = [
             '--generate', '--zones', '--typescript', '--python',
-            '--no-typescript', '--no-python', '--no-archive', '--no-monorepo',
+            '--no-typescript', '--no-python', '--no-archive',
             '--clean', '--no-multithreading', '--max-workers', '--status',
             '--list-zones', '--validate-zones', '--show-urls', '--test-schemas',
             '--interactive', '--verbose', '--output-dir'
@@ -80,7 +80,6 @@ class TestRevolutionCommand:
                 'python': False,
                 'clean': False,
                 'no_archive': False,
-                'no_monorepo': False,
                 'no_multithreading': False,
                 'max_workers': None,
                 'status': False,
@@ -114,7 +113,6 @@ class TestRevolutionCommand:
                 'python': False,
                 'clean': False,
                 'no_archive': False,
-                'no_monorepo': False,
                 'no_multithreading': False,
                 'max_workers': None,
                 'status': True,
@@ -174,7 +172,6 @@ class TestRevolutionCommand:
                 'python': False,
                 'clean': True,
                 'no_archive': False,
-                'no_monorepo': False,
                 'no_multithreading': False,
                 'max_workers': None,
                 'status': False,
@@ -203,7 +200,6 @@ class TestRevolutionCommand:
                 'python': False,
                 'clean': False,
                 'no_archive': False,
-                'no_monorepo': False,
                 'no_multithreading': False,
                 'max_workers': None,
                 'status': False,
@@ -233,7 +229,6 @@ class TestRevolutionCommand:
                 'python': False,
                 'clean': False,
                 'no_archive': False,
-                'no_monorepo': False,
                 'no_multithreading': False,
                 'max_workers': None,
                 'status': False,

@@ -8,7 +8,7 @@ Key Features:
 - Zone-based API architecture
 - Automatic OpenAPI schema generation with multithreading support
 - TypeScript and Python client generation  
-- Archive management and monorepo integration
+- Archive management
 - Django management commands
 - Comprehensive validation and error handling
 
@@ -27,13 +27,13 @@ Usage:
     summary = generator.generate_all(zones=['public', 'admin'])
 """
 
-from .config import DjangoRevolutionSettings, ZoneModel, get_settings, MonorepoConfig
+from .config import DjangoRevolutionSettings, ZoneModel, get_settings
 from .zones import ZoneManager, ZoneDetector
-from .openapi import OpenAPIGenerator, MultiMonorepoSync
+from .openapi import OpenAPIGenerator
 from .utils import Logger, ErrorHandler
 from .urls_integration import add_revolution_urls, get_revolution_urlpatterns, get_revolution_urls_info
 
-__version__ = "1.0.32"
+__version__ = "1.0.34"
 __author__ = "Unrealos Team"
 __description__ = "Universal Zone-Based API Client Generator for Django"
 
@@ -42,8 +42,6 @@ __all__ = [
     'OpenAPIGenerator',
     'ZoneManager', 
     'ZoneDetector',
-    'MultiMonorepoSync',
-    'MonorepoConfig',
 
     # URL Integration
     'add_revolution_urls',

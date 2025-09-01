@@ -204,7 +204,6 @@ UNFOLD = {
 
 # 1. DRF + Spectacular Configuration (like in services.py)
 from django_revolution.drf_config import create_drf_config
-from django_revolution.config import MonorepoConfig, MonorepoSettings
 
 drf_config = create_drf_config(
     title="Django Revolution Test API",
@@ -255,21 +254,7 @@ def create_revolution_config() -> dict:
         ),
     }
 
-    # Multi-monorepo configuration
-    monorepo_settings = MonorepoSettings(
-        enabled=True,
-        configurations=[
-            # Main frontend monorepo (only this one enabled)
-            MonorepoConfig(
-                name="frontend",
-                enabled=True,
-                path=str(BASE_DIR.parent / 'monorepo'),
-                api_package_path='packages/api/src'
-            ),
-        ]
-    )
-    
-    return get_revolution_config(project_root=BASE_DIR, zones=zones, debug=DEBUG, monorepo=monorepo_settings, api_prefix="api")
+    return get_revolution_config(project_root=BASE_DIR, zones=zones, debug=DEBUG, api_prefix="api")
 
 
 # Apply Django Revolution settings
