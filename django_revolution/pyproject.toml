@@ -4,16 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django-revolution"
-version = "1.0.34"
+version = "1.0.35"
 description = "Zone-based API architecture for Django. Install and go."
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
 license = "MIT"
 authors = [
-    {name = "Unrealos", email = "developers@unrealos.com"},
+    {name = "ReformsAI", email = "developers@reforms.ai"},
 ]
 maintainers = [
-    {name = "Unrealos", email = "developers@unrealos.com"},
+    {name = "ReformsAI", email = "developers@reforms.ai"},
 ]
 keywords = ["django", "api", "openapi", "rest", "zones", "typescript", "python", "client", "generation"]
 classifiers = [
@@ -73,9 +73,9 @@ formatting = [
 ]
 
 [project.urls]
-"Homepage" = "https://unrealos.com"
+"Homepage" = "https://reforms.ai"
 "Repository" = "https://github.com/markolofsen/django-revolution"
-"Documentation" = "https://revolution.unrealos.com/"
+"Documentation" = "https://revolution.reforms.ai/"
 
 [project.scripts]
 django-revolution = "django_revolution.cli:main"
@@ -121,7 +121,7 @@ extend-exclude = '''
 '''
 
 [tool.mypy]
-python_version = "1.0.33"
+python_version = "1.0.35"
 check_untyped_defs = true
 ignore_missing_imports = true
 warn_unused_ignores = true

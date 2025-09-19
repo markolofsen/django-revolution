@@ -1,4 +1,4 @@
-# Minimal dependencies for UnrealOn SDK (core only)
+# Minimal dependencies for ReformsAI SDK (core only)
 # Generated automatically from pyproject.toml
 # Do not edit manually!
 

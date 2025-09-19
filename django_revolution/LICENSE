@@ -1,6 +1,6 @@
-Unrealos Django Revolution - Non-Commercial License
+ReformsAI Django Revolution - Non-Commercial License
 
-Copyright (c) 2025 Unrealos (https://unrealos.com)
+Copyright (c) 2025 ReformsAI (https://reforms.ai)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -14,7 +14,7 @@ in the Software for NON-COMMERCIAL purposes only, subject to the following condi
    - Using in for-profit organizations
    - Using in commercial SaaS applications
    - Using in commercial consulting or development services
-     IS STRICTLY PROHIBITED without explicit written permission from Unrealos.
+     IS STRICTLY PROHIBITED without explicit written permission from ReformsAI.
 
 2. The above copyright notice and this permission notice shall be included in all
    copies or substantial portions of the Software.
@@ -29,8 +29,8 @@ in the Software for NON-COMMERCIAL purposes only, subject to the following condi
 
 4. COMMERCIAL LICENSING: For commercial use, please contact:
 
-   - Email: developers@unrealos.com
-   - Website: https://unrealos.com
+   - Email: developers@reforms.ai
+   - Website: https://reforms.ai
    - GitHub: https://github.com/markolofsen/django-revolution
 
 5. DEFINITIONS:
@@ -43,4 +43,4 @@ in the Software for NON-COMMERCIAL purposes only, subject to the following condi
 6. VIOLATION: Any violation of this license, particularly commercial use without
    proper licensing, may result in legal action.
 
-For questions about licensing or commercial use, please contact Unrealos at developers@unrealos.com.
+For questions about licensing or commercial use, please contact ReformsAI at developers@reforms.ai.

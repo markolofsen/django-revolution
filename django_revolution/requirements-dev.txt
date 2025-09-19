@@ -1,4 +1,4 @@
-# Development dependencies for UnrealOn SDK (includes main deps)
+# Development dependencies for ReformsAI SDK (includes main deps)
 # Generated automatically from pyproject.toml
 # Do not edit manually!
 

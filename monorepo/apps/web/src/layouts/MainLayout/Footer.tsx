@@ -74,7 +74,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="text-gray-600 hover:text-gray-900 text-sm transition-colors"
                 >
-                  Developed by Unrealos Inc.
+                  Developed by ReformsAI Inc.
                 </a>
               </li>
             </ul>

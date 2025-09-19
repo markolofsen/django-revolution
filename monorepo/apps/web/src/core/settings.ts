@@ -9,7 +9,7 @@ export const config = {
   // External links
   links: {
     github: 'https://github.com/markolofsen/django-revolution',
-    developer: 'https://unrealos.com/',
+    developer: 'https://reforms.ai/',
   },
   
   // API configuration

@@ -33,8 +33,8 @@ from .openapi import OpenAPIGenerator
 from .utils import Logger, ErrorHandler
 from .urls_integration import add_revolution_urls, get_revolution_urlpatterns, get_revolution_urls_info
 
-__version__ = "1.0.34"
-__author__ = "Unrealos Team"
+__version__ = "1.0.35"
+__author__ = "ReformsAI Team"
 __description__ = "Universal Zone-Based API Client Generator for Django"
 
 __all__ = [

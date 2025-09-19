@@ -80,6 +80,15 @@ class SpectacularSettings(BaseModel):
     schema_coerce_path_pk_suffix: bool = Field(
         default=True, description="Coerce path PK suffix"
     )
+    schema_coerce_method_names: Dict[str, str] = Field(
+        default_factory=lambda: {
+            "retrieve": "get",
+            "destroy": "delete",
+            "partial_update": "patch",
+            "update": "put",
+        },
+        description="Coerce method names for stable operation IDs"
+    )
     schema_path_prefix_trim: bool = Field(
         default=False, description="Trim schema path prefix"
     )
@@ -103,6 +112,23 @@ class SpectacularSettings(BaseModel):
         default="SIDECAR", description="Swagger UI favicon"
     )
     redoc_dist: str = Field(default="SIDECAR", description="ReDoc distribution")
+
+    # Processing hooks
+    postprocessing_hooks: List[str] = Field(
+        default_factory=list,
+        description="Post-processing hooks"
+    )
+    preprocessing_hooks: List[str] = Field(
+        default_factory=list,
+        description="Pre-processing hooks"
+    )
+    
+    # Additional stability settings
+    disable_errors_and_warnings: bool = Field(default=False, description="Disable errors and warnings")
+    operation_id_generator_class: Optional[str] = Field(
+        default=None, 
+        description="Custom operation ID generator class"
+    )
 
     # Custom settings
     custom_settings: Dict[str, Any] = Field(
@@ -129,6 +155,7 @@ class SpectacularSettings(BaseModel):
             "ENUM_ADD_EXPLICIT_BLANK_NULL_CHOICE": self.enum_add_explicit_blank_null_choice,
             "ENUM_NAME_OVERRIDES": self.enum_name_overrides,
             "SCHEMA_COERCE_PATH_PK_SUFFIX": self.schema_coerce_path_pk_suffix,
+            "SCHEMA_COERCE_METHOD_NAMES": self.schema_coerce_method_names,
             "SCHEMA_PATH_PREFIX_TRIM": self.schema_path_prefix_trim,
             "GENERATOR_CLASS": self.generator_class,
             "SCHEMA_GENERATOR_CLASS": self.schema_generator_class,
@@ -136,6 +163,11 @@ class SpectacularSettings(BaseModel):
             "SWAGGER_UI_DIST": self.swagger_ui_dist,
             "SWAGGER_UI_FAVICON_HREF": self.swagger_ui_favicon_href,
             "REDOC_DIST": self.redoc_dist,
+            # Processing hooks
+            "POSTPROCESSING_HOOKS": self.postprocessing_hooks,
+            "PREPROCESSING_HOOKS": self.preprocessing_hooks,
+            # Stability settings
+            "DISABLE_ERRORS_AND_WARNINGS": self.disable_errors_and_warnings,
         }
 
         # Add optional fields if provided
@@ -145,6 +177,10 @@ class SpectacularSettings(BaseModel):
             settings["CONTACT"] = self.contact
         if self.license_info:
             settings["LICENSE_INFO"] = self.license_info
+        
+        # Add optional operation ID generator
+        if self.operation_id_generator_class:
+            settings["OPERATION_ID_GENERATOR_CLASS"] = self.operation_id_generator_class
 
         # Add custom settings
         settings.update(self.custom_settings)
@@ -343,6 +379,13 @@ def get_default_spectacular_config() -> SpectacularSettings:
         component_split_response=True,
         enum_add_explicit_blank_null_choice=False,
         schema_coerce_path_pk_suffix=True,
+        schema_coerce_method_names={
+            "retrieve": "get",
+            "destroy": "delete",
+            "partial_update": "patch",
+            "update": "put",
+        },
+        disable_errors_and_warnings=False,
     )
 
 

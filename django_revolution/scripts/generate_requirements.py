@@ -101,7 +101,7 @@ def generate_requirements_files() -> bool:
     # Generate requirements.txt (main dependencies only)
     requirements_path = base_path / "requirements.txt"
     write_requirements_file(
-        main_deps, requirements_path, "Main dependencies for UnrealOn SDK"
+        main_deps, requirements_path, "Main dependencies for ReformsAI SDK"
     )
     print(f"✅ Generated {requirements_path}")
 
@@ -111,7 +111,7 @@ def generate_requirements_files() -> bool:
     write_requirements_file(
         all_deps,
         requirements_dev_path,
-        "Development dependencies for UnrealOn SDK (includes main deps)",
+        "Development dependencies for ReformsAI SDK (includes main deps)",
     )
     print(f"✅ Generated {requirements_dev_path}")
 
@@ -125,7 +125,7 @@ def generate_requirements_files() -> bool:
     write_requirements_file(
         core_deps,
         requirements_minimal_path,
-        "Minimal dependencies for UnrealOn SDK (core only)",
+        "Minimal dependencies for ReformsAI SDK (core only)",
     )
     print(f"✅ Generated {requirements_minimal_path}")
 

@@ -393,8 +393,8 @@ When reporting bugs, please include:
 
 ### Resources
 
-- [Documentation](https://revolution.unrealos.com/)
-- [API Reference](https://revolution.unrealos.com/api-reference/)
+- [Documentation](https://revolution.reforms.ai/)
+- [API Reference](https://revolution.reforms.ai/api-reference/)
 - [Examples](https://github.com/markolofsen/django-revolution/tree/main/django_sample)
 
 ## Recognition
