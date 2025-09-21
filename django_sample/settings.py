@@ -202,22 +202,27 @@ UNFOLD = {
 # Django Revolution Configuration
 # ======================================
 
-# 1. DRF + Spectacular Configuration (like in services.py)
-from django_revolution.drf_config import create_drf_config
+# 1. Modern DRF + Spectacular Configuration with comprehensive settings
+import sys
+sys.path.insert(0, str(BASE_DIR.parent / "django_revolution"))
+from django_revolution.core_config import create_drf_spectacular_config
 
-drf_config = create_drf_config(
+# Create comprehensive configuration with all stability settings
+settings_dict = create_drf_spectacular_config(
     title="Django Revolution Test API",
     description="Test API for Django Revolution with zone-based architecture",
     version="1.0.0",
     schema_path_prefix="/api/",
     enable_browsable_api=True,
     enable_throttling=True,
+    # Contact info for better API documentation
+    contact={"name": "Django Revolution Team", "email": "support@revolution.ai"},
+    license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
 )
 
-# Apply DRF and Spectacular settings
-settings_dict = drf_config.get_django_settings()
+# Apply modern DRF and Spectacular settings with comprehensive enum support
 REST_FRAMEWORK = settings_dict["REST_FRAMEWORK"]
-# SPECTACULAR_SETTINGS = settings_dict['SPECTACULAR_SETTINGS']
+SPECTACULAR_SETTINGS = settings_dict["SPECTACULAR_SETTINGS"]
 
 # 2. Zone Configuration (like in revolution.py)
 from django_revolution.app_config import ZoneConfig, get_revolution_config

@@ -1,0 +1,11 @@
+client_class_name: PrivateClient
+follow_redirects: true
+generate_aliases: true
+http_timeout: 30
+package_name_override: django_revolution_private
+post_hooks:
+- ruff format .
+- ruff check . --fix
+project_name_override: django_revolution_private
+use_pydantic_v2: true
+use_string_enums: false

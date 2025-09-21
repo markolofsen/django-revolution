@@ -27,6 +27,7 @@ yarn.lock
 package-lock.json
 
 .pytest_cache
+.benchmarks
 
 # For pypi package
 __pycache__/

@@ -325,7 +325,7 @@ class DRFConfig(BaseCfgAutoModule):
             "VERSION_PARAM": "version",
             
             # Content negotiation
-            "DEFAULT_CONTENT_NEGOTIATION_CLASS": "rest_framework.content_negotiation.DefaultContentNegotiation",
+            "DEFAULT_CONTENT_NEGOTIATION_CLASS": "rest_framework.negotiation.DefaultContentNegotiation",
             
             # Metadata
             "DEFAULT_METADATA_CLASS": "rest_framework.metadata.SimpleMetadata",

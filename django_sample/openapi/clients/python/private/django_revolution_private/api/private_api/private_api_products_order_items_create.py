@@ -1,0 +1,205 @@
+from http import HTTPStatus
+from typing import Any, Optional, Union
+
+import httpx
+
+from ... import errors
+from ...client import AuthenticatedClient, Client
+from ...models.order_item import OrderItem
+from ...models.order_item_request import OrderItemRequest
+from ...types import Response
+
+
+def _get_kwargs(
+    product_id: int,
+    *,
+    body: Union[
+        OrderItemRequest,
+        OrderItemRequest,
+        OrderItemRequest,
+    ],
+) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": f"/api/private_api/products/{product_id}/order-items/",
+    }
+
+    if isinstance(body, OrderItemRequest):
+        _kwargs["json"] = body.to_dict()
+
+        headers["Content-Type"] = "application/json"
+    if isinstance(body, OrderItemRequest):
+        _kwargs["data"] = body.to_dict()
+
+        headers["Content-Type"] = "application/x-www-form-urlencoded"
+    if isinstance(body, OrderItemRequest):
+        _kwargs["files"] = body.to_multipart()
+
+        headers["Content-Type"] = "multipart/form-data"
+
+    _kwargs["headers"] = headers
+    return _kwargs
+
+
+def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[OrderItem]:
+    if response.status_code == 201:
+        response_201 = OrderItem.from_dict(response.json())
+
+        return response_201
+    if client.raise_on_unexpected_status:
+        raise errors.UnexpectedStatus(response.status_code, response.content)
+    else:
+        return None
+
+
+def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[OrderItem]:
+    return Response(
+        status_code=HTTPStatus(response.status_code),
+        content=response.content,
+        headers=response.headers,
+        parsed=_parse_response(client=client, response=response),
+    )
+
+
+def sync_detailed(
+    product_id: int,
+    *,
+    client: AuthenticatedClient,
+    body: Union[
+        OrderItemRequest,
+        OrderItemRequest,
+        OrderItemRequest,
+    ],
+) -> Response[OrderItem]:
+    """ViewSet for OrderItem model with nested routing.
+
+    Args:
+        product_id (int):
+        body (OrderItemRequest): Serializer for OrderItem model.
+        body (OrderItemRequest): Serializer for OrderItem model.
+        body (OrderItemRequest): Serializer for OrderItem model.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[OrderItem]
+    """
+
+    kwargs = _get_kwargs(
+        product_id=product_id,
+        body=body,
+    )
+
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
+
+    return _build_response(client=client, response=response)
+
+
+def sync(
+    product_id: int,
+    *,
+    client: AuthenticatedClient,
+    body: Union[
+        OrderItemRequest,
+        OrderItemRequest,
+        OrderItemRequest,
+    ],
+) -> Optional[OrderItem]:
+    """ViewSet for OrderItem model with nested routing.
+
+    Args:
+        product_id (int):
+        body (OrderItemRequest): Serializer for OrderItem model.
+        body (OrderItemRequest): Serializer for OrderItem model.
+        body (OrderItemRequest): Serializer for OrderItem model.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        OrderItem
+    """
+
+    return sync_detailed(
+        product_id=product_id,
+        client=client,
+        body=body,
+    ).parsed
+
+
+async def asyncio_detailed(
+    product_id: int,
+    *,
+    client: AuthenticatedClient,
+    body: Union[
+        OrderItemRequest,
+        OrderItemRequest,
+        OrderItemRequest,
+    ],
+) -> Response[OrderItem]:
+    """ViewSet for OrderItem model with nested routing.
+
+    Args:
+        product_id (int):
+        body (OrderItemRequest): Serializer for OrderItem model.
+        body (OrderItemRequest): Serializer for OrderItem model.
+        body (OrderItemRequest): Serializer for OrderItem model.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[OrderItem]
+    """
+
+    kwargs = _get_kwargs(
+        product_id=product_id,
+        body=body,
+    )
+
+    response = await client.get_async_httpx_client().request(**kwargs)
+
+    return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    product_id: int,
+    *,
+    client: AuthenticatedClient,
+    body: Union[
+        OrderItemRequest,
+        OrderItemRequest,
+        OrderItemRequest,
+    ],
+) -> Optional[OrderItem]:
+    """ViewSet for OrderItem model with nested routing.
+
+    Args:
+        product_id (int):
+        body (OrderItemRequest): Serializer for OrderItem model.
+        body (OrderItemRequest): Serializer for OrderItem model.
+        body (OrderItemRequest): Serializer for OrderItem model.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        OrderItem
+    """
+
+    return (
+        await asyncio_detailed(
+            product_id=product_id,
+            client=client,
+            body=body,
+        )
+    ).parsed
