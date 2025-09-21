@@ -34,7 +34,7 @@ from .utils import Logger, ErrorHandler
 from .urls_integration import add_revolution_urls, get_revolution_urlpatterns, get_revolution_urls_info
 from .core_config import create_drf_spectacular_config, create_revolution_zones
 
-__version__ = "1.0.36"
+__version__ = "1.0.37"
 __author__ = "ReformsAI Team"
 __description__ = "Universal Zone-Based API Client Generator for Django"
 

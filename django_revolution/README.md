@@ -7,6 +7,24 @@
 [![Django Support](https://img.shields.io/pypi/djversions/django-revolution.svg)](https://pypi.org/project/django-revolution/)
 [![License](https://img.shields.io/badge/license-Non--Commercial-red.svg)](LICENSE)
 
+---
+
+## 🏢 **Developed by ReformsAI - Epic Games Partner**
+
+**AI-Powered Solutions for the Future** 🚀
+
+We specialize in cutting-edge AI solutions, SaaS/PaaS development, and custom software that transforms businesses and drives innovation.
+
+🌐 **Learn more:** [https://reforms.ai/](https://reforms.ai/)
+
+### 📦 **Ready-to-Use Integration**
+
+Django Revolution is **built-in** to [**django-cfg**](https://djangocfg.com/) - the ultimate Django configuration framework. Get both powerful configuration management AND automatic API client generation out of the box!
+
+🔗 **Get started with django-cfg:** [https://djangocfg.com/](https://djangocfg.com/)
+
+---
+
 ## ✨ What is Django Revolution?
 
 **The fastest way to generate fully-authenticated TypeScript + Python clients from Django REST Framework.**
@@ -40,16 +58,19 @@ const items = await api.public.listItems();
 ### Python Client
 
 ```python
-from public.services.api_service import api_public_api_posts_list
-from public.api_config import APIConfig
+from django_revolution_public import Client
+from django_revolution_public.api.default import get_posts_list
 
-# Configure API
-config = APIConfig(base_path="https://api.example.com")
-config.set_access_token("your-access-token")
+# Configure API client
+client = Client(base_url="https://api.example.com")
+client = client.with_headers({"Authorization": "Bearer your-access-token"})
 
-# Use generated functions
-posts = api_public_api_posts_list(api_config_override=config)
+# Use generated functions with proper types
+posts = get_posts_list.sync(client=client)
 print(f"Found {len(posts.results)} posts")
+
+# Async support
+posts = await get_posts_list.asyncio(client=client)
 ```
 
 > 🔐 Auth, ⚙️ Headers, 🔄 Refresh – handled automatically.
@@ -64,13 +85,14 @@ One command. Done.
 
 ### 🐍 Modern Python Generation
 
-Django Revolution now uses `openapi-python-generator` for:
+Django Revolution now uses `openapi-python-client` for:
 
+- ✅ **Proper Enum generation** - Real `Enum` classes instead of `Optional[str]`
 - ✅ **Pydantic v2 compatibility** - No more validation errors
 - ✅ **Modern HTTP clients** - Using `httpx` for better performance  
-- ✅ **Async & sync support** - Both `api_service.py` and `async_api_service.py`
+- ✅ **attrs-based models** - Clean, efficient data classes
 - ✅ **Type-safe configuration** - Full IDE autocomplete and validation
-- ✅ **Enhanced templates** - Custom HTTP client with auth, retries, and error handling
+- ✅ **Automatic code formatting** - Built-in `ruff` formatting
 
 ## 🚀 5-Minute Setup
 
@@ -80,7 +102,7 @@ Django Revolution now uses `openapi-python-generator` for:
 pip install django-revolution
 ```
 
-> **Note:** Django Revolution now uses `openapi-python-generator` for modern Python client generation with Pydantic v2 compatibility. The system automatically detects the environment and works with Poetry, pip, or direct installation.
+> **Note:** Django Revolution now uses `openapi-python-client` for modern Python client generation with proper enum support and attrs-based models. The system automatically detects the environment and works with Poetry, pip, or direct installation.
 
 ### 2. Add to Django Settings
 
@@ -100,7 +122,7 @@ Django Revolution provides **pre-built Pydantic configurations** that you can im
 
 ```python
 # api/settings/config/services.py
-from django_revolution.drf_config import create_drf_config
+from django_revolution import create_drf_spectacular_config
 
 class SpectacularConfig(BaseModel):
     """API documentation configuration using django_revolution DRF config."""
@@ -115,7 +137,7 @@ class SpectacularConfig(BaseModel):
     def get_django_settings(self) -> Dict[str, Any]:
         """Get drf-spectacular settings using django_revolution config."""
         # Use django_revolution DRF config - zero boilerplate!
-        drf_config = create_drf_config(
+        return create_drf_spectacular_config(
             title=self.title,
             description=self.description,
             version=self.version,
@@ -123,8 +145,6 @@ class SpectacularConfig(BaseModel):
             enable_browsable_api=self.enable_browsable_api,
             enable_throttling=self.enable_throttling,
         )
-
-        return drf_config.get_django_settings()
 ```
 
 #### **Zone Configuration** (revolution.py)
@@ -221,28 +241,30 @@ python manage.py revolution --typescript
 
 ### 🐍 Modern Python Client Structure
 
-The new Python client generation using `openapi-python-generator` creates:
+The new Python client generation using `openapi-python-client` creates:
 
 ```
 python/
 ├── models/
 │   ├── __init__.py
-│   ├── User.py          # Pydantic v2 models
-│   ├── Post.py
+│   ├── user.py          # attrs-based models
+│   ├── post.py
+│   ├── status_enum.py   # Real Enum classes!
 │   └── ...
-├── services/
+├── api/
 │   ├── __init__.py
-│   ├── api_service.py   # Sync HTTP client
-│   └── async_api_service.py  # Async HTTP client
-├── api_config.py        # Configuration & auth
+│   └── default/         # API endpoints
+├── client.py            # Main HTTP client
+├── types.py             # Type definitions
 └── __init__.py
 ```
 
 **Features:**
-- ✅ **Pydantic v2 compatibility** - Modern type validation
-- ✅ **Async & sync clients** - Both `httpx` and `aiohttp` support
-- ✅ **Type-safe configuration** - Full IDE autocomplete
+- ✅ **Real Enum classes** - Proper `Enum` types instead of `Optional[str]`
+- ✅ **attrs-based models** - Clean, efficient data classes
 - ✅ **Modern HTTP client** - Using `httpx` for better performance
+- ✅ **Type-safe configuration** - Full IDE autocomplete
+- ✅ **Automatic formatting** - Built-in `ruff` code formatting
 - ✅ **Clean structure** - No duplicate files, only essential components
 
 ## ⚡️ TypeScript Client Auth & Usage
@@ -360,10 +382,10 @@ Django Revolution provides **pre-built Pydantic configurations** that eliminate 
 
 ```python
 # api/settings/config/services.py
-from django_revolution.drf_config import create_drf_config
+from django_revolution import create_drf_spectacular_config
 
-# One function call - everything configured!
-drf_config = create_drf_config(
+# One function call - everything configured with proper enum support!
+settings_dict = create_drf_spectacular_config(
     title="My API",
     description="My awesome API",
     version="1.0.0",
@@ -372,10 +394,9 @@ drf_config = create_drf_config(
     enable_throttling=True,
 )
 
-# Get Django settings
-settings = drf_config.get_django_settings()
-REST_FRAMEWORK = settings['REST_FRAMEWORK']
-SPECTACULAR_SETTINGS = settings['SPECTACULAR_SETTINGS']
+# Get Django settings with comprehensive enum generation
+REST_FRAMEWORK = settings_dict['REST_FRAMEWORK']
+SPECTACULAR_SETTINGS = settings_dict['SPECTACULAR_SETTINGS']
 ```
 
 #### **2. Zone Configuration**
@@ -501,7 +522,8 @@ summary = generator.generate_all(zones=['public', 'admin'])
 | **CLI interface**                 | ✅ **Rich output** | ❌                           | ✅                    | ✅       | ❌           |
 | **Multithreaded generation**      | ✅ **UNIQUE**      | ❌                           | ❌                    | ❌       | ❌           |
 | **Comprehensive testing**         | ✅ **UNIQUE**      | ❌                           | ❌                    | ❌       | ❌           |
-| **Modern Python client generation** | ✅ **openapi-python-generator** | ❌ | ✅ | ❌ | ❌ |
+| **Modern Python client generation** | ✅ **openapi-python-client** | ❌ | ✅ | ❌ | ❌ |
+| **Proper Enum generation** | ✅ **UNIQUE** | ❌ | ⚠️ | ✅ | ❌ |
 
 ## 🙋 FAQ
 
@@ -535,7 +557,8 @@ Yes! Full Pydantic v2 validation with IDE autocomplete and error checking.
 - ⚡ **Multithreaded generation** - Parallel processing for faster client generation
 - 🧪 **Comprehensive testing** - Full test suite with pytest and proper mocking
 
-- 🐍 **Modern Python client generation** - Switched to `openapi-python-generator` for better Pydantic v2 compatibility
+- 🐍 **Modern Python client generation** - Switched to `openapi-python-client` for proper enum generation and attrs-based models
+- 🎯 **Fixed enum generation** - Real `Enum` classes instead of `Optional[str]`
 
 **Q: How does the dynamic zone system work?**  
 Django Revolution creates URL configuration modules in-memory using Python's `importlib` and `exec`. This eliminates the need for static `.py` files and provides better performance and flexibility.
@@ -544,13 +567,13 @@ Django Revolution creates URL configuration modules in-memory using Python's `im
 Multithreading allows parallel processing of multiple zones, schema generation, and client generation. For 3 zones, you can see 2-3x speedup compared to sequential processing.
 
 **Q: What's the difference between the old and new Python client generation?**  
-We switched from `datamodel-code-generator` to `openapi-python-generator` for better Pydantic v2 compatibility, improved type safety, and more modern HTTP client generation with proper async support and better error handling.
+We switched from multiple generators to `openapi-python-client` for proper enum generation (real `Enum` classes instead of `Optional[str]`), attrs-based models, better type safety, and automatic code formatting with `ruff`.
 
 **Q: Does it work without Poetry?**  
-Yes! Django Revolution automatically detects your environment and tries multiple ways to run `openapi-python-generator`:
-1. Direct command: `openapi-python-generator`
-2. Poetry: `poetry run openapi-python-generator`  
-3. Python module: `python -m openapi_python_generator`
+Yes! Django Revolution automatically detects your environment and tries multiple ways to run `openapi-python-client`:
+1. Direct command: `openapi-python-client`
+2. Poetry: `poetry run openapi-python-client`  
+3. Python module: `python -m openapi_python_client`
 4. Fallback to Poetry (most common)
 
 This ensures it works in any environment - development, production, CI/CD, or Docker containers.
