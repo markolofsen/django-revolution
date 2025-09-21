@@ -316,6 +316,7 @@ __generator__ = "openapi-python-client"
             config_content = {
                 # Critical settings for proper enum generation
                 "use_string_enums": False,  # Generate proper Enum classes, not strings
+                "literal_enums": True,      # Use literal values for enum keys (fixes duplicate key issues)
                 "generate_aliases": True,   # Better field names
                 "use_pydantic_v2": True,    # Modern Pydantic
                 
