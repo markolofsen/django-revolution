@@ -100,7 +100,7 @@ class OpenAPIGenerator:
         # Check Python generator if enabled
         if self.config.generators.python.enabled:
             if not self.python_generator.is_openapi_generator_available():
-                self.logger.warning("Python generator not available")
+                self.logger.warning("Modern Python generator not available")
                 if self.config.auto_install_deps:
                     from ..utils import auto_install_dependencies
 

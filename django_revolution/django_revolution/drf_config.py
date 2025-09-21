@@ -72,6 +72,20 @@ class SpectacularSettings(BaseModel):
     enum_add_explicit_blank_null_choice: bool = Field(
         default=False, description="Add explicit blank/null choice"
     )
+    
+    # Enum generation settings - CRITICAL for proper client generation
+    generate_enum_from_choices: bool = Field(
+        default=True, description="Generate enum components from Django choices"
+    )
+    enum_generate_choice_from_path: bool = Field(
+        default=True, description="Generate enum components from path parameters"
+    )
+    enum_name_suffix: str = Field(
+        default="Enum", description="Suffix for generated enum names"
+    )
+    camelize_names: bool = Field(
+        default=False, description="Camelize enum and field names"
+    )
 
     # Advanced settings
     enum_name_overrides: Dict[str, str] = Field(
@@ -153,6 +167,13 @@ class SpectacularSettings(BaseModel):
             "COMPONENT_SPLIT_RESPONSE": self.component_split_response,
             "COMPONENT_NO_READ_ONLY_REQUIRED": self.component_no_read_only_required,
             "ENUM_ADD_EXPLICIT_BLANK_NULL_CHOICE": self.enum_add_explicit_blank_null_choice,
+            
+            # Enum generation settings - CRITICAL for proper client generation
+            "GENERATE_ENUM_FROM_CHOICES": self.generate_enum_from_choices,
+            "ENUM_GENERATE_CHOICE_FROM_PATH": self.enum_generate_choice_from_path,
+            "ENUM_NAME_SUFFIX": self.enum_name_suffix,
+            "CAMELIZE_NAMES": self.camelize_names,
+            
             "ENUM_NAME_OVERRIDES": self.enum_name_overrides,
             "SCHEMA_COERCE_PATH_PK_SUFFIX": self.schema_coerce_path_pk_suffix,
             "SCHEMA_COERCE_METHOD_NAMES": self.schema_coerce_method_names,
@@ -378,6 +399,13 @@ def get_default_spectacular_config() -> SpectacularSettings:
         component_split_request=True,
         component_split_response=True,
         enum_add_explicit_blank_null_choice=False,
+        
+        # Enum generation settings - CRITICAL for proper client generation
+        generate_enum_from_choices=True,
+        enum_generate_choice_from_path=True,
+        enum_name_suffix="Enum",
+        camelize_names=False,
+        
         schema_coerce_path_pk_suffix=True,
         schema_coerce_method_names={
             "retrieve": "get",

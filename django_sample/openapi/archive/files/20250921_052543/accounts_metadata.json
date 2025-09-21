@@ -1,0 +1,24 @@
+{
+  "zone_name": "accounts",
+  "timestamp": "20250921_052543",
+  "archive_date": "2025-09-21T05:25:43.924181",
+  "generator_version": "2.0.0",
+  "clients": {
+    "typescript": {
+      "available": false,
+      "path": null,
+      "file_count": 0,
+      "size_bytes": 0
+    },
+    "python": {
+      "available": true,
+      "path": "/Users/markinmatrix/Documents/htdocs/@CARAPIS/encar_parser_new/@pypi/django-revolution/django_sample/openapi/clients/python/accounts",
+      "file_count": 19,
+      "size_bytes": 37163,
+      "size_mb": 0.04
+    }
+  },
+  "total_files": 19,
+  "total_size_bytes": 37163,
+  "total_size_mb": 0.04
+}
