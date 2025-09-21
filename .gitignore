@@ -28,6 +28,7 @@ package-lock.json
 
 .pytest_cache
 .benchmarks
+.ruff_cache
 
 # For pypi package
 __pycache__/

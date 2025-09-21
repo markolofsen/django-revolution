@@ -136,6 +136,9 @@ class ModernPythonGenerator:
                 if generated_files:
                     files_count = len(generated_files)
                     
+                    # Fix known bugs in generated code
+                    self._fix_generated_code_bugs(zone_output_dir)
+                    
                     # Enhance the generated client
                     self._enhance_client(zone_name, zone_output_dir)
                     
@@ -365,6 +368,86 @@ __generator__ = "openapi-python-client"
         except Exception as log_exc:
             self.logger.error(f"Failed to write detailed error log: {log_exc}")
     
+    def _fix_generated_code_bugs(self, output_dir: Path):
+        """
+        Fix known bugs in openapi-python-client generated code.
+        
+        Common issues:
+        1. Missing closing parentheses in files.append() calls
+        2. Malformed if/else blocks
+        3. Syntax errors in multipart form handling
+        """
+        try:
+            python_files = list(output_dir.rglob("*.py"))
+            fixed_files = 0
+            
+            for py_file in python_files:
+                try:
+                    with open(py_file, "r", encoding="utf-8") as f:
+                        content = f.read()
+                    
+                    original_content = content
+                    
+                    # Fix 1: Missing closing parentheses in files.append() calls
+                    # Pattern: files.append(("field", (None, str(value), "text/plain"))
+                    # Should be: files.append(("field", (None, str(value), "text/plain")))
+                    import re
+                    
+                    # Fix missing closing parenthesis in files.append calls
+                    content = re.sub(
+                        r'files\.append\(\(([^)]+), \(None, ([^)]+), "text/plain"\)\)',
+                        r'files.append((\1, (None, \2, "text/plain")))',
+                        content
+                    )
+                    
+                    # Fix malformed if/else blocks where closing parenthesis is missing
+                    # Pattern: if isinstance(value, Type):
+                    #              files.append(("field", (None, str(value), "text/plain"))
+                    #          else:
+                    # Should add missing closing parenthesis
+                    lines = content.split('\n')
+                    fixed_lines = []
+                    
+                    for i, line in enumerate(lines):
+                        # Look for files.append lines that might be missing closing parenthesis
+                        if 'files.append((' in line and '"text/plain")' in line and not line.strip().endswith('))'):
+                            # Check if next line is 'else:' or similar control structure
+                            if i + 1 < len(lines) and lines[i + 1].strip().startswith(('else:', 'if ', 'for ', 'while ')):
+                                # Add missing closing parenthesis
+                                line = line.rstrip() + ')'
+                        
+                        fixed_lines.append(line)
+                    
+                    content = '\n'.join(fixed_lines)
+                    
+                    # Fix incomplete method definitions or class endings
+                    # Look for methods that end abruptly
+                    content = re.sub(
+                        r'(\s+def __contains__\(self, key: str\) -> bool:\s+return key in self\.additional_properties)\s*$',
+                        r'\1\n',
+                        content,
+                        flags=re.MULTILINE
+                    )
+                    
+                    # Only write if content changed
+                    if content != original_content:
+                        with open(py_file, "w", encoding="utf-8") as f:
+                            f.write(content)
+                        fixed_files += 1
+                        self.logger.debug(f"Fixed syntax bugs in: {py_file.name}")
+                
+                except Exception as e:
+                    self.logger.debug(f"Could not fix bugs in {py_file}: {e}")
+                    continue
+            
+            if fixed_files > 0:
+                self.logger.info(f"🔧 Fixed syntax bugs in {fixed_files} generated files")
+            else:
+                self.logger.debug("No syntax bugs found to fix")
+                
+        except Exception as e:
+            self.logger.warning(f"Could not fix generated code bugs: {e}")
+
     def get_status(self) -> Dict[str, Any]:
         """Get generator status."""
         return {
@@ -376,6 +459,7 @@ __generator__ = "openapi-python-client"
                 "Pydantic v2 compatibility", 
                 "Modern Python 3.8+",
                 "Type-safe code generation",
-                "Async/sync support"
+                "Async/sync support",
+                "Auto bug fixing"
             ]
         }
