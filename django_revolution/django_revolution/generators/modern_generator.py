@@ -393,12 +393,20 @@ __generator__ = "openapi-python-client"
                     # Fix 1: Missing closing parentheses in files.append() calls
                     # More aggressive pattern matching for various cases
                     
-                    # Pattern 1: files.append(("field", (None, str(value), "text/plain"))
-                    # Should be: files.append(("field", (None, str(value), "text/plain")))
+                    # Pattern 1: Fix missing closing parentheses in files.append() calls
+                    # files.append(("field", (None, value, "text/plain"))  -> files.append(("field", (None, value, "text/plain")))
                     content = re.sub(
                         r'files\.append\(\(([^)]+), \(None, ([^)]+), "text/plain"\)\)(?!\))',
                         r'files.append((\1, (None, \2, "text/plain")))',
                         content
+                    )
+                    
+                    # Pattern 2: Fix lines ending with "text/plain") instead of "text/plain"))
+                    content = re.sub(
+                        r'files\.append\(\(([^)]+), \(None, ([^)]+), "text/plain"\)$',
+                        r'files.append((\1, (None, \2, "text/plain")))',
+                        content,
+                        flags=re.MULTILINE
                     )
                     
                     # Pattern 2: More complex multiline cases
